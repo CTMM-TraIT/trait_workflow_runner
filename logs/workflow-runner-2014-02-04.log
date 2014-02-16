@@ -1,0 +1,74 @@
+[23:27:05] nl.vumc.biomedbridges.WorkflowRunner.runWorkflow
+[23:27:05]
+[23:27:05] Galaxy server: https://usegalaxy.org/
+[23:27:05] Galaxy API key: 7cbf2954916f6fa919c71c24fadb79fc
+[23:27:05]
+[23:27:05] Ensure the test workflow is available.
+[23:27:08] Prepare the inputs.
+[23:27:08] Upload two input files.
+[23:27:12] Wait for history.
+[23:27:13] History isReady(): false
+[23:27:13] History isReady(): false
+[23:27:13] History isReady(): false
+[23:27:13] History isReady(): false
+[23:27:14] History isReady(): false
+[23:27:14] History isReady(): false
+[23:27:14] History isReady(): false
+[23:27:14] History isReady(): false
+[23:27:15] History isReady(): false
+[23:27:15] History isReady(): false
+[23:27:15] History isReady(): false
+[23:27:16] History isReady(): false
+[23:27:16] History isReady(): false
+[23:27:16] History isReady(): false
+[23:27:17] History isReady(): false
+[23:27:17] History isReady(): false
+[23:27:17] History isReady(): false
+[23:27:17] History isReady(): false
+[23:27:18] History isReady(): false
+[23:27:18] History isReady(): false
+[23:27:18] History isReady(): false
+[23:27:19] History isReady(): false
+[23:27:19] History isReady(): false
+[23:27:19] History isReady(): false
+[23:27:20] History isReady(): false
+[23:27:20] History isReady(): false
+[23:27:20] History isReady(): false
+[23:27:21] History isReady(): false
+[23:27:21] History isReady(): false
+[23:27:21] History isReady(): false
+[23:27:21] History isReady(): false
+[23:27:22] History isReady(): false
+[23:27:22] History isReady(): false
+[23:27:22] History isReady(): false
+[23:27:23] History isReady(): false
+[23:27:23] History isReady(): false
+[23:27:23] History isReady(): false
+[23:27:23] History isReady(): false
+[23:27:24] History isReady(): false
+[23:27:24] History isReady(): false
+[23:27:24] History isReady(): false
+[23:27:25] History isReady(): false
+[23:27:25] History isReady(): false
+[23:27:25] History isReady(): false
+[23:27:26] History isReady(): false
+[23:27:26] History isReady(): true
+[23:27:27] Create the workflow inputs object.
+[23:27:28] Run the workflow.
+[23:27:29] Running workflow (history ID: d058b17aa771ad95).
+[23:27:29] Now waiting for 6 seconds...
+[23:27:36] Now waiting for 6 seconds...
+[23:27:44] Now waiting for 6 seconds...
+[23:27:51] Now waiting for 6 seconds...
+[23:27:58] Now waiting for 6 seconds...
+[23:28:06] Now waiting for 6 seconds...
+[23:28:13] Now waiting for 6 seconds...
+[23:28:21] Now waiting for 6 seconds...
+[23:28:28] Now waiting for 6 seconds...
+[23:28:36] Now waiting for 6 seconds...
+[23:28:43] Check outputs.
+[23:28:43] Workflow output ID: bbd44e69cb8906b523f9e6046ff84787.
+[23:28:44] Concatenated file exists.
+[23:28:44] Concatenated file contains the lines we expected!!!
+[23:28:44]
+[23:28:44] Running the workflow took 98.661 seconds.
