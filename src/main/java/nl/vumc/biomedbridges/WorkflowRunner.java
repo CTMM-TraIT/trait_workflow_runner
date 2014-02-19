@@ -47,6 +47,8 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class WorkflowRunner {
+    private static Configuration config = new Configuration();//Initiating the configuration class ensures triggering checking the presence and correctness of the configuration file.
+    
     private static final String GALAXY_INSTANCE_URL = Configuration.getGalaxyInstanceUrl();
     private static final String GALAXY_API_KEY = Configuration.getGalaxyApiKey();
 
