@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.configuration;
 
 import com.github.jmchilton.blend4j.Config;
 
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -20,11 +21,7 @@ import java.util.Properties;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class Configuration {
-    private static Properties properties = Config.loadBlendProperties();
-
-    public Configuration() {
-        checkConfiguration();
-    }
+    private static Properties properties;
 
     public static String getGalaxyInstanceUrl() {
         return getProperty("test.galaxy.instance");
@@ -35,10 +32,18 @@ public class Configuration {
     }
 
     private static String getProperty(final String key) {
+        initializeIfNeeded();
         String value = null;
         if (properties.containsKey(key))
             value = properties.getProperty(key);
         return value;
+    }
+
+    private static void initializeIfNeeded() {
+        if (properties == null) {
+            properties = Config.loadBlendProperties();
+            checkConfiguration();
+        }
     }
 
     /**
@@ -46,13 +51,18 @@ public class Configuration {
      * todo 1: http://www.java2novice.com/java_exception_handling_examples/create_custom_exception/
      * todo 2: We can log a warning here (file not found, property not found, etc.) and handle it on a higher level.
      */
-    private void checkConfiguration() {
+    private static void checkConfiguration() {
         if (getGalaxyInstanceUrl() == null || getGalaxyApiKey() == null) {
-            System.err.print("The configuration file '" + System.getProperty("user.home")
-                             + ".blend.properties' is incorrect. Ensure the following syntax:"
-                             + "\n\ntest.galaxy.instance=www.domain.ext\\n\n"
-                             + "test.galaxy.key=hexadec12345d225f38a4e34c2a5e101\\n\n");
-            System.exit(1);
+            final String propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
+            if (!new File(propertiesFilePath).exists()) {
+                System.err.println("The configuration file '" + propertiesFilePath + "' was not found.");
+                System.err.println("Please make sure a configuration file is available with the following properties:");
+            } else {
+                System.err.println("The configuration file '" + propertiesFilePath + "' was not read successfully.");
+                System.err.println("Please ensure the following properties are available:");
+            }
+            System.err.println("test.galaxy.instance=https://usegalaxy.org/");
+            System.err.println("test.galaxy.key=32hex-characters12345d225f38a4e3");
         }
     }
 }
