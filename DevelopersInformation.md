@@ -1,7 +1,7 @@
 Developers information
 ======================
 
-This page is meant for developers that want to change something about the Workflow Runner tool, send a patch with a bug fix or other improvement, or are interested in finding out more about the development process in general.
+This page is meant for developers who want to change something about the Workflow Runner tool, send a patch with a bug fix or other improvement, or are interested in finding out more about the development process in general.
 
 We currently have some information on using git & GitHub (for code management) and Maven (for building the code). In the future, we will start using Checkstyle (code style checker) and FindBugs (static code analysis tool) as well.
 
