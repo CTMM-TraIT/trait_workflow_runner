@@ -26,11 +26,12 @@ import org.apache.http.HttpStatus;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.InputSourceType;
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
@@ -44,6 +45,14 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  * todo 3: use a logging library
  * todo 4: Javadocs, unit tests, Checkstyle, FindBugs, etc.
  *
+ * (todo minor: Google(intellij do not force braces) -> try in small, different project first)
+ *
+ * Interesting links (BioBlend is a Python library for the Galaxy API):
+ * - BioBlend presentation: 7:00 - http://vimeo.com/74403037
+ * - BioBlend documentation: https://github.com/afgane/bioblend
+ * - Galaxy API training: https://wiki.galaxyproject.org/Events/GCC2013/TrainingDay/API
+ * - Galaxy API documentation: https://wiki.galaxyproject.org/Learn/API
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class WorkflowRunner {
@@ -53,7 +62,12 @@ public class WorkflowRunner {
     /**
      * The name of the test workflow.
      */
-    private static final String TEST_WORKFLOW_NAME = "TestWorkflow1";
+    private static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
+
+    /**
+     * The json design of the test workflow.
+     */
+    private static final String TEST_WORKFLOW_JSON = getWorkflowJson(TEST_WORKFLOW_NAME + ".ga");
 
     private static final int UPLOAD_MAX_WAIT_BLOCKS = 10;
     private static final int UPLOAD_WAIT_SECONDS = 6;
@@ -74,7 +88,11 @@ public class WorkflowRunner {
     public static void main(final String[] arguments) {
         try {
             final long startTime = System.currentTimeMillis();
-            new WorkflowRunner().runWorkflow(GALAXY_INSTANCE_URL, GALAXY_API_KEY, TEST_WORKFLOW_NAME);
+            final Map<String, Object> workflowInputs = new HashMap<>();
+            workflowInputs.put("WorkflowInput1", getTestFile(TEST_FILE_LINE_1));
+            workflowInputs.put("WorkflowInput2", getTestFile(TEST_FILE_LINE_2));
+            new WorkflowRunner().runWorkflow(GALAXY_INSTANCE_URL, GALAXY_API_KEY, TEST_WORKFLOW_NAME,
+                                             TEST_WORKFLOW_JSON, workflowInputs);
             final double durationSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
             log();
             log("Running the workflow took " + durationSeconds + " seconds.");
@@ -83,7 +101,19 @@ public class WorkflowRunner {
         }
     }
 
-    private void runWorkflow(final String galaxyInstanceUrl, final String galaxyApiKey, final String workflowName)
+    /**
+     * Run the specified workflow on the Galaxy server.
+     *
+     * @param galaxyInstanceUrl the URL of the Galaxy server to run the workflow on.
+     * @param galaxyApiKey      the API key to run the workflow with.
+     * @param workflowName      the name of the workflow to check.
+     * @param workflowJson      the json design of the workflow.
+     * @param workflowInputs    the map from input names to objects (currently only files are supported).
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    private void runWorkflow(final String galaxyInstanceUrl, final String galaxyApiKey, final String workflowName,
+                             final String workflowJson, final Map<String, Object> workflowInputs)
             throws InterruptedException, IOException {
         log("nl.vumc.biomedbridges.WorkflowRunner.runWorkflow");
         log();
@@ -95,15 +125,15 @@ public class WorkflowRunner {
         final WorkflowsClient workflowsClient = galaxyInstance.getWorkflowsClient();
 
         log("Ensure the test workflow is available.");
-        ensureHasTestWorkflow1(workflowsClient);
+        ensureHasWorkflow(workflowsClient, workflowName, workflowJson);
 
         log("Prepare the input files.");
-        final int expectedOutputLength = TEST_FILE_LINE_1.length() + TEST_FILE_LINE_2.length() + 2;
         final HistoriesClient historiesClient = galaxyInstance.getHistoriesClient();
         final String historyId = getTestHistoryId(galaxyInstance);
         final WorkflowInputs inputs = prepareConcatenationWorkflow(galaxyInstance, workflowsClient, historyId,
-                                                                   historiesClient, workflowName);
+                                                                   historiesClient, workflowName, workflowInputs);
 
+        final int expectedOutputLength = TEST_FILE_LINE_1.length() + TEST_FILE_LINE_2.length() + 2;
         final WorkflowOutputs workflowOutputs = workflowsClient.runWorkflow(inputs);
         log("Running the workflow (history ID: " + workflowOutputs.getHistoryId() + ").");
         boolean finished = false;
@@ -148,25 +178,22 @@ public class WorkflowRunner {
     }
 
     /**
-     * Check whether the test workflow is already present and create it otherwise.
+     * Check whether the test workflow is present. If it is not found, it will be created.
      *
-     * @param client the workflows client used to iterate all workflows.
+     * @param workflowsClient the workflows client used to iterate all workflows.
+     * @param workflowName    the name of the workflow to check.
+     * @param workflowJson    the json design of the workflow.
      */
-    private void ensureHasTestWorkflow1(final WorkflowsClient client) {
+    private void ensureHasWorkflow(final WorkflowsClient workflowsClient, final String workflowName,
+                                   final String workflowJson) {
         boolean found = false;
-        for (final Workflow workflow : client.getWorkflows())
-            if (workflow.getName().equals(TEST_WORKFLOW_NAME)) {
+        for (final Workflow workflow : workflowsClient.getWorkflows())
+            if (workflow.getName().equals(workflowName)) {
                 found = true;
                 break;
             }
         if (!found)
-            try {
-                final URL workflowResource = getClass().getResource(TEST_WORKFLOW_NAME + ".ga");
-                final String workflowContents = Resources.asCharSource(workflowResource, Charsets.UTF_8).read();
-                client.importWorkflow(workflowContents);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
+            workflowsClient.importWorkflow(workflowJson);
     }
 
     private String getTestHistoryId(final GalaxyInstance instance) {
@@ -178,35 +205,33 @@ public class WorkflowRunner {
     //* @param workflowName the name of the workflow.
     private WorkflowInputs prepareConcatenationWorkflow(final GalaxyInstance instance, final WorkflowsClient client,
                                                         final String historyId, final HistoriesClient historiesClient,
-                                                        final String workflowName)
+                                                        final String workflowName,
+                                                        final Map<String, Object> workflowInputs)
             throws InterruptedException {
-        log("- Upload two input files.");
-        final File input1 = getTestFile(TEST_FILE_LINE_1);
-        final File input2 = getTestFile(TEST_FILE_LINE_2);
-        uploadInputFile(instance, historyId, input1);
-        uploadInputFile(instance, historyId, input2);
-        log("- Waiting for history upload to finish.");
+        log("- Upload the input files.");
+        for (final Object inputObject : workflowInputs.values())
+            if (inputObject instanceof File)
+                uploadInputFile(instance, historyId, (File) inputObject);
+        log("- Waiting for upload to history to finish.");
         waitForHistoryUpload(instance.getHistoriesClient(), historyId);
-//        final String input1Id = historiesClient.getDatasetIdByName(input1.getName(), historyId);
-//        final String input2Id = historiesClient.getDatasetIdByName(input2.getName(), historyId);
-        final String input1Id = HistoryUtils.getDatasetIdByName(input1.getName(), historiesClient, historyId);
-        final String input2Id = HistoryUtils.getDatasetIdByName(input2.getName(), historiesClient, historyId);
         log("- Create the workflow inputs object.");
         final WorkflowInputs inputs = new WorkflowInputs();
         inputs.setDestination(new WorkflowInputs.ExistingHistory(historyId));
         final String testWorkflowId = getTestWorkflowId(client, workflowName);
         inputs.setWorkflowId(testWorkflowId);
         final WorkflowDetails workflowDetails = client.showWorkflow(testWorkflowId);
+        for (final Map.Entry<String, Object> inputEntry : workflowInputs.entrySet()) {
+            final String fileName = ((File) inputEntry.getValue()).getName();
+//        final String inputId = historiesClient.getDatasetIdByName(fileName, historyId);
+            final String inputId = HistoryUtils.getDatasetIdByName(fileName, historiesClient, historyId);
 //        inputs.setInputByLabel("WorkflowInput1", workflowDetails, new WorkflowInput(input1Id, InputSourceType.HDA));
-//        inputs.setInputByLabel("WorkflowInput2", workflowDetails, new WorkflowInput(input2Id, InputSourceType.HDA));
-        final WorkflowInput workflowInput1 = new WorkflowInput(input1Id, InputSourceType.HDA);
-        final WorkflowInput workflowInput2 = new WorkflowInput(input2Id, InputSourceType.HDA);
-        WorkflowUtils.setInputByLabel("WorkflowInput1", workflowDetails, inputs, workflowInput1);
-        WorkflowUtils.setInputByLabel("WorkflowInput2", workflowDetails, inputs, workflowInput2);
+            final WorkflowInput workflowInput = new WorkflowInput(inputId, InputSourceType.HDA);
+            WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
+        }
         return inputs;
     }
 
-    private File getTestFile(final String line) {
+    private static File getTestFile(final String line) {
         try {
             final File tempFile = File.createTempFile("workflow-runner", ".txt");
             try (final FileWriter writer = new FileWriter(tempFile)) {
@@ -287,5 +312,13 @@ public class WorkflowRunner {
 
     private static void log(final String line) {
         System.out.println("[" + LOG_TIME_FORMAT.format(new Date()) + "] " + line);
+    }
+
+    private static String getWorkflowJson(final String workflowFileName) {
+        try {
+            return Resources.asCharSource(WorkflowRunner.class.getResource(workflowFileName), Charsets.UTF_8).read();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
