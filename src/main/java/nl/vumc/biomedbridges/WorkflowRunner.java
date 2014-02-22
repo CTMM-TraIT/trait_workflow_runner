@@ -101,6 +101,18 @@ public class WorkflowRunner {
         }
     }
 
+    private static File getTestFile(final String line) {
+        try {
+            final File tempFile = File.createTempFile("workflow-runner", ".txt");
+            try (final FileWriter writer = new FileWriter(tempFile)) {
+                writer.write(line);
+            }
+            return tempFile;
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Run the specified workflow on the Galaxy server.
      *
@@ -229,18 +241,6 @@ public class WorkflowRunner {
             WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
         }
         return inputs;
-    }
-
-    private static File getTestFile(final String line) {
-        try {
-            final File tempFile = File.createTempFile("workflow-runner", ".txt");
-            try (final FileWriter writer = new FileWriter(tempFile)) {
-                writer.write(line);
-            }
-            return tempFile;
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private ClientResponse uploadInputFile(final GalaxyInstance galaxyInstance, final String historyId,
