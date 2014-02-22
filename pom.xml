@@ -26,9 +26,13 @@
         <guava.version>15.0</guava.version>
         <httpclient.version>4.3.2</httpclient.version>
         <junit.version>4.11</junit.version>
-        <log4j.version>1.2.17</log4j.version>
         <mockito.version>1.9.5</mockito.version>
         <powermock.version>1.5.3</powermock.version>
+
+        <!-- todo: check for newer versions. -->
+        <ch.qos.logback.version>1.0.13</ch.qos.logback.version>
+        <commons-logging.version>1.1.1</commons-logging.version>
+        <org.slf4j.version>1.7.5</org.slf4j.version>
 
         <!-- Source and output properties. -->
         <java-version>1.7</java-version>
@@ -95,11 +99,34 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Dependency for Log4j. -->
+        <!-- Logging framework. -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${ch.qos.logback.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+                <!--
+                        Drop commons-logging (from spring, among others) in favor of slf4j,
+                        see http://slf4j.org/faq.html#excludingJCL.
+                -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

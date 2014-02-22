@@ -20,8 +20,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.sun.jersey.api.client.ClientResponse;
-import nl.vumc.biomedbridges.configuration.Configuration;
-import org.apache.http.HttpStatus;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,6 +30,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import nl.vumc.biomedbridges.configuration.Configuration;
+
+import org.apache.http.HttpStatus;
 
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.InputSourceType;
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
@@ -44,9 +46,9 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  * todo 2: check the Maven build.xml file
  * todo 3: use a logging library
  * todo 4: Javadocs, unit tests, Checkstyle, FindBugs, etc.
- *
+ * <p/>
  * (todo minor: Google(intellij do not force braces) -> try in small, different project first)
- *
+ * <p/>
  * Interesting links (BioBlend is a Python library for the Galaxy API):
  * - BioBlend presentation: 7:00 - http://vimeo.com/74403037
  * - BioBlend documentation: https://github.com/afgane/bioblend
@@ -56,7 +58,14 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class WorkflowRunner {
+    /**
+     * The Galaxy server URL.
+     */
     private static final String GALAXY_INSTANCE_URL = Configuration.getGalaxyInstanceUrl();
+
+    /**
+     * The Galaxy API key.
+     */
     private static final String GALAXY_API_KEY = Configuration.getGalaxyApiKey();
 
     /**
@@ -69,22 +78,53 @@ public class WorkflowRunner {
      */
     private static final String TEST_WORKFLOW_JSON = getWorkflowJson(TEST_WORKFLOW_NAME + ".ga");
 
+    /**
+     * The maximum number of times to wait for the upload to finish.
+     */
     private static final int UPLOAD_MAX_WAIT_BLOCKS = 10;
+
+    /**
+     * The number of seconds to wait for the upload to finish (for each wait cycle).
+     */
     private static final int UPLOAD_WAIT_SECONDS = 6;
 
+    /**
+     * The maximum number of times to wait for the workflow to finish.
+     */
     private static final int WORKFLOW_WAIT_MAX_WAIT_BLOCKS = 10;
+
+    /**
+     * The number of seconds to wait for the workflow to finish (for each wait cycle).
+     */
     private static final int WORKFLOW_WAIT_SECONDS = 3;
 
+    /**
+     * Line 1 for the test file.
+     */
     private static final String TEST_FILE_LINE_1 = "Hello Galaxy!!!";
+
+    /**
+     * Line 2 for the test file.
+     */
     private static final String TEST_FILE_LINE_2 = "Do you wanna play?";
 
+    /**
+     * Time format for logging.
+     */
     private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+
+    /**
+     * Hidden constructor. The main method below will create a workflow runner.
+     */
+    private WorkflowRunner() {
+    }
 
     /**
      * Main method.
      *
      * @param arguments unused command-line arguments.
      */
+    // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         try {
             final long startTime = System.currentTimeMillis();
@@ -93,14 +133,22 @@ public class WorkflowRunner {
             workflowInputs.put("WorkflowInput2", getTestFile(TEST_FILE_LINE_2));
             new WorkflowRunner().runWorkflow(GALAXY_INSTANCE_URL, GALAXY_API_KEY, TEST_WORKFLOW_NAME,
                                              TEST_WORKFLOW_JSON, workflowInputs);
-            final double durationSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+            final double millisecondsPerSecond = 1000.0;
+            final double durationSeconds = (System.currentTimeMillis() - startTime) / millisecondsPerSecond;
             log();
             log("Running the workflow took " + durationSeconds + " seconds.");
-        } catch (final Exception e) {
+        } catch (final InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
+    // CHECKSTYLE_OFF: UncommentedMain
 
+    /**
+     * Create a test file with a single line.
+     *
+     * @param line the line to write to the test file.
+     * @return the test file.
+     */
     private static File getTestFile(final String line) {
         try {
             final File tempFile = File.createTempFile("workflow-runner", ".txt");
