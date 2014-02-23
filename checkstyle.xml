@@ -201,7 +201,7 @@
         </module>
 
         <module name="MagicNumber">
-            <property name="ignoreNumbers" value="-1, 0, 1"/>
+            <property name="ignoreNumbers" value="-1, 0, 1, 2"/>
             <property name="ignoreAnnotation" value="true"/>
         </module>
 
@@ -267,7 +267,12 @@
         </module>
 
         <module name="FinalParameters"/>
-        <module name="Indentation"/>
+
+        <!-- todo: enable this check with throws property when maven-checkstyle-plugin supports Checkstyle 5.7. -->
+        <!--<module name="Indentation">-->
+            <!--<property name="throwsIndent" value="8"/>-->
+        <!--</module>-->
+
         <module name="TrailingComment"/>
         <module name="UncommentedMain"/>
         <module name="StaticVariableName"/>
