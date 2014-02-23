@@ -10,6 +10,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
+
 import static java.util.Map.Entry;
 
 /**
@@ -18,6 +19,12 @@ import static java.util.Map.Entry;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class WorkflowUtils {
+    /**
+     * Hidden constructor. Only the static method of this class are meant to be used.
+     */
+    private WorkflowUtils() {
+    }
+
     /**
      * Set a workflow input using the input label and the workflow details to search for the input ID.
      *

@@ -43,7 +43,7 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  * the blend4j library.
  * <p/>
  * todo 1: check status output files using history
- * todo 2: check the Maven build.xml file
+ * done 2: check the Maven build.xml file
  * todo 3: use a logging library
  * todo 4: Javadocs, unit tests, Checkstyle, FindBugs, etc.
  * <p/>
@@ -81,7 +81,7 @@ public class WorkflowRunner {
     /**
      * The json design of the test workflow.
      */
-    private static final String TEST_WORKFLOW_JSON = getWorkflowJson(TEST_WORKFLOW_NAME + ".ga");
+    private static final String TEST_WORKFLOW_JSON = readWorkflowJson(TEST_WORKFLOW_NAME + ".ga");
 
     /**
      * The name of the history to run the workflow in.
@@ -127,6 +127,11 @@ public class WorkflowRunner {
      * Line 2 for the test file.
      */
     private static final String TEST_FILE_LINE_2 = "Do you wanna play?";
+
+    /**
+     * Workflow output file path.
+     */
+    private static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
 
     /**
      * The outputs of the executed workflow.
@@ -217,7 +222,10 @@ public class WorkflowRunner {
         final boolean finished = executeWorkflow(galaxyInstance, workflowsClient, historiesClient, historyId, inputs,
                                                  expectedOutputLength);
 
-        checkWorkflowResults(galaxyInstance, historiesClient, historyId, expectedOutputLength, finished);
+        if (finished)
+            checkWorkflowResults(galaxyInstance, historiesClient, historyId, expectedOutputLength);
+        else
+            logger.info("Timeout while waiting for workflow output file(s).");
     }
 
     /**
@@ -343,11 +351,23 @@ public class WorkflowRunner {
         return (matchingWorkflow != null) ? matchingWorkflow.getId() : null;
     }
 
+    /**
+     * Execute the workflow that was prepared with the workflows client.
+     *
+     * @param galaxyInstance       the Galaxy instance to upload the file to.
+     * @param workflowsClient      the workflows client to interact with the workflow.
+     * @param historiesClient      the histories client for accessing Galaxy histories.
+     * @param historyId            the ID of the history to use for workflow input and output.
+     * @param workflowInputs       the blend4j workflow inputs.
+     * @param expectedOutputLength the expected output file length.
+     * @return whether the workflow finished successfully.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
+     */
     private boolean executeWorkflow(final GalaxyInstance galaxyInstance, final WorkflowsClient workflowsClient,
                                     final HistoriesClient historiesClient, final String historyId,
-                                    final WorkflowInputs inputs, final int expectedOutputLength)
+                                    final WorkflowInputs workflowInputs, final int expectedOutputLength)
             throws InterruptedException {
-        workflowOutputs = workflowsClient.runWorkflow(inputs);
+        workflowOutputs = workflowsClient.runWorkflow(workflowInputs);
         logger.info("Running the workflow (history ID: {}).", workflowOutputs.getHistoryId());
         boolean finished = false;
         int waitCount = 0;
@@ -363,61 +383,85 @@ public class WorkflowRunner {
         return finished;
     }
 
+    /**
+     * Determine the length of the output file.
+     *
+     * @param galaxyInstance  the Galaxy instance to upload the file to.
+     * @param workflowOutputs the blend4j workflow outputs.
+     * @param historiesClient the histories client for accessing Galaxy histories.
+     * @param historyId       the ID of the history to use for workflow input and output.
+     * @return the length of the output file.
+     */
     private long getOutputLength(final GalaxyInstance galaxyInstance, final WorkflowOutputs workflowOutputs,
                                  final HistoriesClient historiesClient, final String historyId) {
         long outputLength = -1;
         if (workflowOutputs.getOutputIds().size() == 1) {
-            final String concatenationFilePath = "WorkflowRunner-runWorkflow.txt";
-            final File concatenationFile = new File(concatenationFilePath);
+            final File concatenationFile = new File(OUTPUT_FILE_PATH);
             try {
 //                historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
 //                                                concatenationFilePath, false, null);
                 HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
-                                             workflowOutputs.getOutputIds().get(0), concatenationFilePath, false, null);
+                                             workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
                 if (concatenationFile.exists())
                     outputLength = concatenationFile.length();
                 else
                     outputLength = -2;
             } finally {
-                assert concatenationFile.delete();
+                if (!concatenationFile.delete())
+                    logger.error("Deleting output file {} failed (after determining length).", OUTPUT_FILE_PATH);
             }
         }
         return outputLength;
     }
 
+    /**
+     * Check the results of the workflow.
+     *
+     * @param galaxyInstance       the Galaxy instance to upload the file to.
+     * @param historiesClient      the histories client for accessing Galaxy histories.
+     * @param historyId            the ID of the history to use for workflow input and output.
+     * @param expectedOutputLength the expected output file length.
+     * @throws IOException if reading the workflow results fails.
+     */
     private void checkWorkflowResults(final GalaxyInstance galaxyInstance, final HistoriesClient historiesClient,
-                                      final String historyId, final int expectedOutputLength, final boolean finished)
-            throws IOException {
-        if (finished) {
-            logger.info("Check outputs.");
-            for (final String outputId : workflowOutputs.getOutputIds())
-                logger.info("- Workflow output ID: " + outputId + ".");
-            final String concatenationFilePath = "WorkflowRunner-runWorkflow.txt";
-            final File concatenationFile = new File(concatenationFilePath);
-            try {
-                assert workflowOutputs.getOutputIds().size() == 1;
+                                      final String historyId, final int expectedOutputLength) throws IOException {
+        logger.info("Check outputs.");
+        for (final String outputId : workflowOutputs.getOutputIds())
+            logger.info("- Workflow output ID: " + outputId + ".");
+        final File concatenationFile = new File(OUTPUT_FILE_PATH);
+        try {
+            final int outputCount = workflowOutputs.getOutputIds().size();
+            if (outputCount != 1)
+                logger.warn("Unexpected number of workflow outputs: {} (instead of 1).", outputCount);
 //                historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
 //                                                concatenationFilePath, false, null);
-                HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
-                                             workflowOutputs.getOutputIds().get(0), concatenationFilePath, false, null);
-                if (concatenationFile.exists())
-                    logger.info("- Concatenated file exists.");
-                else
-                    logger.info("- Concatenated file does not exist!");
-                assert concatenationFile.length() == expectedOutputLength;
-                final List<String> lines = Files.readLines(concatenationFile, Charsets.UTF_8);
-                if (Arrays.asList(TEST_FILE_LINE_1, TEST_FILE_LINE_2).equals(lines))
-                    logger.info("- Concatenated file contains the lines we expected!!!");
-                else
-                    logger.warn("- Concatenated file does not contain the lines we expected (lines: " + lines + ")!");
-            } finally {
-                assert concatenationFile.delete();
-            }
-        } else
-            logger.info("Timeout while waiting for workflow output file(s).");
+            HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
+                                         workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
+            if (concatenationFile.exists())
+                logger.info("- Concatenated file exists.");
+            else
+                logger.info("- Concatenated file does not exist!");
+            if (concatenationFile.length() != expectedOutputLength)
+                logger.warn("Output file length {} not equal to expected length {}.", concatenationFile.length(),
+                            expectedOutputLength);
+            final List<String> lines = Files.readLines(concatenationFile, Charsets.UTF_8);
+            if (Arrays.asList(TEST_FILE_LINE_1, TEST_FILE_LINE_2).equals(lines))
+                logger.info("- Concatenated file contains the lines we expected!!!");
+            else
+                logger.warn("- Concatenated file does not contain the lines we expected (lines: " + lines + ")!");
+        } finally {
+            if (!concatenationFile.delete())
+                logger.error("Deleting output file {} failed (after checking contents).", OUTPUT_FILE_PATH);
+        }
     }
 
-    private static String getWorkflowJson(final String workflowFileName) {
+    /**
+     * Read the json design of a workflow from a file in the classpath.
+     *
+     * @param workflowFileName the workflow filename.
+     * @return the json design of the workflow.
+     */
+    private static String readWorkflowJson(final String workflowFileName) {
         try {
             return Resources.asCharSource(WorkflowRunner.class.getResource(workflowFileName), Charsets.UTF_8).read();
         } catch (final IOException e) {
