@@ -61,3 +61,11 @@ Some commonly used Maven commands are (see [Introduction to the Build Lifecycle]
 
 \# Check if there are any FindBugs violations in the source code:<br/>
 **`mvn findbugs:check`**
+
+
+Checkstyle
+----------
+
+We use Checkstyle to check for code style issues. Please check your code before committing. As we already mentioned in the Maven section, you can run **`mvn checkstyle:checkstyle`** to run Checkstyle on the code (you can run this command in the root directory, which contains the pom.xml file Maven needs). The report is generated in the target sub directory and is named checkstyle-result.xml.
+
+It is also possible to configure a Java IDE (like Eclipse, IntelliJ or NetBeans) to integrate Checkstyle in your coding.
