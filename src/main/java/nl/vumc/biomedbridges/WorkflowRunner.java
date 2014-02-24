@@ -22,8 +22,11 @@ import com.google.common.io.Resources;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -176,7 +179,7 @@ public class WorkflowRunner {
     private static File getTestFile(final String line) {
         try {
             final File tempFile = File.createTempFile("workflow-runner", ".txt");
-            try (final FileWriter writer = new FileWriter(tempFile)) {
+            try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
                 writer.write(line);
             }
             return tempFile;
@@ -390,7 +393,8 @@ public class WorkflowRunner {
      * @param workflowOutputs the blend4j workflow outputs.
      * @param historiesClient the histories client for accessing Galaxy histories.
      * @param historyId       the ID of the history to use for workflow input and output.
-     * @return the length of the output file.
+     * @return the length of the output file (or -1 when the number of workflow output is not equal to one, or -2 when
+     * writing the workflow output file fails).
      */
     private long getOutputLength(final GalaxyInstance galaxyInstance, final WorkflowOutputs workflowOutputs,
                                  final HistoriesClient historiesClient, final String historyId) {
