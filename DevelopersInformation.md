@@ -3,7 +3,7 @@ Developers information
 
 This page is meant for developers who want to change something about the Workflow Runner tool, send a patch with a bug fix or other improvement, or are interested in finding out more about the development process in general.
 
-We currently have some information on using git & GitHub (for code management) and Maven (for building the code). In the future, we will start using Checkstyle (code style checker) and FindBugs (static code analysis tool) as well.
+We currently have some information on using git & GitHub (for code management) and Maven (for building the code). To enhance and monitor the code quality, we use Checkstyle (code style checker) and FindBugs (static code analysis tool).
 
 
 Using git and GitHub
@@ -60,12 +60,18 @@ Some commonly used Maven commands are (see [Introduction to the Build Lifecycle]
 **`mvn checkstyle:checkstyle`**
 
 \# Check if there are any FindBugs violations in the source code:<br/>
-**`mvn findbugs:check`**
+**`mvn compile findbugs:check`**
 
 
 Checkstyle
 ----------
 
-We use Checkstyle to check for code style issues. Please check your code before committing. As we already mentioned in the Maven section, you can run **`mvn checkstyle:checkstyle`** to run Checkstyle on the code (you can run this command in the root directory, which contains the pom.xml file Maven needs). The report is generated in the target sub directory and is named checkstyle-result.xml.
+We use Checkstyle to check for code style issues. Please check your code before committing. As we already mentioned in the Maven section, you can run **`mvn checkstyle:checkstyle`** to run Checkstyle on the code (you can run this command in the main project directory, which contains the pom.xml file Maven needs). The report is generated in the target directory and is named checkstyle-result.xml.
 
 It is also possible to configure a Java IDE (like Eclipse, IntelliJ or NetBeans) to integrate Checkstyle in your coding.
+
+
+FindBugs
+--------
+
+FindBugs is a static code analysis tool that looks for constructs that might indicate bugs. It works by analyzing Java bytecode (compiled class files), so compile the code before running FindBugs. If you run **`mvn compile findbugs:check`** in the main project directory, FindBugs will print all its warnings and generate the findbugsXml.xml file in the target directory.
