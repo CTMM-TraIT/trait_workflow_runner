@@ -3,7 +3,7 @@ Developers information
 
 This page is meant for developers who want to change something about the Workflow Runner tool, send a patch with a bug fix or other improvement, or are interested in finding out more about the development process in general.
 
-We currently have some information on using git & GitHub (for code management) and Maven (for building the code). To enhance and monitor the code quality, we use Checkstyle (code style checker) and FindBugs (static code analysis tool).
+We currently have some information on using git & GitHub (for code management) and Maven (for building the code). To enhance and monitor the code quality, we use Checkstyle (code style checker), FindBugs (static code analysis tool), PMD (another static code analysis tool), and CPD (copy/paste detector).
 
 
 Using git and GitHub
@@ -59,8 +59,14 @@ Some commonly used Maven commands are (see [Introduction to the Build Lifecycle]
 \# Perform a Checkstyle analysis, and generate a report on violations:<br/>
 **`mvn checkstyle:checkstyle`**
 
-\# Check if there are any FindBugs violations in the source code:<br/>
+\# Check if there are any FindBugs issues in the source code:<br/>
 **`mvn compile findbugs:check`**
+
+\# Check if there are any PMD issues in the source code:<br/>
+**`mvn compile pmd:check`**
+
+\# Check if there are any CPD issues in the source code:<br/>
+**`mvn compile pmd:cpd-check`**
 
 
 Checkstyle
@@ -75,3 +81,15 @@ FindBugs
 --------
 
 FindBugs is a static code analysis tool that looks for constructs that might indicate bugs. It works by analyzing Java bytecode (compiled class files), so compile the code before running FindBugs. If you run **`mvn compile findbugs:check`** in the main project directory, FindBugs will print all its warnings and generate the findbugsXml.xml file in the target directory.
+
+
+PMD
+---
+
+PMD ("Programming Mistake Detector") is a static code analysis tool that looks for constructs that might indicate bugs (like unused variables, parameters & private methods, empty blocks, overcomplicated expressions, and complex code). It works by analyzing Java code. If you run **`mvn pmd:check`** in the main project directory, PMD will generate the pmd.xml file in the target directory.
+
+
+CPD
+---
+
+CPD (Copy/Paste Detector) is an add-on to PMD that searches for duplicated code (copied/pasted code can mean copied/pasted bugs, and decreases maintainability). If you run **`mvn pmd:cpd-check`** in the main project directory, CPD will generate the cpd.xml file in the target directory.
