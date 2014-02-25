@@ -35,6 +35,7 @@ import java.util.Map;
 import nl.vumc.biomedbridges.configuration.Configuration;
 
 import org.apache.http.HttpStatus;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,6 +156,12 @@ public class WorkflowRunner {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         try {
+            DOMConfigurator.configure(WorkflowRunner.class.getClassLoader().getResource("log4j.xml"));
+            logger.info("");
+            logger.info("");
+            logger.info("================================");
+            logger.info("WorkflowRunner.main has started.");
+
             final long startTime = System.currentTimeMillis();
             final Map<String, Object> workflowInputs = new HashMap<>();
             workflowInputs.put("WorkflowInput1", getTestFile(TEST_FILE_LINE_1));

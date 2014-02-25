@@ -9,9 +9,9 @@
         "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
 <!--
-    Checkstyle configuration for the Workflow Runner project.
-
-    @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
+  -  Checkstyle configuration for the Workflow Runner project.
+  -
+  -  @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
 -->
 
 <module name="Checker">

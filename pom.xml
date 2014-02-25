@@ -12,6 +12,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- General project settings. -->
     <name>Workflow Runner</name>
     <description>Workflow Runner tool for running a workflow on a Galaxy server</description>
     <url>https://github.com/CTMM-TraIT/trait_workflow_runner/tree/master</url>
@@ -21,18 +22,15 @@
     <packaging>jar</packaging>
 
     <properties>
+
         <!-- Dependency versions. -->
         <blend4j.version>0.1-alpha-7</blend4j.version>
         <guava.version>15.0</guava.version>
         <httpclient.version>4.3.2</httpclient.version>
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
+        <org.slf4j.version>1.7.6</org.slf4j.version>
         <powermock.version>1.5.3</powermock.version>
-
-        <!-- todo: check for newer versions. -->
-        <ch.qos.logback.version>1.0.13</ch.qos.logback.version>
-        <commons-logging.version>1.1.1</commons-logging.version>
-        <org.slf4j.version>1.7.5</org.slf4j.version>
 
         <!-- Source and output properties. -->
         <java-version>1.7</java-version>
@@ -44,6 +42,7 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
+
     </properties>
 
     <dependencies>
@@ -99,34 +98,16 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Logging framework. -->
+        <!-- Dependencies for the logging framework: SLF4J and log4j. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${org.slf4j.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${ch.qos.logback.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-                <!--
-                        Drop commons-logging (from spring, among others) in favor of slf4j,
-                        see http://slf4j.org/faq.html#excludingJCL.
-                -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons-logging.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
+            <artifactId>slf4j-log4j12</artifactId>
             <version>${org.slf4j.version}</version>
-            <scope>runtime</scope>
         </dependency>
 
     </dependencies>
@@ -134,6 +115,7 @@
     <dependencyManagement/>
 
     <build>
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
         <directory>target</directory>
@@ -183,7 +165,7 @@
                     <configLocation>checkstyle.xml</configLocation>
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <!--
-                        Workaround for resolving the suppressions file in a maven build: always check two
+                        Workaround for resolving the suppressions file in a Maven build: always check two
                         module levels above the current project. IDE builds should provide the config_loc
                         property, hence this setting will not influence the builds triggered in IDEs.
                     -->
@@ -193,12 +175,14 @@
             </plugin>
 
         </plugins>
+
     </build>
 
+    <!-- Added the JXR plugin (Java cross-reference tool) after reading the following question and answers on Stack
+      -  Overflow (http://stackoverflow.com/questions/12038238/unable-to-locate-source-xref-to-link-to) to get rid of
+      -  the "Unable to locate Source XRef to link to - DISABLED" warning when running Checkstyle. -->
     <reporting>
         <plugins>
-            <!-- Added the JXR plugin (Java cross-reference tool) to get rid of the "Unable to locate Source XRef to
-              -  link to - DISABLED" warning when running Checkstyle. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
