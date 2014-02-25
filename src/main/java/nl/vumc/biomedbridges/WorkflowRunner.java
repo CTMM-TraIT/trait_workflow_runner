@@ -285,9 +285,11 @@ public class WorkflowRunner {
             throws InterruptedException {
         logger.info("- Upload the input files.");
         for (final Object inputObject : workflowInputs.values())
-            if (inputObject instanceof File)
-                if (uploadInputFile(galaxyInstance, historyId, (File) inputObject).getStatus() != HttpStatus.SC_OK)
-                    logger.error("Uploading file {} failed.", ((File) inputObject).getAbsolutePath());
+            if (inputObject instanceof File) {
+                final File inputFile = (File) inputObject;
+                if (uploadInputFile(galaxyInstance, historyId, inputFile).getStatus() != HttpStatus.SC_OK)
+                    logger.error("Uploading file {} failed.", inputFile.getAbsolutePath());
+            }
         logger.info("- Waiting for upload to history to finish.");
         waitForHistoryUpload(galaxyInstance.getHistoriesClient(), historyId);
         logger.info("- Create the workflow inputs object.");

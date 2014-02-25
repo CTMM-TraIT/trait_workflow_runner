@@ -42,6 +42,7 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
+        <maven-pmd-plugin.version>3.0</maven-pmd-plugin.version>
 
     </properties>
 
@@ -178,16 +179,31 @@
 
     </build>
 
-    <!-- Added the JXR plugin (Java cross-reference tool) after reading the following question and answers on Stack
-      -  Overflow (http://stackoverflow.com/questions/12038238/unable-to-locate-source-xref-to-link-to) to get rid of
-      -  the "Unable to locate Source XRef to link to - DISABLED" warning when running Checkstyle. -->
     <reporting>
         <plugins>
+
+            <!-- Added the JXR plugin (Java cross-reference tool) after reading the following question and answers on
+              -  Stack Overflow (http://stackoverflow.com/questions/12038238/unable-to-locate-source-xref-to-link-to) to
+              -  get rid of the "Unable to locate Source XRef to link to - DISABLED" warning when running Checkstyle. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven-jxr-plugin.version}</version>
             </plugin>
+
+            <!-- PMD ("Programming Mistake Detector") and CPD (Copy/Paste Detector) configuration. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven-pmd-plugin.version}</version>
+                <configuration>
+                    <!--<linkXref>true</linkXref>-->
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <minimumTokens>100</minimumTokens>
+                    <targetJdk>${java-version}</targetJdk>
+                </configuration>
+            </plugin>
+
         </plugins>
     </reporting>
 
