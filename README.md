@@ -5,4 +5,4 @@ This tool is part of a larger project to connect [tranSMART](http://transmartfou
 
 The goal of this tool is to make it easy to run a workflow in Galaxy using the [Galaxy API](https://wiki.galaxyproject.org/Events/GCC2013/TrainingDay/API). The Workflow Runner tool is written in Java and uses the [blend4j](https://github.com/jmchilton/blend4j) library for accessing Galaxy servers.
 
-For developers, we have information on git, GitHub, Maven, Checkstyle and FindBugs: [DevelopersInformation.md](DevelopersInformation.md).
+For developers, we have information on the tools we use (git, GitHub, Maven, Checkstyle, FindBugs, PMD and CPD): [DevelopersInformation.md](DevelopersInformation.md).
