@@ -5,20 +5,10 @@
 
 package nl.vumc.biomedbridges;
 
-import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
-import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
-import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
-import com.github.jmchilton.blend4j.galaxy.ToolsClient;
-import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
-import com.github.jmchilton.blend4j.galaxy.beans.History;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.Workflow;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
+import com.github.jmchilton.blend4j.galaxy.*;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.sun.jersey.api.client.ClientResponse;
 import nl.vumc.biomedbridges.configuration.Configuration;
 import org.apache.http.HttpStatus;
@@ -73,8 +63,13 @@ public class WorkflowRunner {
      */
     public static void main(final String[] arguments) {
         try {
+            // Start with a Workflow object initially:
+            WorkflowJSON workflow = new WorkflowJSON();
+            workflow.setName(TEST_WORKFLOW_NAME);
+            workflow.setJsonURL(new URL("https://raw.github.com/jmchilton/blend4j/master/src/test/resources/com/github/jmchilton/blend4j/galaxy/TestWorkflow1.ga"));// Reference to published workflow object - should simplify reinstallation
+
             final long startTime = System.currentTimeMillis();
-            new WorkflowRunner().runWorkflow(GALAXY_INSTANCE_URL, GALAXY_API_KEY, TEST_WORKFLOW_NAME);
+            new WorkflowRunner().runWorkflow(GALAXY_INSTANCE_URL, GALAXY_API_KEY, workflow);
             final double durationSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
             log();
             log("Running the workflow took " + durationSeconds + " seconds.");
@@ -83,7 +78,7 @@ public class WorkflowRunner {
         }
     }
 
-    private void runWorkflow(final String galaxyInstanceUrl, final String galaxyApiKey, final String workflowName)
+    private void runWorkflow(final String galaxyInstanceUrl, final String galaxyApiKey, final WorkflowJSON workflow)
             throws InterruptedException, IOException {
         log("nl.vumc.biomedbridges.WorkflowRunner.runWorkflow");
         log();
@@ -95,14 +90,14 @@ public class WorkflowRunner {
         final WorkflowsClient workflowsClient = galaxyInstance.getWorkflowsClient();
 
         log("Ensure the test workflow is available.");
-        ensureHasTestWorkflow1(workflowsClient);
+        ensureHasTestWorkflow1(workflowsClient,workflow);
 
         log("Prepare the input files.");
         final int expectedOutputLength = TEST_FILE_LINE_1.length() + TEST_FILE_LINE_2.length() + 2;
         final HistoriesClient historiesClient = galaxyInstance.getHistoriesClient();
         final String historyId = getTestHistoryId(galaxyInstance);
         final WorkflowInputs inputs = prepareConcatenationWorkflow(galaxyInstance, workflowsClient, historyId,
-                                                                   historiesClient, workflowName);
+                                                                   historiesClient, workflow.getName());
 
         final WorkflowOutputs workflowOutputs = workflowsClient.runWorkflow(inputs);
         log("Running the workflow (history ID: " + workflowOutputs.getHistoryId() + ").");
@@ -152,21 +147,38 @@ public class WorkflowRunner {
      *
      * @param client the workflows client used to iterate all workflows.
      */
-    private void ensureHasTestWorkflow1(final WorkflowsClient client) {
+    private void ensureHasTestWorkflow1(final WorkflowsClient client, WorkflowJSON workflow) {
         boolean found = false;
-        for (final Workflow workflow : client.getWorkflows())
-            if (workflow.getName().equals(TEST_WORKFLOW_NAME)) {
+
+        for (final Workflow workflowTmp : client.getWorkflows())
+        {
+            log(" - Comparing: "+workflowTmp.getName()+" == "+workflow.getName());
+
+            if (workflowTmp.getName().equals(workflow.getName())) {
                 found = true;
+
+                // to do: check/compare the content of the JSON strings
+
                 break;
             }
+        }
+
         if (!found)
-            try {
-                final URL workflowResource = getClass().getResource(TEST_WORKFLOW_NAME + ".ga");
-                final String workflowContents = Resources.asCharSource(workflowResource, Charsets.UTF_8).read();
-                client.importWorkflow(workflowContents);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
+        {
+            log("  + The workflow was not found on the server. Sending it: "+workflow.getJson());
+            client.importWorkflow(workflow.getJson());
+
+            //try {
+                //final URL workflowResource = getClass().getResource(TEST_WORKFLOW_NAME + ".ga");
+                //final String workflowContents = Resources.asCharSource(workflowResource, Charsets.UTF_8).read();
+                //client.importWorkflow(workflowContents);
+
+
+
+            //} catch (final IOException e) {
+            //    throw new RuntimeException(e);
+            // }
+        }
     }
 
     private String getTestHistoryId(final GalaxyInstance instance) {
