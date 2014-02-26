@@ -154,7 +154,7 @@ public class WorkflowRunner {
         {
             log(" - Comparing: "+workflowTmp.getName()+" == "+workflow.getName());
 
-            if (workflowTmp.getName().equals(workflow.getName())) {
+            if (workflowTmp.getName().equals(workflow.getName()) || workflowTmp.getName().equals(workflow.getName()+" (imported from API)")) {
                 found = true;
 
                 // to do: check/compare the content of the JSON strings
