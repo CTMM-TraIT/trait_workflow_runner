@@ -3,14 +3,13 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges;
+package nl.vumc.biomedbridges.v2.galaxy;
 
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
-
 import static java.util.Map.Entry;
 
 /**
