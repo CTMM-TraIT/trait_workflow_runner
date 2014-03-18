@@ -141,7 +141,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>nl.vumc.biomedbridges.WorkflowRunner</mainClass>
+                            <mainClass>nl.vumc.biomedbridges.v1.WorkflowRunner</mainClass>
                             <classpathPrefix>dependency-jars/</classpathPrefix>
                         </manifest>
                     </archive>

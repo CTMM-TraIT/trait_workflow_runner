@@ -3,7 +3,7 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges;
+package nl.vumc.biomedbridges.v1;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nl.vumc.biomedbridges.configuration.Configuration;
+import nl.vumc.biomedbridges.v1.configuration.Configuration;
 
 import org.apache.http.HttpStatus;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -210,7 +210,7 @@ public class WorkflowRunner {
     private void runWorkflow(final String galaxyInstanceUrl, final String galaxyApiKey, final String workflowName,
                              final String workflowJson, final Map<String, Object> workflowInputs)
             throws InterruptedException, IOException {
-        logger.info("nl.vumc.biomedbridges.WorkflowRunner.runWorkflow");
+        logger.info("nl.vumc.biomedbridges.v1.WorkflowRunner.runWorkflow");
         logger.info("");
         logger.info("Galaxy server: " + galaxyInstanceUrl);
         logger.info("Galaxy API key: " + galaxyApiKey);
@@ -287,8 +287,9 @@ public class WorkflowRunner {
         for (final Object inputObject : workflowInputs.values())
             if (inputObject instanceof File) {
                 final File inputFile = (File) inputObject;
-                if (uploadInputFile(galaxyInstance, historyId, inputFile).getStatus() != HttpStatus.SC_OK)
-                    logger.error("Uploading file {} failed.", inputFile.getAbsolutePath());
+                final int uploadStatus = uploadInputFile(galaxyInstance, historyId, inputFile).getStatus();
+                if (uploadStatus != HttpStatus.SC_OK)
+                    logger.error("Uploading file {} failed with status {}.", inputFile.getAbsolutePath(), uploadStatus);
             }
         logger.info("- Waiting for upload to history to finish.");
         waitForHistoryUpload(galaxyInstance.getHistoriesClient(), historyId);
@@ -344,7 +345,8 @@ public class WorkflowRunner {
         }
         final String state = details != null ? details.getState() : "timeout";
         if (!"ok".equals(state))
-            throw new RuntimeException("History no longer running, but not in 'ok' state. State is: " + state);
+            //throw new RuntimeException("History no longer running, but not in 'ok' state. State is: " + state);
+            logger.error("History no longer running, but not in 'ok' state. State is: " + state);
         Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
     }
 

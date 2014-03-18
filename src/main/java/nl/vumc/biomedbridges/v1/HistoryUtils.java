@@ -3,7 +3,7 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges;
+package nl.vumc.biomedbridges.v1;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;

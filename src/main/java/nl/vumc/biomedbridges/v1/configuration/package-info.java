@@ -4,6 +4,6 @@
  */
 
 /**
- * Workflow Runner tool for running a workflow on a Galaxy server.
+ * Configuration methods for retrieving blend(4j) properties.
  */
-package nl.vumc.biomedbridges;
+package nl.vumc.biomedbridges.v1.configuration;

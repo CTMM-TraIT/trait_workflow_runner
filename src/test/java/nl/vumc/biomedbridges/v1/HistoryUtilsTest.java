@@ -3,7 +3,7 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges;
+package nl.vumc.biomedbridges.v1;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
  * This class contains a unit test for the HistoryUtils class.
  *
  * todo: complete the unit test.
+ * http://stackoverflow.com/questions/13364406/mockito-mock-a-constructor-with-parameter
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
