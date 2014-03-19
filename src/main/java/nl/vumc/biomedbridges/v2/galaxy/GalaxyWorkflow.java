@@ -45,7 +45,8 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
     public void ensureWorkflowIsOnServer(final WorkflowsClient workflowsClient) {
         boolean found = false;
         for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow : workflowsClient.getWorkflows())
-            if (blend4jWorkflow.getName().equals(getName())) {
+            if (blend4jWorkflow.getName().equals(getName())
+                || blend4jWorkflow.getName().equals(getName() + " (imported from API)")) {
                 found = true;
                 break;
             }
