@@ -25,7 +25,7 @@ import java.util.Map;
 import nl.vumc.biomedbridges.v2.core.Workflow;
 import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
 import nl.vumc.biomedbridges.v2.core.WorkflowRunnerVersion2;
-import nl.vumc.biomedbridges.v2.galaxy.configuration.Configuration;
+import nl.vumc.biomedbridges.v2.galaxy.configuration.GalaxyConfiguration;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -47,12 +47,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * The Galaxy server URL.
      */
-    private static final String GALAXY_INSTANCE_URL = Configuration.getGalaxyInstanceUrl();
+    private static final String GALAXY_INSTANCE_URL = GalaxyConfiguration.getGalaxyInstanceUrl();
 
     /**
      * The Galaxy API key.
      */
-    private static final String GALAXY_API_KEY = Configuration.getGalaxyApiKey();
+    private static final String GALAXY_API_KEY = GalaxyConfiguration.getGalaxyApiKey();
 
     /**
      * The name of the history to run the workflow in.

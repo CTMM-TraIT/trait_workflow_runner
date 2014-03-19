@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
-public class Configuration {
+public class GalaxyConfiguration {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger logger = LoggerFactory.getLogger(GalaxyConfiguration.class);
 
     /**
      * The blend(4j) properties. These are loaded when the first property is retrieved.
@@ -37,7 +37,7 @@ public class Configuration {
     /**
      * Hidden constructor. Only the static methods of this class are meant to be used.
      */
-    private Configuration() {
+    private GalaxyConfiguration() {
     }
 
     /**

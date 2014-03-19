@@ -4,6 +4,6 @@
  */
 
 /**
- * Configuration methods for retrieving blend(4j) properties.
+ * Configuration methods for retrieving Galaxy blend(4j) properties.
  */
 package nl.vumc.biomedbridges.v1.configuration;
