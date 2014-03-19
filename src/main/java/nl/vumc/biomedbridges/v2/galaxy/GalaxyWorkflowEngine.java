@@ -1,3 +1,8 @@
+/**
+ * Copyright 2014 VU University Medical Center.
+ * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
+ */
+
 package nl.vumc.biomedbridges.v2.galaxy;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
@@ -10,9 +15,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
@@ -21,6 +24,7 @@ import java.util.Map;
 
 import nl.vumc.biomedbridges.v2.core.Workflow;
 import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
+import nl.vumc.biomedbridges.v2.core.WorkflowRunnerVersion2;
 import nl.vumc.biomedbridges.v2.galaxy.configuration.Configuration;
 
 import org.apache.http.HttpStatus;
@@ -30,10 +34,9 @@ import org.slf4j.LoggerFactory;
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Freek
- * Date: 11-3-14
- * Time: 12:04
+ * The workflow engine implementation for Galaxy.
+ *
+ * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
@@ -64,7 +67,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * The maximum number of times to wait for the upload to finish.
      */
-    private static final int UPLOAD_MAX_WAIT_BLOCKS = 10;
+    private static final int UPLOAD_MAX_WAIT_BLOCKS = 28;
 
     /**
      * The number of seconds to wait for the upload to finish (for each wait cycle).
@@ -108,11 +111,14 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final WorkflowsClient workflowsClient = galaxyInstance.getWorkflowsClient();
 
         logger.info("Ensure the test workflow is available.");
-        ensureHasWorkflow(workflowsClient, workflow);
+        ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
         logger.info("Prepare the input files.");
         final HistoriesClient historiesClient = galaxyInstance.getHistoriesClient();
-        final String historyId = getTestHistoryId(galaxyInstance);
+//        if (testHistoryStatus("c27fd950e2f21bbd", historiesClient))
+//            return;
+
+        final String historyId = getNewHistoryId(galaxyInstance);
         final WorkflowInputs inputs = prepareWorkflow(galaxyInstance, workflowsClient, historyId, historiesClient,
                                                       workflow);
 
@@ -121,6 +127,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             if (input instanceof File)
                 expectedOutputLength += ((File) input).length();
         expectedOutputLength += 2 * (workflow.getAllInputValues().size() - 1);
+
+        if (workflow.getName().equals(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_2))
+            expectedOutputLength = 4733;
 
         final boolean finished = executeWorkflow(galaxyInstance, workflowsClient, historiesClient, historyId, inputs,
                                                  expectedOutputLength);
@@ -131,40 +140,19 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             logger.info("Timeout while waiting for workflow output file(s).");
     }
 
-    /**
-     * Check whether the test workflow is present. If it is not found, it will be created.
-     *
-     * @param workflowsClient the workflows client used to iterate all workflows.
-     * @param workflow        the workflow to check.
-     */
-    private void ensureHasWorkflow(final WorkflowsClient workflowsClient, final Workflow workflow) {
-        boolean found = false;
-        for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow : workflowsClient.getWorkflows()) {
-            if (blend4jWorkflow.getName().equals(workflow.getName())) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            workflowsClient.importWorkflow(readWorkflowJson(workflow.getName() + ".ga"));
-        }
-    }
-
-
-    /**
-     * Read the json design of a workflow from a file in the classpath.
-     *
-     * @param workflowFileName the workflow filename.
-     * @return the json design of the workflow.
-     */
-    private String readWorkflowJson(final String workflowFileName) {
-        try {
-            return Resources.asCharSource(GalaxyWorkflow.class.getResource(workflowFileName), Charsets.UTF_8).read();
-        } catch (final IOException|NullPointerException e) {
-            logger.error("Exception while retrieving json design in workflow file {}.", workflowFileName, e);
-            throw new RuntimeException(e);
-        }
-    }
+    // Freek: quick test for retrieving the status of files in the history.
+//    private boolean testHistoryStatus(final String historyId, final HistoriesClient historiesClient) {
+//        System.out.println();
+//        for (final History history : historiesClient.getHistories())
+//            if (history.getName().equals(historyId))
+//                System.out.println("History " + historyId + " found.");
+//        final HistoryDetails historyDetails = historiesClient.showHistory(historyId);
+//        System.out.println("historyDetails: " + historyDetails);
+//        System.out.println("historyDetails.getState(): " + historyDetails.getState());
+//        System.out.println("historyDetails.getStateIds(): " + historyDetails.getStateIds());
+//        System.out.println();
+//        return true;
+//    }
 
     /**
      * Create a new history and return its ID.
@@ -172,7 +160,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * @param galaxyInstance the Galaxy instance to create the history in.
      * @return the ID of the newly created history.
      */
-    private String getTestHistoryId(final GalaxyInstance galaxyInstance) {
+    private String getNewHistoryId(final GalaxyInstance galaxyInstance) {
         return galaxyInstance.getHistoriesClient().create(new History(HISTORY_NAME)).getId();
     }
 
@@ -210,8 +198,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         inputs.setWorkflowId(testWorkflowId);
         final WorkflowDetails workflowDetails = workflowsClient.showWorkflow(testWorkflowId);
         // todo: make input labels uniform; for now, we map generic labels to Galaxy labels.
-        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "WorkflowInput1",
-                                                                            "input2", "WorkflowInput2");
+//        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "WorkflowInput1",
+//                                                                            "input2", "WorkflowInput2");
+        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "input1");
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
 //        final String inputId = historiesClient.getDatasetIdByName(fileName, historyId);
@@ -234,7 +223,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private ClientResponse uploadInputFile(final GalaxyInstance galaxyInstance, final String historyId,
                                            final File inputFile) {
-        return galaxyInstance.getToolsClient().uploadRequest(new ToolsClient.FileUploadRequest(historyId, inputFile));
+        final ToolsClient.FileUploadRequest fileUploadRequest = new ToolsClient.FileUploadRequest(historyId, inputFile);
+        fileUploadRequest.setFileType("tabular");
+        return galaxyInstance.getToolsClient().uploadRequest(fileUploadRequest);
     }
 
     /**
@@ -335,15 +326,13 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 //                                                concatenationFilePath, false, null);
                 HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
                                              workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
-                if (concatenationFile.exists()) {
+                if (concatenationFile.exists())
                     outputLength = concatenationFile.length();
-                } else {
+                else
                     outputLength = -2;
-                }
             } finally {
-                if (!concatenationFile.delete()) {
+                if (!concatenationFile.delete())
                     logger.error("Deleting output file {} failed (after determining length).", OUTPUT_FILE_PATH);
-                }
             }
         }
         return outputLength;
@@ -369,8 +358,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final int outputCount = workflowOutputs.getOutputIds().size();
         if (outputCount != 1)
             logger.warn("Unexpected number of workflow outputs: {} (instead of 1).", outputCount);
-            //historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
-            //                                concatenationFilePath, false, null);
+        //historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
+        //                                concatenationFilePath, false, null);
         HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
                                      workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
         if (concatenationFile.exists()) {
@@ -379,15 +368,16 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             workflow.addOutput("output", concatenationFile);
         } else
             logger.info("- Concatenated file does not exist!");
+        // todo: this has to change; maybe only warn when the file length is zero?
         if (concatenationFile.length() != expectedOutputLength)
             logger.warn("Output file length {} not equal to expected length {}.", concatenationFile.length(),
                         expectedOutputLength);
-        // todo: This is now done in WorkflowRunnerVersion2. Make sure this is no longer needed and then remove it.
-//            final List<String> lines = Files.readLines(concatenationFile, Charsets.UTF_8);
-//            if (Arrays.asList(TEST_FILE_LINE_1, TEST_FILE_LINE_2).equals(lines)) {
-//                logger.info("- Concatenated file contains the lines we expected!!!");
-//            } else {
-//                logger.warn("- Concatenated file does not contain the lines we expected (lines: " + lines + ")!");
-//            }
+        // todo: this is now done in WorkflowRunnerVersion2. Make sure this is no longer needed and then remove it.
+//        final List<String> lines = Files.readLines(concatenationFile, Charsets.UTF_8);
+//        if (Arrays.asList(TEST_FILE_LINE_1, TEST_FILE_LINE_2).equals(lines)) {
+//            logger.info("- Concatenated file contains the lines we expected!!!");
+//        } else {
+//            logger.warn("- Concatenated file does not contain the lines we expected (lines: " + lines + ")!");
+//        }
     }
 }

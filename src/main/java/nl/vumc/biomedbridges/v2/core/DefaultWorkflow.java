@@ -11,20 +11,37 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class implements some methods of the Workflow interface and is used as a base class for full implementations of
- * this interface.
+ * This class provides a default implementation of the Workflow interface and is used as a base class by specific
+ * implementations of the Workflow interface.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public abstract class AbstractWorkflow implements Workflow {
-    protected final String name;
-    protected final Map<String, Object> inputs = new HashMap<>();
-    protected final Map<String, Object> outputs = new HashMap<>();
+public class DefaultWorkflow implements Workflow {
+    /**
+     * The name of the workflow.
+     */
+    private final String name;
 
-    protected AbstractWorkflow(final String name) {
+    /**
+     * The mapping of the input names to the actual input objects.
+     */
+    private final Map<String, Object> inputs = new HashMap<>();
+
+    /**
+     * The mapping of the output names to the actual output objects.
+     */
+    private final Map<String, Object> outputs = new HashMap<>();
+
+    /**
+     * Construct a default workflow. This is only meant to be used by subclasses.
+     *
+     * @param name the name of the workflow.
+     */
+    protected DefaultWorkflow(final String name) {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }

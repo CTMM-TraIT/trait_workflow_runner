@@ -5,7 +5,7 @@
 
 package nl.vumc.biomedbridges.v2.demonstration;
 
-import nl.vumc.biomedbridges.v2.core.AbstractWorkflow;
+import nl.vumc.biomedbridges.v2.core.DefaultWorkflow;
 import nl.vumc.biomedbridges.v2.core.Workflow;
 
 /**
@@ -13,7 +13,7 @@ import nl.vumc.biomedbridges.v2.core.Workflow;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class DemonstrationWorkflow extends AbstractWorkflow implements Workflow {
+public class DemonstrationWorkflow extends DefaultWorkflow implements Workflow {
     public DemonstrationWorkflow(final String name) {
         super(name);
     }
