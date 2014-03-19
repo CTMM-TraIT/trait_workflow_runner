@@ -160,7 +160,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private String readWorkflowJson(final String workflowFileName) {
         try {
             return Resources.asCharSource(GalaxyWorkflow.class.getResource(workflowFileName), Charsets.UTF_8).read();
-        } catch (final IOException e) {
+        } catch (final IOException|NullPointerException e) {
             logger.error("Exception while retrieving json design in workflow file {}.", workflowFileName, e);
             throw new RuntimeException(e);
         }
