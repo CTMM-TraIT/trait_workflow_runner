@@ -18,8 +18,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +76,7 @@ public class HistoryUtils {
         boolean success = true;
         OutputStream outputStream = null;
         try {
-            final HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+            final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             final int responseCode = connection.getResponseCode();
             final InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK)
                                             ? connection.getInputStream()

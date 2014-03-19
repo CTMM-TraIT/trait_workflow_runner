@@ -8,6 +8,10 @@ package nl.vumc.biomedbridges.v1;
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +19,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.net.URL;
 
 import static org.junit.Assert.assertTrue;
 
@@ -41,7 +42,7 @@ public class HistoryUtilsTest {
         final GalaxyInstance galaxyInstance = Mockito.mock(GalaxyInstance.class);
         final HistoriesClient historiesClient = Mockito.mock(HistoriesClient.class);
         final URL url = PowerMockito.mock(URL.class);
-        final HttpsURLConnection urlConnection = Mockito.mock(HttpsURLConnection.class);
+        final HttpURLConnection urlConnection = Mockito.mock(HttpURLConnection.class);
         final String historyId = "123456";
         final String datasetId = "dataset-id";
         final Dataset dataset = new Dataset();

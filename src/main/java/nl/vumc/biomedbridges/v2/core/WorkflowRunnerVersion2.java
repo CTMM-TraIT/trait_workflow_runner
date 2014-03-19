@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +43,9 @@ public class WorkflowRunnerVersion2 {
     /**
      * The name of the test workflow.
      */
-    private static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
+    public static final String TEST_WORKFLOW_NAME_1 = "TestWorkflowConcatenate";
+    public static final String TEST_WORKFLOW_NAME_2 = "TestWorkflowScatterplot";
+    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_2;
 
     /**
      * Line for test file 1.
@@ -76,14 +80,19 @@ public class WorkflowRunnerVersion2 {
             final String workflowType = WorkflowFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
             final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
-            workflow.addInput("input1", createInputFile(LINE_TEST_FILE_1));
-            workflow.addInput("input2", createInputFile(LINE_TEST_FILE_2));
+            if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
+                workflow.addInput("input1", createInputFile(LINE_TEST_FILE_1));
+                workflow.addInput("input2", createInputFile(LINE_TEST_FILE_2));
+            } else {
+                final URL scatterplotInputURL = WorkflowRunnerVersion2.class.getResource("ScatterplotInput.txt");
+                workflow.addInput("input1", new File(scatterplotInputURL.toURI()));
+            }
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
             final double durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
             logger.info("");
             logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
-        } catch (final InterruptedException | IOException e) {
+        } catch (final InterruptedException | IOException | URISyntaxException e) {
             logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
         }
     }
