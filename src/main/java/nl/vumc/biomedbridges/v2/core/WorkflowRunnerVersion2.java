@@ -121,6 +121,8 @@ public class WorkflowRunnerVersion2 {
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;
+            if (workflow.getName().equals(TEST_WORKFLOW_NAME_2))
+                Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
             if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
                 logger.info("- Concatenated file contains the lines we expected!!!");
