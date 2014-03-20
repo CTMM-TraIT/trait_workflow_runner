@@ -10,6 +10,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 
 import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
+
 import static java.util.Map.Entry;
 
 /**

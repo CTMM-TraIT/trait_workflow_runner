@@ -22,11 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkflowFactory {
     /**
-     * The logger for this class.
-     */
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
-
-    /**
      * Demonstration workflow (engine) type.
      */
     public static final String DEMONSTRATION_TYPE = "demonstration";
@@ -40,6 +35,22 @@ public class WorkflowFactory {
      * Molgenis workflow (engine) type.
      */
     public static final String MOLGENIS_TYPE = "molgenis";
+
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
+
+    /**
+     * Message for an unexpected workflow type.
+     */
+    private static final String UNEXPECTED_TYPE_MESSAGE = "Unexpected workflow type: {}.";
+
+    /**
+     * Hidden constructor. Only the static fields and methods of this class are meant to be used.
+     */
+    private WorkflowFactory() {
+    }
 
     /**
      * Create a workflow engine based on the workflow (engine) type.
@@ -60,7 +71,7 @@ public class WorkflowFactory {
                 workflowEngine = new MolgenisWorkflowEngine();
                 break;
             default:
-                logger.error("Unexpected workflow type: {}.", workflowType);
+                logger.error(UNEXPECTED_TYPE_MESSAGE, workflowType);
                 workflowEngine = null;
                 break;
         }
@@ -71,6 +82,7 @@ public class WorkflowFactory {
      * Create a workflow based on the workflow type.
      *
      * @param workflowType the workflow type.
+     * @param workflowName the workflow name.
      * @return the new workflow (or null if the type was not recognized).
      */
     public static Workflow getWorkflow(final String workflowType, final String workflowName) {
@@ -86,7 +98,7 @@ public class WorkflowFactory {
                 workflow = new MolgenisWorkflow(workflowName);
                 break;
             default:
-                logger.error("Unexpected workflow type: {}.", workflowType);
+                logger.error(UNEXPECTED_TYPE_MESSAGE, workflowType);
                 workflow = null;
                 break;
         }

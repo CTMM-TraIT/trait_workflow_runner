@@ -128,8 +128,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 expectedOutputLength += ((File) input).length();
         expectedOutputLength += 2 * (workflow.getAllInputValues().size() - 1);
 
+        final int testWorkflowOutputLength = 4733;
         if (workflow.getName().equals(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_2))
-            expectedOutputLength = 4733;
+            expectedOutputLength = testWorkflowOutputLength;
 
         final boolean finished = executeWorkflow(galaxyInstance, workflowsClient, historiesClient, historyId, inputs,
                                                  expectedOutputLength);
@@ -200,7 +201,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         // todo: make input labels uniform; for now, we map generic labels to Galaxy labels.
 //        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "WorkflowInput1",
 //                                                                            "input2", "WorkflowInput2");
-        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "input1");
+        final String input1Key = "input1";
+        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of(input1Key, input1Key);
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
 //        final String inputId = historiesClient.getDatasetIdByName(fileName, historyId);
@@ -251,9 +253,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final String state = details != null ? details.getState() : "timeout";
         if (!"ok".equals(state))
         //throw new RuntimeException("History no longer running, but not in 'ok' state. State is: " + state);
-        {
             logger.error("History no longer running, but not in 'ok' state. State is: " + state);
-        }
         Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
     }
 

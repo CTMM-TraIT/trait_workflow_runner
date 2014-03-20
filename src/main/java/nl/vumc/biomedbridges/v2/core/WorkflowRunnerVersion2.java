@@ -31,6 +31,21 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkflowRunnerVersion2 {
     /**
+     * The name of the first test workflow.
+     */
+    public static final String TEST_WORKFLOW_NAME_1 = "TestWorkflowConcatenate";
+
+    /**
+     * The name of the second test workflow.
+     */
+    public static final String TEST_WORKFLOW_NAME_2 = "TestWorkflowScatterplot";
+
+    /**
+     * The name of the test workflow.
+     */
+    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_2;
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
@@ -39,13 +54,6 @@ public class WorkflowRunnerVersion2 {
      * The number of milliseconds in a second.
      */
     private static final int MILLISECONDS_PER_SECOND = 1000;
-
-    /**
-     * The name of the test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME_1 = "TestWorkflowConcatenate";
-    public static final String TEST_WORKFLOW_NAME_2 = "TestWorkflowScatterplot";
-    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_2;
 
     /**
      * Line for test file 1.
@@ -80,12 +88,13 @@ public class WorkflowRunnerVersion2 {
             final String workflowType = WorkflowFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
             final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
+            final String input1Key = "input1";
             if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
-                workflow.addInput("input1", createInputFile(LINE_TEST_FILE_1));
+                workflow.addInput(input1Key, createInputFile(LINE_TEST_FILE_1));
                 workflow.addInput("input2", createInputFile(LINE_TEST_FILE_2));
             } else {
                 final URL scatterplotInputURL = WorkflowRunnerVersion2.class.getResource("ScatterplotInput.txt");
-                workflow.addInput("input1", new File(scatterplotInputURL.toURI()));
+                workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));
             }
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
@@ -117,6 +126,12 @@ public class WorkflowRunnerVersion2 {
         }
     }
 
+    /**
+     * Check the output after running the workflow.
+     *
+     * @param workflow the workflow that has been executed.
+     * @throws IOException if reading an output file fails.
+     */
     private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
@@ -125,13 +140,14 @@ public class WorkflowRunnerVersion2 {
             if (workflow.getName().equals(TEST_WORKFLOW_NAME_2))
                 Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
+            final String lineSeparator = " | ";
             if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
                 logger.info("- Concatenated file contains the lines we expected!!!");
-                logger.info("  actual: " + Joiner.on(" | ").join(lines));
+                logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
             } else {
                 logger.error("- Concatenated file does not contain the lines we expected!");
-                logger.error("  expected: " + LINE_TEST_FILE_1 + " | " + LINE_TEST_FILE_2);
-                logger.error("  actual:   " + Joiner.on(" | ").join(lines));
+                logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
+                logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
             }
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());

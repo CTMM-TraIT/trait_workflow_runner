@@ -14,6 +14,11 @@ import nl.vumc.biomedbridges.v2.core.Workflow;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class DemonstrationWorkflow extends DefaultWorkflow implements Workflow {
+    /**
+     * Create a demonstration workflow.
+     *
+     * @param name the workflow name.
+     */
     public DemonstrationWorkflow(final String name) {
         super(name);
     }

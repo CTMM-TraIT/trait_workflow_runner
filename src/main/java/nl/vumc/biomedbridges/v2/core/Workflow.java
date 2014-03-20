@@ -38,8 +38,18 @@ public interface Workflow {
      */
     Object getInput(final String inputName);
 
+    /**
+     * Get all the input values.
+     *
+     * @return all the input values.
+     */
     Collection<Object> getAllInputValues();
 
+    /**
+     * Get all the input key-value pairs.
+     *
+     * @return all the input entries.
+     */
     Set<Map.Entry<String, Object>> getAllInputEntries();
 
     /**

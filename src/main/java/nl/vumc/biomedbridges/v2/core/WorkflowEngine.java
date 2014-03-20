@@ -13,5 +13,13 @@ import java.io.IOException;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public interface WorkflowEngine {
+    /**
+     * Run the workflow on this workflow engine.
+     *
+     * @param workflow the workflow to run.
+     * @throws IOException          if reading the workflow results fails.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
+     *                              engine.
+     */
     void runWorkflow(final Workflow workflow) throws InterruptedException, IOException;
 }
