@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  *
  * This class was created during the BioMedBridges annual general meeting on March 12th, 2014. The original
- * demonstration of the Workflow Runner were impossible because several Galaxy engines were down:
+ * demonstration of the Workflow Runner was impossible because several Galaxy engines were down:
  *
  * https://usegalaxy.org/
  * Galaxy could not be reached
