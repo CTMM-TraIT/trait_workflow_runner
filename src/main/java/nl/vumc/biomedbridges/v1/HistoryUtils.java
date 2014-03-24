@@ -84,9 +84,8 @@ public class HistoryUtils {
             outputStream = new FileOutputStream(fullFilePath);
             final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
             int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) > 0) {
+            while ((bytesRead = inputStream.read(buffer)) > 0)
                 outputStream.write(buffer, 0, bytesRead);
-            }
         } catch (final IOException e) {
             logger.error("HistoryUtils.downloadFileFromUrl: error downloading or writing dataset file.", e);
             success = false;
@@ -114,7 +113,7 @@ public class HistoryUtils {
     public static String getDatasetIdByName(final String datasetName, final HistoriesClient historiesClient,
                                             final String historyId) {
         String datasetId = null;
-        for (HistoryContents historyDataset : historiesClient.showHistoryContents(historyId))
+        for (final HistoryContents historyDataset : historiesClient.showHistoryContents(historyId))
             if (historyDataset.getName().equals(datasetName)) {
                 datasetId = historyDataset.getId();
                 break;
