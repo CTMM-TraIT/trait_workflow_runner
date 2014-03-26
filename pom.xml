@@ -40,6 +40,7 @@
         <!-- Plugin versions. -->
         <maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <jacoco-maven-plugin.version>0.7.0.201403182114</jacoco-maven-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
         <maven-pmd-plugin.version>3.0</maven-pmd-plugin.version>
@@ -186,6 +187,26 @@
                 </configuration>
             </plugin>
 
+            <!-- JaCoCo is used to determine the code coverage of the unit tests. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
