@@ -11,7 +11,10 @@ Using git and GitHub
 
 We are using [git](http://git-scm.com/) and [GitHub](https://github.com/) to manage the code of the Workflow Runner tool. Git is a free and open source distributed version control system, which makes it easy to work with a team on a collection of (source code) files. GitHub is a web-based hosting service for software development projects that use git (see [GitHub on Wikipedia](http://en.wikipedia.org/wiki/GitHub) for more information).
 
-If you want to change the files in a GitHub repository, the common approach is to create a fork: a copy of the master repository that is linked to from the forked one (see [Fork A Repo on the GitHub web site](https://help.github.com/articles/fork-a-repo)). Once you have created your own fork, you can commit and push changes to that repository. Then you can create a pull request asking the maintainers of the master repository to accept your changes.
+If you want to change the files in a GitHub repository, the common approach is to create a fork: a copy of the master repository that the forked repository links to (see [Fork A Repo on the GitHub web site](https://help.github.com/articles/fork-a-repo)). The most important command to run after you have forked & cloned the respository:<br/>
+**`git remote add upstream https://github.com/CTMM-TraIT/trait_workflow_runner.git`**
+
+Once you have created your own fork, you can commit and push changes to that repository. Then you can create a pull request asking the maintainers of the master repository to accept your changes.
 
 Changes that are made to the master repository by your team members, do not show up automatically in your forked repository. You can fetch and merge their work using the following commands (on the command-line):
 
