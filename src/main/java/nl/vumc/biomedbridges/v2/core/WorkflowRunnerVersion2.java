@@ -10,13 +10,9 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,8 +86,8 @@ public class WorkflowRunnerVersion2 {
             final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
             final String input1Key = "input1";
             if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
-                workflow.addInput(input1Key, createInputFile(LINE_TEST_FILE_1));
-                workflow.addInput("input2", createInputFile(LINE_TEST_FILE_2));
+                workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));
+                workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
             } else {
                 final URL scatterplotInputURL = WorkflowRunnerVersion2.class.getResource("ScatterplotInput.txt");
                 workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));
@@ -106,25 +102,6 @@ public class WorkflowRunnerVersion2 {
         }
     }
     // CHECKSTYLE_OFF: UncommentedMain
-
-    /**
-     * Create a test file with a single line.
-     *
-     * @param line the line to write to the test file.
-     * @return the test file.
-     */
-    private static File createInputFile(final String line) {
-        try {
-            final File tempFile = File.createTempFile("workflow-runner", ".txt");
-            try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
-                writer.write(line);
-            }
-            return tempFile;
-        } catch (final IOException e) {
-            logger.error("Exception while creating a test input file.", e);
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Check the output after running the workflow.

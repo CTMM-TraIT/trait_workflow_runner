@@ -65,8 +65,6 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
                     final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
                     logger.info("input 1: " + inputString1);
                     logger.info("input 2: " + inputString2);
-//                    final String cheating = inputString1 + " (You're cheating!)";
-//                    workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(cheating, inputString2)));
                     workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
                     logger.info("output: " + inputString1 + " " + inputString2);
                 } else
