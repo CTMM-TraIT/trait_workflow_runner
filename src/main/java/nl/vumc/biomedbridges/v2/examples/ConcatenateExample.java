@@ -3,7 +3,7 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges.v2.core;
+package nl.vumc.biomedbridges.v2.examples;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -11,47 +11,33 @@ import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.xml.DOMConfigurator;
+import nl.vumc.biomedbridges.v2.core.FileUtils;
+import nl.vumc.biomedbridges.v2.core.Workflow;
+import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
+import nl.vumc.biomedbridges.v2.core.WorkflowFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class contains a simple test of the workflow running functionality.
- *
- * todo: improve error handling, for example when incorrect names for input files are used.
+ * This class contains a simple example of the workflow running functionality: the concatenate workflow combines two
+ * input files into one output file.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class WorkflowRunnerVersion2 {
+public class ConcatenateExample extends BaseExample {
     /**
      * The name of the first test workflow.
      */
-    public static final String TEST_WORKFLOW_NAME_1 = "TestWorkflowConcatenate";
-
-    /**
-     * The name of the second test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME_2 = "TestWorkflowScatterplot";
-
-    /**
-     * The name of the test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_1;
+    public static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
 
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
-
-    /**
-     * The number of milliseconds in a second.
-     */
-    private static final int MILLISECONDS_PER_SECOND = 1000;
+    private static final Logger logger = LoggerFactory.getLogger(ConcatenateExample.class);
 
     /**
      * Line for test file 1.
@@ -64,9 +50,9 @@ public class WorkflowRunnerVersion2 {
     private static final String LINE_TEST_FILE_2 = "Do you wanna play?";
 
     /**
-     * Hidden constructor. The main method below will create a workflow runner.
+     * Hidden constructor. The main method below will run this example.
      */
-    private WorkflowRunnerVersion2() {
+    private ConcatenateExample() {
     }
 
     /**
@@ -76,34 +62,29 @@ public class WorkflowRunnerVersion2 {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        try {
-            DOMConfigurator.configure(WorkflowRunnerVersion2.class.getClassLoader().getResource("log4j.xml"));
-            logger.info("========================================");
-            logger.info("WorkflowRunnerVersion2.main has started.");
+        new ConcatenateExample().runExample();
+    }
+    // CHECKSTYLE_OFF: UncommentedMain
 
-            final long startTime = System.currentTimeMillis();
+    public void runExample() {
+        try {
+            initializeExample(logger, "ConcatenateExample.runExample");
+
             //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
             final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
-            final String input1Key = "input1";
-            if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
-                workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));
-                workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
-            } else {
-                final URL scatterplotInputURL = WorkflowRunnerVersion2.class.getResource("ScatterplotInput.txt");
-                workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));
-            }
+
+            workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
+            workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
-            final double durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
-            logger.info("");
-            logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
-        } catch (final InterruptedException | IOException | URISyntaxException e) {
+
+            finishExample(logger);
+        } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
         }
     }
-    // CHECKSTYLE_OFF: UncommentedMain
 
     /**
      * Check the output after running the workflow.
@@ -115,9 +96,6 @@ public class WorkflowRunnerVersion2 {
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;
-            // todo: create generic way to handle output files.
-            if (workflow.getName().equals(TEST_WORKFLOW_NAME_2))
-                Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
             final String lineSeparator = " | ";
             if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {

@@ -199,10 +199,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         inputs.setWorkflowId(testWorkflowId);
         final WorkflowDetails workflowDetails = workflowsClient.showWorkflow(testWorkflowId);
         // todo: make input labels uniform; for now, we map generic labels to Galaxy labels.
-//        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of("input1", "WorkflowInput1",
-//                                                                            "input2", "WorkflowInput2");
         final String input1Key = "input1";
-        final Map<String, String> genericToGalaxyLabelMap = ImmutableMap.of(input1Key, input1Key);
+        final Map<String, String> genericToGalaxyLabelMap;
+        if (workflow.getName().equals(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_1))
+            genericToGalaxyLabelMap = ImmutableMap.of(input1Key, "WorkflowInput1", "input2", "WorkflowInput2");
+        else
+            genericToGalaxyLabelMap = ImmutableMap.of(input1Key, input1Key);
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
 //        final String inputId = historiesClient.getDatasetIdByName(fileName, historyId);

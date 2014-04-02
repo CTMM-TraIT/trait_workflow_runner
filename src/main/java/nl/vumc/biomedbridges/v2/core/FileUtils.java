@@ -35,14 +35,17 @@ public class FileUtils {
     /**
      * Create a temporary file with a single line.
      *
-     * @param line the line to write to the test file.
+     * @param lines the lines to write to the test file.
      * @return the test file.
      */
-    public static File createInputFile(final String line) {
+    public static File createInputFile(final String... lines) {
         try {
             final File tempFile = File.createTempFile("workflow-runner", ".txt");
             try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
-                writer.write(line);
+                for (final String line : lines) {
+                    writer.write(line);
+                    writer.write("\n");
+                }
             }
             return tempFile;
         } catch (final IOException e) {
