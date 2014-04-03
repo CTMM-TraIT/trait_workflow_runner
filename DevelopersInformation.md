@@ -1,22 +1,33 @@
 Developers information
 ======================
 
-This page is meant for developers who want to change something about the Workflow Runner tool, send a patch with a bug fix or other improvement, or are interested in finding out more about the development process in general.
+This page is meant for developers who want to change something about the Workflow Runner tool, send a patch with a bug
+fix or other improvement, or are interested in finding out more about the development process in general.
 
-We currently have some information on using git & GitHub (for code management) and Maven (for building the code). To enhance and monitor the code quality, we use Checkstyle (code style checker), FindBugs (static code analysis tool), PMD (another static code analysis tool), and CPD (copy/paste detector).
+We currently have some information on using git & GitHub (for code management) and Maven (for building the code). To
+enhance and monitor the code quality, we use Checkstyle (code style checker), FindBugs (static code analysis tool),
+PMD (another static code analysis tool), and CPD (copy/paste detector).
 
 
 Using git and GitHub
 --------------------
 
-We are using [git](http://git-scm.com/) and [GitHub](https://github.com/) to manage the code of the Workflow Runner tool. Git is a free and open source distributed version control system, which makes it easy to work with a team on a collection of (source code) files. GitHub is a web-based hosting service for software development projects that use git (see [GitHub on Wikipedia](http://en.wikipedia.org/wiki/GitHub) for more information).
+We are using [git](http://git-scm.com/) and [GitHub](https://github.com/) to manage the code of the Workflow Runner
+tool. Git is a free and open source distributed version control system, which makes it easy to work with a team on a
+collection of (source code) files. GitHub is a web-based hosting service for software development projects that use
+git (see [GitHub on Wikipedia](http://en.wikipedia.org/wiki/GitHub) for more information).
 
-If you want to change the files in a GitHub repository, the common approach is to create a fork: a copy of the master repository that the forked repository links to (see [Fork A Repo on the GitHub web site](https://help.github.com/articles/fork-a-repo)). The most important command to run after you have forked & cloned the respository:<br/>
+If you want to change the files in a GitHub repository, the common approach is to create a fork: a copy of the master
+repository that the forked repository links to
+(see [Fork A Repo on the GitHub web site](https://help.github.com/articles/fork-a-repo)). The most important command to
+run after you have forked & cloned the repository:<br/>
 **`git remote add upstream https://github.com/CTMM-TraIT/trait_workflow_runner.git`**
 
-Once you have created your own fork, you can commit and push changes to that repository. Then you can create a pull request asking the maintainers of the master repository to accept your changes.
+Once you have created your own fork, you can commit and push changes to that repository. Then you can create a pull
+request asking the maintainers of the master repository to accept your changes.
 
-Changes that are made to the master repository by your team members, do not show up automatically in your forked repository. You can fetch and merge their work using the following commands (on the command-line):
+Changes that are made to the master repository by your team members, do not show up automatically in your forked
+repository. You can fetch and merge their work using the following commands (on the command-line):
 
 \# Fetch any new changes from the original master repository:<br/>
 **`git fetch upstream`**
@@ -25,24 +36,32 @@ Changes that are made to the master repository by your team members, do not show
 **`git merge upstream/master`**
 
 Merging sometimes leads to conflicts, which gives a message like this:<br/>
-"Updating 123a456..c789e00<br/>
-error: Your local changes to the following files would be overwritten by merge:<br/>
-        src/main/java/nl/vumc/biomedbridges[/some_package]/[SomeFile].java<br/>
-Please, commit your changes or stash them before you can merge.<br/>
-Aborting"
+```
+Updating 123a456..c789e00
+error: Your local changes to the following files would be overwritten by merge:
+        src/main/java/nl/vumc/biomedbridges[/some_package]/[SomeFile].java
+Please, commit your changes or stash them before you can merge.
+Aborting
+```
 
 Stashing your local changes is very easy:<br/>
 **`git stash`**<br/>
-"Saved working directory and index state WIP on master: 123a456 [Some description.]<br/>
-HEAD is now at 123a456 [Some description.]"
+```
+Saved working directory and index state WIP on master: 123a456 [Some description.]
+HEAD is now at 123a456 [Some description.]
+```
 
 
 Maven
 -----
 
-We use [Maven](http://maven.apache.org/) as our build tool. This makes it easier to use certain tools (like Checkstyle and FindBugs) and to manage the third-party libraries (dependencies) we use. The pom.xml file for the workflow runner is stored in the root directory.
+We use [Maven](http://maven.apache.org/) as our build tool. This makes it easier to use certain tools (like Checkstyle
+and FindBugs) and to manage the third-party libraries (dependencies) we use. The pom.xml file for the workflow runner is
+stored in the root directory.
 
-Some commonly used Maven commands are (see [Introduction to the Build Lifecycle](http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) for an explanation of the build lifecycle and the build phases):
+Some commonly used Maven commands are
+(see [Introduction to the Build Lifecycle](http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
+for an explanation of the build lifecycle and the build phases):
 
 \# Remove all files generated by the previous build:<br/>
 **`mvn clean`**
@@ -50,32 +69,38 @@ Some commonly used Maven commands are (see [Introduction to the Build Lifecycle]
 \# Compile the source code of the project:<br/>
 **`mvn compile`**
 
-\# Test the compiled source code using a suitable unit testing framework:<br/>
+\# Test the compiled source code using the JUnit unit testing framework:<br/>
 **`mvn test`**
 
-\# Take the compiled code and package it in its distributable format, such as a jar file:<br/>
+\# Run one of the examples:<br/>
+**`mvn exec:java -Dexec.mainClass="nl.vumc.biomedbridges.v2.examples.ConcatenateExample"`**
+
+\# Take the compiled code and package it in the WorkflowRunner-x.y.z.jar file (in the target directory):<br/>
 **`mvn package`**
 
 \# Install the package into the local repository, for use as a dependency in other projects locally:<br/>
 **`mvn install`**
 
-\# Perform a Checkstyle analysis, and generate a report on violations:<br/>
+\# Perform a Checkstyle analysis, and generate a report on issues (in target\checkstyle-result.xml):<br/>
 **`mvn checkstyle:checkstyle`**
 
-\# Check if there are any FindBugs issues in the source code:<br/>
+\# Check if there are any FindBugs issues in the source code (in target\findbugsXml.xml):<br/>
 **`mvn compile findbugs:check`**
 
-\# Check if there are any PMD issues in the source code:<br/>
+\# Check if there are any PMD issues in the source code (in target\pmd.xml):<br/>
 **`mvn compile pmd:check`**
 
-\# Check if there are any CPD issues in the source code:<br/>
+\# Check if there are any CPD issues in the source code (in target\cpd.xml):<br/>
 **`mvn compile pmd:cpd-check`**
 
 
 Checkstyle
 ----------
 
-We use Checkstyle to check for code style issues. Please check your code before committing. As we already mentioned in the Maven section, you can run **`mvn checkstyle:checkstyle`** to run Checkstyle on the code (you can run this command in the main project directory, which contains the pom.xml file Maven needs). The report is generated in the target directory and is named checkstyle-result.xml.
+We use Checkstyle to check for code style issues. Please check your code before committing. As we already mentioned in
+the Maven section, you can run **`mvn checkstyle:checkstyle`** to run Checkstyle on the code (you can run this command
+in the main project directory, which contains the pom.xml file Maven needs). The report is generated in the target
+directory and is named checkstyle-result.xml.
 
 It is also possible to configure a Java IDE (like Eclipse, IntelliJ or NetBeans) to integrate Checkstyle in your coding.
 
@@ -83,16 +108,24 @@ It is also possible to configure a Java IDE (like Eclipse, IntelliJ or NetBeans)
 FindBugs
 --------
 
-FindBugs is a static code analysis tool that looks for constructs that might indicate bugs. It works by analyzing Java bytecode (compiled class files), so compile the code before running FindBugs. If you run **`mvn compile findbugs:check`** in the main project directory, FindBugs will print all its warnings and generate the findbugsXml.xml file in the target directory.
+FindBugs is a static code analysis tool that looks for constructs that might indicate bugs. It works by analyzing Java
+bytecode (compiled class files), so compile the code before running FindBugs. If you run
+**`mvn compile findbugs:check`** in the main project directory, FindBugs will print all its warnings and generate the
+findbugsXml.xml file in the target directory.
 
 
 PMD
 ---
 
-PMD ("Programming Mistake Detector") is a static code analysis tool that looks for constructs that might indicate bugs (like unused variables, parameters & private methods, empty blocks, overcomplicated expressions, and complex code). It works by analyzing Java code. If you run **`mvn pmd:check`** in the main project directory, PMD will generate the pmd.xml file in the target directory.
+PMD ("Programming Mistake Detector") is a static code analysis tool that looks for constructs that might indicate bugs
+(like unused variables, parameters & private methods, empty blocks, overcomplicated expressions, and complex code). It
+works by analyzing Java code. If you run **`mvn pmd:check`** in the main project directory, PMD will generate the
+pmd.xml file in the target directory.
 
 
 CPD
 ---
 
-CPD (Copy/Paste Detector) is an add-on to PMD that searches for duplicated code (copied/pasted code can mean copied/pasted bugs, and decreases maintainability). If you run **`mvn pmd:cpd-check`** in the main project directory, CPD will generate the cpd.xml file in the target directory.
+CPD (Copy/Paste Detector) is an add-on to PMD that searches for duplicated code (copied/pasted code can mean
+copied/pasted bugs, and decreases maintainability). If you run **`mvn pmd:cpd-check`** in the main project directory,
+CPD will generate the cpd.xml file in the target directory.
