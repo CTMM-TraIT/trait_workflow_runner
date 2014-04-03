@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class contains a simple test of the workflow running functionality.
  *
- * todo: improve error handling, for example when incorrect names for input files are used.
+ * todo: improve error messages, for example when incorrect names for input files are used.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */

@@ -66,6 +66,9 @@ public class ConcatenateExample extends BaseExample {
     }
     // CHECKSTYLE_OFF: UncommentedMain
 
+    /**
+     * Run this example workflow: combine two input files into one output file.
+     */
     public void runExample() {
         try {
             initializeExample(logger, "ConcatenateExample.runExample");

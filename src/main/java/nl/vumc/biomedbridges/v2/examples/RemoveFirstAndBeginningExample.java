@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class contains a simple example of the workflow running functionality: the remove first and beginning workflow
+ * This class contains a simple example of the workflow running functionality: the "remove first and beginning" workflow
  * removes a number of lines from the input file and removes a number of characters from the start of the remaining
  * lines.
  *
@@ -51,6 +51,10 @@ public class RemoveFirstAndBeginningExample extends BaseExample {
     }
     // CHECKSTYLE_OFF: UncommentedMain
 
+    /**
+     * Run this example workflow: remove a number of lines from the input file and remove a number of characters from
+     * the start of the remaining lines.
+     */
     public void runExample() {
         try {
             initializeExample(logger, "WorkflowRunnerVersion2.main");
