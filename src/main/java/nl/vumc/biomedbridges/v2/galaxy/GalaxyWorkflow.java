@@ -8,8 +8,16 @@ package nl.vumc.biomedbridges.v2.galaxy;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import nl.vumc.biomedbridges.v2.core.DefaultWorkflow;
 import nl.vumc.biomedbridges.v2.core.Workflow;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,20 +25,27 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-
 /**
  * The workflow implementation for Galaxy.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
+ * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
     /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflow.class);
+
+    /**
+     * The inputs definition from the Galaxy workflow JSON file.
+     */
+    private List<Map<String, String>> inputs;
+
+    /**
+     * The outputs definition from the Galaxy workflow JSON file.
+     */
+    private List<Map<String, String>> outputs;
 
     /**
      * Construct a Galaxy workflow.
@@ -60,20 +75,20 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
     }
 
     /**
-     * Give the filename of the Galaxy workflow description
-     *
-     * todo: use an absolute file path instead of the classpath.
+     * Give the filename of the Galaxy workflow description.
      *
      * @return the GA file's filename
      */
-    private String getJsonFilename(){
+    private String getJsonFilename() {
         return getName() + ".ga";
     }
 
     /**
-     * Get the content of the GA-file
+     * Get the content of the GA-file.
      *
-     * @author Youri Hoogstrate
+     * todo: use an absolute file path instead of the classpath.
+     *
+     * @return the json design of the workflow.
      */
     private String getJsonContent() {
         try {
@@ -85,78 +100,86 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
     }
 
     /**
-     * Parses the JSON / GA-file of a Galaxy workflow
-     *
-     * @author Youri Hoogstrate
+     * Parses the JSON / GA-file of a Galaxy workflow.
      */
     public void parseJson() {
-        JSONParser parser=new JSONParser();
-        try{
-            Object obj = parser.parse(getJsonContent());
-            JSONObject array = (JSONObject)obj;
+        try {
+            final JSONObject workflowJson = (JSONObject) new JSONParser().parse(getJsonContent());
+            final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
+            logger.info("This workflow contains [" + stepsMapJson.size() + "] steps:\n");
+            inputs = new ArrayList<>();
+            outputs = new ArrayList<>();
 
-            JSONObject steps = (JSONObject)array.get("steps");
-            System.out.println("This workflow contains ["+steps.size()+"] steps:\n");
+            for (final Object stepId : stepsMapJson.keySet()) {
+                final JSONObject stepJson = (JSONObject) stepsMapJson.get(stepId);
 
-            Iterator iterx = steps.keySet().iterator();
-            JSONObject step;
-            JSONArray inputs,outputs;
-            while (iterx.hasNext()) {
-                step = (JSONObject)steps.get(iterx.next());
-
-                addJsonInputs((JSONArray) step.get("inputs"));
-                addJsonOutputs((JSONArray) step.get("outputs"));
+                addJsonInputs((JSONArray) stepJson.get("inputs"));
+                addJsonOutputs((JSONArray) stepJson.get("outputs"));
             }
-
-        }catch(ParseException pe){
-            System.out.println("position: " + pe.getPosition());
-            System.out.println(pe);
+        } catch (final ParseException e) {
+            logger.error("Exception while parsing json design in workflow file {}.", getJsonFilename(), e);
         }
 
         //http://www.tutorialspoint.com/json/json_java_example.htm
     }
 
-
     /**
-     * Parse an "inputs" section of the JSON file
+     * Parse an "inputs" section of the JSON file.
      *
-     * @author Youri Hoogstrate
+     * @param jsonInputs the json array with the inputs.
      */
-    public void addJsonInputs(JSONArray jsonInputs) {
-        JSONObject input;
-
-        Iterator iterator = jsonInputs.iterator();
-        while (iterator.hasNext()) {
-            input = ( JSONObject) iterator.next();
-
-            // Store it somewhere...
-/*
-            System.out.println("input:");
-            System.out.println("id=" + input.get("id")+"\n");
-            System.out.println("name=" + input.get("name")+"\n");
-            */
-        }
+    public void addJsonInputs(final JSONArray jsonInputs) {
+        inputs.addAll(createListOfMaps(jsonInputs));
+        logger.trace("inputs: " + inputs);
     }
 
+    /**
+     * Get the inputs definition from the Galaxy workflow JSON file.
+     *
+     * @return the inputs definition.
+     */
+    public List<Map<String, String>> getInputs() {
+        return inputs;
+    }
 
     /**
-     * Parse an "outputs" section of the JSON file
+     * Parse an "outputs" section of the JSON file.
      *
-     * @author Youri Hoogstrate
+     * @param jsonOutputs the json array with the outputs.
      */
-    public void addJsonOutputs(JSONArray jsonOutputs) {
-        JSONObject output;
+    public void addJsonOutputs(final JSONArray jsonOutputs) {
+        outputs.addAll(createListOfMaps(jsonOutputs));
+        logger.trace("outputs: " + outputs);
+    }
 
-        Iterator iterator = jsonOutputs.iterator();
-        while (iterator.hasNext()) {
-            output = ( JSONObject) iterator.next();
+    /**
+     * Get the outputs definition from the Galaxy workflow JSON file.
+     *
+     * @return the outputs definition.
+     */
+    public List<Map<String, String>> getOutputs() {
+        return outputs;
+    }
 
-            // Store it somewhere...
-/*
-            System.out.println("output:");
-            System.out.println("name=" + output.get("name"));
-            System.out.println("type=" + output.get("type")+"\n");
-            */
+    /**
+     * Create a list of maps from a json array.
+     *
+     * @param jsonArray the json array.
+     * @return the list of maps.
+     */
+    private List<Map<String, String>> createListOfMaps(final JSONArray jsonArray) {
+        final List<Map<String, String>> listOfMaps = new ArrayList<>();
+        for (final Object object : jsonArray) {
+            final JSONObject jsonObject = (JSONObject) object;
+            logger.trace("jsonObject: " + jsonObject);
+            final Map<String, String> propertyMap = new HashMap<>();
+            for (final Object entry : jsonObject.entrySet())
+                if (entry instanceof Map.Entry) {
+                    final Map.Entry mapEntry = (Map.Entry) entry;
+                    propertyMap.put((String) mapEntry.getKey(), (String) mapEntry.getValue());
+                }
+            listOfMaps.add(propertyMap);
         }
+        return listOfMaps;
     }
 }

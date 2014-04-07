@@ -41,7 +41,7 @@ public class WorkflowRunnerVersion2 {
     /**
      * The name of the test workflow.
      */
-    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_1;
+    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_2;
 
     /**
      * The logger for this class.
@@ -116,8 +116,10 @@ public class WorkflowRunnerVersion2 {
         if (output instanceof File) {
             final File outputFile = (File) output;
             // todo: create generic way to handle output files.
-            if (workflow.getName().equals(TEST_WORKFLOW_NAME_2))
+            if (workflow.getName().equals(TEST_WORKFLOW_NAME_2)) {
+                logger.debug("Create pdf file for workflow {}.", TEST_WORKFLOW_NAME_2);
                 Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
+            }
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
             final String lineSeparator = " | ";
             if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
