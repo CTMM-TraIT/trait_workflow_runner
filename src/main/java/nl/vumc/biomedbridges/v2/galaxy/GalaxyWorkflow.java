@@ -8,14 +8,18 @@ package nl.vumc.biomedbridges.v2.galaxy;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-
-import java.io.IOException;
-
 import nl.vumc.biomedbridges.v2.core.DefaultWorkflow;
 import nl.vumc.biomedbridges.v2.core.Workflow;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Iterator;
+
 
 /**
  * The workflow implementation for Galaxy.
@@ -35,6 +39,7 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      */
     public GalaxyWorkflow(final String name) {
         super(name);
+        parseJson();
     }
 
     /**
@@ -51,23 +56,107 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
                 break;
             }
         if (!found)
-            workflowsClient.importWorkflow(readWorkflowJson(getName() + ".ga"));
+            workflowsClient.importWorkflow(getJsonContent());
     }
 
     /**
-     * Read the json design of a workflow from a file in the classpath.
+     * Give the filename of the Galaxy workflow description
      *
      * todo: use an absolute file path instead of the classpath.
      *
-     * @param workflowFileName the workflow filename.
-     * @return the json design of the workflow.
+     * @return the GA file's filename
      */
-    private String readWorkflowJson(final String workflowFileName) {
+    private String getJsonFilename(){
+        return getName() + ".ga";
+    }
+
+    /**
+     * Get the content of the GA-file
+     *
+     * @author Youri Hoogstrate
+     */
+    private String getJsonContent() {
         try {
-            return Resources.asCharSource(GalaxyWorkflow.class.getResource(workflowFileName), Charsets.UTF_8).read();
+            return Resources.asCharSource(GalaxyWorkflow.class.getResource(getJsonFilename()), Charsets.UTF_8).read();
         } catch (final IOException e) {
-            logger.error("Exception while retrieving json design in workflow file {}.", workflowFileName, e);
+            logger.error("Exception while retrieving json design in workflow file {}.", getJsonFilename(), e);
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Parses the JSON / GA-file of a Galaxy workflow
+     *
+     * @author Youri Hoogstrate
+     */
+    public void parseJson() {
+        JSONParser parser=new JSONParser();
+        try{
+            Object obj = parser.parse(getJsonContent());
+            JSONObject array = (JSONObject)obj;
+
+            JSONObject steps = (JSONObject)array.get("steps");
+            System.out.println("This workflow contains ["+steps.size()+"] steps:\n");
+
+            Iterator iterx = steps.keySet().iterator();
+            JSONObject step;
+            JSONArray inputs,outputs;
+            while (iterx.hasNext()) {
+                step = (JSONObject)steps.get(iterx.next());
+
+                addJsonInputs((JSONArray) step.get("inputs"));
+                addJsonOutputs((JSONArray) step.get("outputs"));
+            }
+
+        }catch(ParseException pe){
+            System.out.println("position: " + pe.getPosition());
+            System.out.println(pe);
+        }
+
+        //http://www.tutorialspoint.com/json/json_java_example.htm
+    }
+
+
+    /**
+     * Parse an "inputs" section of the JSON file
+     *
+     * @author Youri Hoogstrate
+     */
+    public void addJsonInputs(JSONArray jsonInputs) {
+        JSONObject input;
+
+        Iterator iterator = jsonInputs.iterator();
+        while (iterator.hasNext()) {
+            input = ( JSONObject) iterator.next();
+
+            // Store it somewhere...
+/*
+            System.out.println("input:");
+            System.out.println("id=" + input.get("id")+"\n");
+            System.out.println("name=" + input.get("name")+"\n");
+            */
+        }
+    }
+
+
+    /**
+     * Parse an "outputs" section of the JSON file
+     *
+     * @author Youri Hoogstrate
+     */
+    public void addJsonOutputs(JSONArray jsonOutputs) {
+        JSONObject output;
+
+        Iterator iterator = jsonOutputs.iterator();
+        while (iterator.hasNext()) {
+            output = ( JSONObject) iterator.next();
+
+            // Store it somewhere...
+/*
+            System.out.println("output:");
+            System.out.println("name=" + output.get("name"));
+            System.out.println("type=" + output.get("type")+"\n");
+            */
         }
     }
 }
