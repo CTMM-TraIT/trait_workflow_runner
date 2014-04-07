@@ -27,10 +27,11 @@
         <blend4j.version>0.1-alpha-7</blend4j.version>
         <guava.version>15.0</guava.version>
         <httpclient.version>4.3.2</httpclient.version>
+        <json-simple.version>1.1.1</json-simple.version>
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
-        <org.slf4j.version>1.7.6</org.slf4j.version>
         <powermock.version>1.5.3</powermock.version>
+        <slf4j.version>1.7.6</slf4j.version>
 
         <!-- Source and output properties. -->
         <java-version>1.7</java-version>
@@ -72,7 +73,7 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1</version>
+            <version>${json-simple.version}</version>
         </dependency>
 
         <!-- Dependency for Guava. -->
@@ -123,12 +124,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j.version}</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
     </dependencies>
@@ -245,6 +246,7 @@
                 <configuration>
                     <!-- Sets the VM argument line used when unit tests are run. -->
                     <!--suppress MavenModelInspection -->
+                    <!-- todo [Freek]: IntelliJ does not like the line below, while Maven needs it... -->
                     <argLine>${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
