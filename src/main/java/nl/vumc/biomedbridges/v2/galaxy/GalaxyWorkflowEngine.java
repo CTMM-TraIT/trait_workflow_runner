@@ -174,13 +174,16 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             expectedOutputLength = scatterPlotOutputLength;
 
         final boolean finished = executeWorkflow(historyId, inputs, expectedOutputLength);
+        final boolean success = downloadOutputFiles(workflow, historyId);
+        logger.trace("Download output files success: {}.", success);
+        // todo: return result from runWorkflow: finished && success && checkResults.
 
         if (finished)
-            checkWorkflowResults(workflow, historyId, expectedOutputLength);
+            checkWorkflowResults(historyId, expectedOutputLength);
         else {
             logger.info("Timeout while waiting for workflow output file(s).");
             // Freek: test the output anyway to generate some logging for analysis.
-            checkWorkflowResults(workflow, historyId, expectedOutputLength);
+            checkWorkflowResults(historyId, expectedOutputLength);
         }
     }
 
@@ -375,15 +378,38 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
+     * Download all output files and add them as results to the workflow object.
+     *
+     * @param workflow  the workflow.
+     * @param historyId the ID of the history to use for workflow input and output.
+     */
+    private boolean downloadOutputFiles(final Workflow workflow, final String historyId) {
+        boolean success = true;
+        try {
+            for (final String outputId : workflowOutputs.getOutputIds()) {
+                // todo: use configurable output directory.
+                final File outputFile = File.createTempFile("workflow-runner-" + historyId + "-" + outputId, ".txt");
+                // todo: is it necessary to fill in the data type (last parameter)?
+                success &= HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
+                                                        outputFile.getAbsolutePath(), false, null);
+                // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense).
+                workflow.addOutput(outputId, outputFile);
+            }
+        } catch (final Exception e) {
+            logger.error("Error downloading a workflow output file.", e);
+            success = false;
+        }
+        return success;
+    }
+
+    /**
      * Check the results of the workflow.
      *
-     * @param workflow             the workflow.
      * @param historyId            the ID of the history to use for workflow input and output.
      * @param expectedOutputLength the expected output file length.
      * @throws IOException if reading the workflow results fails.
      */
-    private void checkWorkflowResults(final Workflow workflow, final String historyId, final int expectedOutputLength)
-            throws IOException {
+    private void checkWorkflowResults(final String historyId, final int expectedOutputLength) throws IOException {
         logger.info("Check outputs.");
         for (final String outputId : workflowOutputs.getOutputIds())
             logger.info("- Workflow output ID: " + outputId + ".");
@@ -396,11 +422,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         // Freek: the last workflow output file is most likely to be the end result?
         HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
                                      workflowOutputs.getOutputIds().get(outputCount - 1), OUTPUT_FILE_PATH, false, null);
-        if (concatenationFile.exists()) {
+        if (concatenationFile.exists())
             logger.info("- Concatenated file exists.");
-            // todo: make this generic.
-            workflow.addOutput("output", concatenationFile);
-        } else
+        else
             logger.info("- Concatenated file does not exist!");
         // todo: this has to change; maybe only warn when the file length is zero?
         if (concatenationFile.length() != expectedOutputLength)

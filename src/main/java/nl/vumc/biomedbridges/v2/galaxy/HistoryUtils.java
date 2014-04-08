@@ -59,10 +59,10 @@ public class HistoryUtils {
                                           final String historyId, final String datasetId, final String filePath,
                                           final boolean useDatasetName, final String dataType) {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
-        logger.trace("dataset.getName(): " + dataset.getName());
         final String toExt = (dataType != null) ? dataType : dataset.getDataType();
         final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
         final String fullFilePath = filePath + (useDatasetName ? File.separator + dataset.getName() : "");
+        logger.trace("Downloading dataset {} to file {}.", dataset.getName(), fullFilePath);
         return downloadFileFromUrl(url, fullFilePath);
     }
 

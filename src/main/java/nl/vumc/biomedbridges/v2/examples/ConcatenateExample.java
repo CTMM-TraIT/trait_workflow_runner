@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import nl.vumc.biomedbridges.v2.core.FileUtils;
 import nl.vumc.biomedbridges.v2.core.Workflow;
@@ -98,7 +99,8 @@ public class ConcatenateExample extends BaseExample {
      * @throws IOException if reading an output file fails.
      */
     private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
-        final Object output = workflow.getOutput("output");
+        final Map<String, Object> outputMap = workflow.getOutputMap();
+        final Object output = (outputMap.size() == 1) ? outputMap.values().iterator().next() : null;
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
@@ -114,6 +116,6 @@ public class ConcatenateExample extends BaseExample {
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
-            logger.error("There is no output parameter named \"output\" of type File.");
+            logger.error("There is no single output parameter of type File.");
     }
 }

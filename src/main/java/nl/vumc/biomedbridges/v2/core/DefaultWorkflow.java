@@ -67,6 +67,11 @@ public class DefaultWorkflow implements Workflow {
     }
 
     @Override
+    public Map<String, Object> getInputMap() {
+        return new HashMap<>(inputs);
+    }
+
+    @Override
     public void addOutput(final String outputName, final Object outputValue) {
         outputs.put(outputName, outputValue);
     }
@@ -74,5 +79,10 @@ public class DefaultWorkflow implements Workflow {
     @Override
     public Object getOutput(final String outputName) {
         return outputs.get(outputName);
+    }
+
+    @Override
+    public Map<String, Object> getOutputMap() {
+        return new HashMap<>(outputs);
     }
 }

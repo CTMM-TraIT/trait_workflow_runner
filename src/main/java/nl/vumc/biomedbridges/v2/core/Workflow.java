@@ -53,6 +53,13 @@ public interface Workflow {
     Set<Map.Entry<String, Object>> getAllInputEntries();
 
     /**
+     * Get all the inputs in a map.
+     *
+     * @return the map with all inputs.
+     */
+    Map<String, Object> getInputMap();
+
+    /**
      * Add an actual output object.
      *
      * @param outputName the output name.
@@ -67,4 +74,11 @@ public interface Workflow {
      * @return the output object.
      */
     Object getOutput(final String outputName);
+
+    /**
+     * Get all the outputs in a map.
+     *
+     * @return the map with all outputs.
+     */
+    Map<String, Object> getOutputMap();
 }

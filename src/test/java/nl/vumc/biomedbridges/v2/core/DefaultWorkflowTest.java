@@ -5,12 +5,11 @@
 
 package nl.vumc.biomedbridges.v2.core;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -54,25 +53,21 @@ public class DefaultWorkflowTest {
     }
 
     /**
-     * Test the getAllInputValues and getAllInputEntries methods.
+     * Test the getAllInputValues and getInputMap methods.
      */
     @Test
-    public void testGetAllInputValuesAndGetAllInputEntries() {
+    public void testGetAllInputValuesAndGetInputMap() {
         final String inputKey1 = "input1";
         final String inputKey2 = "input2";
         final Object inputFile1 = new File("input file 1");
         final Object inputFile2 = new File("input file 2");
-        final Map.Entry<String, Object> inputEntry1 = Maps.immutableEntry(inputKey1, inputFile1);
-        final Map.Entry<String, Object> inputEntry2 = Maps.immutableEntry(inputKey2, inputFile2);
 
         defaultWorkflow.addInput(inputKey1, inputFile1);
         defaultWorkflow.addInput(inputKey2, inputFile2);
 
         final Set<Object> allInputValues = new HashSet<>(defaultWorkflow.getAllInputValues());
-        final Set<Map.Entry<String, Object>> allInputEntries = defaultWorkflow.getAllInputEntries();
-
         assertEquals(ImmutableSet.of(inputFile1, inputFile2), allInputValues);
-        assertEquals(ImmutableSet.of(inputEntry1, inputEntry2), allInputEntries);
+        assertEquals(ImmutableMap.of(inputKey1, inputFile1, inputKey2, inputFile2), defaultWorkflow.getInputMap());
     }
 
     /**
@@ -84,5 +79,21 @@ public class DefaultWorkflowTest {
         final File outputFile1 = new File("output file 1");
         defaultWorkflow.addOutput(outputKey1, outputFile1);
         assertEquals(outputFile1, defaultWorkflow.getOutput(outputKey1));
+    }
+
+    /**
+     * Test the getOutputMap method.
+     */
+    @Test
+    public void testGetOutputMap() {
+        final String outputKey1 = "output1";
+        final String outputKey2 = "output2";
+        final Object outputFile1 = new File("output file 1");
+        final Object outputFile2 = new File("output file 2");
+
+        defaultWorkflow.addOutput(outputKey1, outputFile1);
+        defaultWorkflow.addOutput(outputKey2, outputFile2);
+
+        assertEquals(ImmutableMap.of(outputKey1, outputFile1, outputKey2, outputFile2), defaultWorkflow.getOutputMap());
     }
 }
