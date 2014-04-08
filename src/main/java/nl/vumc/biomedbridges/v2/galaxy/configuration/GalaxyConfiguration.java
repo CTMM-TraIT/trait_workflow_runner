@@ -25,6 +25,16 @@ import org.slf4j.LoggerFactory;
  */
 public class GalaxyConfiguration {
     /**
+     * The property key for the Galaxy instance in the configure string or .blend.properties file.
+     */
+    public static final String GALAXY_INSTANCE_PROPERTY_KEY = "test.galaxy.instance";
+
+    /**
+     * The property key for the API key in the configure string or .blend.properties file.
+     */
+    public static final String API_KEY_PROPERTY_KEY = "test.galaxy.key";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyConfiguration.class);
@@ -41,12 +51,34 @@ public class GalaxyConfiguration {
     }
 
     /**
+     * Build a configuration string from a Galaxy instance URL and the default API key.
+     *
+     * @param galaxyInstanceUrl the Galaxy instance URL.
+     * @return the configuration string.
+     */
+    public static String buildConfiguration(final String galaxyInstanceUrl) {
+        return buildConfiguration(galaxyInstanceUrl, GalaxyConfiguration.getGalaxyApiKey());
+    }
+
+    /**
+     * Build a configuration string from a Galaxy instance URL and an API key.
+     *
+     * @param galaxyInstanceUrl the Galaxy instance URL.
+     * @param galaxyApiKey      the Galaxy API key.
+     * @return the configuration string.
+     */
+    public static String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey) {
+        return GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY + "=" + galaxyInstanceUrl + "|"
+               + GalaxyConfiguration.API_KEY_PROPERTY_KEY + "=" + galaxyApiKey;
+    }
+
+    /**
      * Get the Galaxy instance URL.
      *
      * @return the Galaxy instance URL.
      */
     public static String getGalaxyInstanceUrl() {
-        return getProperty("test.galaxy.instance");
+        return getProperty(GALAXY_INSTANCE_PROPERTY_KEY);
     }
 
     /**
@@ -55,7 +87,7 @@ public class GalaxyConfiguration {
      * @return the Galaxy API key.
      */
     public static String getGalaxyApiKey() {
-        return getProperty("test.galaxy.key");
+        return getProperty(API_KEY_PROPERTY_KEY);
     }
 
     /**
@@ -95,8 +127,8 @@ public class GalaxyConfiguration {
                 logger.error("The configuration file '{}' was not read successfully.", propertiesFilePath);
                 logger.error("Please ensure the following properties are available:");
             }
-            logger.error("test.galaxy.instance=https://usegalaxy.org/");
-            logger.error("test.galaxy.key=32hex-characters12345d225f38a4e3");
+            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=https://usegalaxy.org/");
+            logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]12345d2238a4e3");
         }
     }
 }

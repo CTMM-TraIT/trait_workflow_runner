@@ -11,6 +11,7 @@ import com.google.common.io.Resources;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +65,17 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      */
     public void ensureWorkflowIsOnServer(final WorkflowsClient workflowsClient) {
         boolean found = false;
-        for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow : workflowsClient.getWorkflows())
-            if (blend4jWorkflow.getName().equals(getName())
-                || blend4jWorkflow.getName().equals(getName() + " (imported from API)")) {
-                found = true;
-                break;
-            }
+        try {
+            for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow : workflowsClient.getWorkflows())
+                if (blend4jWorkflow.getName().equals(getName())
+                    || blend4jWorkflow.getName().equals(getName() + " (imported from API)")) {
+                    found = true;
+                    break;
+                }
+        } catch (final Exception e) {
+            // todo: could blend4j catch the com.sun.jersey.api.client.ClientHandlerException and throw a known one?
+            logger.error("Error retrieving the available workflows from the Galaxy server.");
+        }
         if (!found)
             workflowsClient.importWorkflow(getJsonContent());
     }
@@ -110,7 +116,14 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
             inputs = new ArrayList<>();
             outputs = new ArrayList<>();
 
-            for (final Object stepId : stepsMapJson.keySet()) {
+            // Sort the step IDs to have a well defined order.
+            // todo: numerical sort for 11+ steps.
+            final List<String> stepIds = new ArrayList<>();
+            for (Object keyId : stepsMapJson.keySet())
+                stepIds.add((String) keyId);
+            Collections.sort(stepIds);
+
+            for (final Object stepId : stepIds) {
                 final JSONObject stepJson = (JSONObject) stepsMapJson.get(stepId);
 
                 addJsonInputs((JSONArray) stepJson.get("inputs"));

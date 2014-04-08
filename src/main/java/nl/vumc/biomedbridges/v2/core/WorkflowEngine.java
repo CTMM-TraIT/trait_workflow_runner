@@ -14,6 +14,13 @@ import java.io.IOException;
  */
 public interface WorkflowEngine {
     /**
+     * Configure the workflow engine.
+     *
+     * @param configurationData the configuration data.
+     */
+    void configure(final String configurationData);
+
+    /**
      * Run the workflow on this workflow engine.
      *
      * @param workflow the workflow to run.

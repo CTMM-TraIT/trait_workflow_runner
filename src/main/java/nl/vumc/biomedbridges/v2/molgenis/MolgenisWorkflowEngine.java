@@ -10,6 +10,11 @@ import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
  */
 public class MolgenisWorkflowEngine implements WorkflowEngine {
     @Override
+    public void configure(final String configurationData) {
+        System.out.println("MolgenisWorkflowEngine.configure...");
+    }
+
+    @Override
     public void runWorkflow(final Workflow workflow) {
         System.out.println("MolgenisWorkflowEngine.runWorkflow...");
     }

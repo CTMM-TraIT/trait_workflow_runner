@@ -18,6 +18,7 @@ import nl.vumc.biomedbridges.v2.core.FileUtils;
 import nl.vumc.biomedbridges.v2.core.Workflow;
 import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
 import nl.vumc.biomedbridges.v2.core.WorkflowFactory;
+import nl.vumc.biomedbridges.v2.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,8 @@ public class ConcatenateExample extends BaseExample {
 
             //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
+            final String configuration = GalaxyConfiguration.buildConfiguration("https://usegalaxy.org/");
+            final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType, configuration);
             final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
 
             workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));

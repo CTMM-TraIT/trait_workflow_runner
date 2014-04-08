@@ -59,6 +59,17 @@ public class WorkflowFactory {
      * @return the new workflow engine (or null if the type was not recognized).
      */
     public static WorkflowEngine getWorkflowEngine(final String workflowType) {
+        return getWorkflowEngine(workflowType, null);
+    }
+
+    /**
+     * Create a workflow engine based on the workflow (engine) type.
+     *
+     * @param workflowType      the workflow (engine) type.
+     * @param configurationData the configuration data.
+     * @return the new workflow engine (or null if the type was not recognized).
+     */
+    public static WorkflowEngine getWorkflowEngine(final String workflowType, final String configurationData) {
         final WorkflowEngine workflowEngine;
         switch (workflowType) {
             case DEMONSTRATION_TYPE:
@@ -75,6 +86,8 @@ public class WorkflowFactory {
                 workflowEngine = null;
                 break;
         }
+        if (workflowEngine != null && configurationData != null)
+            workflowEngine.configure(configurationData);
         return workflowEngine;
     }
 
