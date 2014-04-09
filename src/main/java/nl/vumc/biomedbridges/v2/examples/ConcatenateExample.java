@@ -32,14 +32,27 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcatenateExample extends BaseExample {
     /**
-     * The name of the first test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
-
-    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(ConcatenateExample.class);
+
+    /**
+     * The Galaxy server (instance URL) to use.
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository.
+     * Please change the Galaxy server and the API key together to keep them in sync.
+     */
+    private static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
+
+    /**
+     * The name of the Galaxy history.
+     */
+    private static final String HISTORY_NAME = "Concatenate History";
+
+    /**
+     * The name of the concatenate workflow.
+     */
+    private static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
 
     /**
      * Line for test file 1.
@@ -72,24 +85,26 @@ public class ConcatenateExample extends BaseExample {
      * Run this example workflow: combine two input files into one output file.
      */
     public void runExample() {
+        initializeExample(logger, "ConcatenateExample.runExample");
+
+        //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
+        final String workflowType = WorkflowFactory.GALAXY_TYPE;
+        final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
+        final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
+        final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType, configuration);
+        final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
+
+        workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
+        workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
+
         try {
-            initializeExample(logger, "ConcatenateExample.runExample");
-
-            //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
-            final String workflowType = WorkflowFactory.GALAXY_TYPE;
-            final String configuration = GalaxyConfiguration.buildConfiguration("https://usegalaxy.org/");
-            final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType, configuration);
-            final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
-
-            workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
-            workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
-
-            finishExample(logger);
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
         }
+
+        finishExample(logger);
     }
 
     /**

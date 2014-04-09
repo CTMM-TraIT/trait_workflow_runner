@@ -25,14 +25,19 @@ import org.slf4j.LoggerFactory;
  */
 public class GalaxyConfiguration {
     /**
-     * The property key for the Galaxy instance in the configure string or .blend.properties file.
+     * The property key for the Galaxy instance in the configuration string or .blend.properties file.
      */
     public static final String GALAXY_INSTANCE_PROPERTY_KEY = "test.galaxy.instance";
 
     /**
-     * The property key for the API key in the configure string or .blend.properties file.
+     * The property key for the API key in the configuration string or .blend.properties file.
      */
     public static final String API_KEY_PROPERTY_KEY = "test.galaxy.key";
+
+    /**
+     * The property key for the API key in the configuration string or .blend.properties file.
+     */
+    public static final String HISTORY_NAME_PROPERTY_KEY = "galaxy.history.name";
 
     /**
      * The logger for this class.
@@ -51,25 +56,27 @@ public class GalaxyConfiguration {
     }
 
     /**
-     * Build a configuration string from a Galaxy instance URL and the default API key.
+     * Build a configuration string from a Galaxy instance URL, an API key, and a history name.
+     *
+     * @param galaxyInstanceUrl the Galaxy instance URL.
+     * @param galaxyApiKey      the Galaxy API key.
+     * @param galaxyHistoryName the Galaxy history name.
+     * @return the configuration string.
+     */
+    public static String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey,
+                                            final String galaxyHistoryName) {
+        return GALAXY_INSTANCE_PROPERTY_KEY + "=" + galaxyInstanceUrl + "|" + API_KEY_PROPERTY_KEY + "=" + galaxyApiKey
+               + "|" + HISTORY_NAME_PROPERTY_KEY + "=" + galaxyHistoryName;
+    }
+
+    /**
+     * Build a configuration string from a Galaxy instance URL, the default API key and the default history name.
      *
      * @param galaxyInstanceUrl the Galaxy instance URL.
      * @return the configuration string.
      */
     public static String buildConfiguration(final String galaxyInstanceUrl) {
-        return buildConfiguration(galaxyInstanceUrl, GalaxyConfiguration.getGalaxyApiKey());
-    }
-
-    /**
-     * Build a configuration string from a Galaxy instance URL and an API key.
-     *
-     * @param galaxyInstanceUrl the Galaxy instance URL.
-     * @param galaxyApiKey      the Galaxy API key.
-     * @return the configuration string.
-     */
-    public static String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey) {
-        return GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY + "=" + galaxyInstanceUrl + "|"
-               + GalaxyConfiguration.API_KEY_PROPERTY_KEY + "=" + galaxyApiKey;
+        return buildConfiguration(galaxyInstanceUrl, getGalaxyApiKey(), getGalaxyHistoryName());
     }
 
     /**
@@ -88,6 +95,15 @@ public class GalaxyConfiguration {
      */
     public static String getGalaxyApiKey() {
         return getProperty(API_KEY_PROPERTY_KEY);
+    }
+
+    /**
+     * Get the Galaxy history name.
+     *
+     * @return the Galaxy history name.
+     */
+    public static String getGalaxyHistoryName() {
+        return getProperty(HISTORY_NAME_PROPERTY_KEY);
     }
 
     /**
@@ -129,6 +145,9 @@ public class GalaxyConfiguration {
             }
             logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=https://usegalaxy.org/");
             logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]12345d2238a4e3");
+            logger.error("");
+            logger.error("Optional property:");
+            logger.error(HISTORY_NAME_PROPERTY_KEY + "=Some History Name");
         }
     }
 }

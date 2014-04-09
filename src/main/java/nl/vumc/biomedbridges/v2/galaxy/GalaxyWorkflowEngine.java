@@ -46,9 +46,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowEngine.class);
 
     /**
-     * The name of the history to run the workflow in.
+     * The default name of the history to run the workflow in.
      */
-    private static final String HISTORY_NAME = "Workflow Runner History";
+    private static final String DEFAULT_HISTORY_NAME = "Workflow Runner History";
 
     /**
      * The number of milliseconds in a second.
@@ -93,7 +93,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * The Galaxy API key.
      */
-    private static String galaxyApiKey = GalaxyConfiguration.getGalaxyApiKey();
+    private static String apiKey = GalaxyConfiguration.getGalaxyApiKey();
+
+    /**
+     * The name of the history to run the workflow in.
+     */
+    private static String historyName = DEFAULT_HISTORY_NAME;
 
     /**
      * The Galaxy server instance that will run the workflows.
@@ -119,6 +124,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     public void configure(final String configurationData) {
         final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY + "=";
         final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + "=";
+        final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY + "=";
         boolean instanceFound = false;
         boolean apiKeyFound = false;
         String message = null;
@@ -130,9 +136,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                     instanceFound = true;
                     logger.trace("Galaxy instance URL: " + galaxyInstanceUrl);
                 } else if (propertyDefinition.startsWith(apiKeyPrefix)) {
-                    galaxyApiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                    apiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
                     apiKeyFound = true;
-                    logger.trace("Galaxy API key: " + galaxyApiKey);
+                    logger.trace("Galaxy API key: " + apiKey);
+                } else if (propertyDefinition.startsWith(historyNamePrefix)) {
+                    historyName = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                    logger.trace("Galaxy history name: " + historyName);
                 }
             if (!instanceFound || !apiKeyFound)
                 message = String.format("Not all expected properties were not found in configuration data %s.",
@@ -149,10 +158,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.info("nl.vumc.biomedbridges.v2.galaxy.GalaxyWorkflowEngine.runWorkflow");
         logger.info("");
         logger.info("Galaxy server: " + galaxyInstanceUrl);
-        logger.info("Galaxy API key: " + galaxyApiKey);
+        logger.info("Galaxy API key: " + apiKey);
+        logger.info("Galaxy history name: " + historyName);
         logger.info("");
 
-        galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, galaxyApiKey);
+        galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);
         workflowsClient = galaxyInstance.getWorkflowsClient();
         historiesClient = galaxyInstance.getHistoriesClient();
 
@@ -161,7 +171,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
         logger.info("Prepare the input files.");
 
-        final String historyId = getNewHistoryId();
+        final String historyId = createNewHistory();
         final WorkflowInputs inputs = prepareWorkflow(historyId, workflow);
 
         int expectedOutputLength = 0;
@@ -192,8 +202,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      *
      * @return the ID of the newly created history.
      */
-    private String getNewHistoryId() {
-        return galaxyInstance.getHistoriesClient().create(new History(HISTORY_NAME)).getId();
+    private String createNewHistory() {
+        return galaxyInstance.getHistoriesClient().create(new History(historyName)).getId();
     }
 
     /**
