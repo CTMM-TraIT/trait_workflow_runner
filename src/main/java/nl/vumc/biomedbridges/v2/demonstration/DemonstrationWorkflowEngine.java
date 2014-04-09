@@ -59,6 +59,11 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
+    public Workflow getWorkflow(final String workflowName) {
+        return new DemonstrationWorkflow(workflowName);
+    }
+
+    @Override
     public void runWorkflow(final Workflow workflow) {
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");

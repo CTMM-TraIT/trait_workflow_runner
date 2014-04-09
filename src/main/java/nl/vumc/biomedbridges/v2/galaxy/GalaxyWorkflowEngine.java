@@ -154,6 +154,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
+    public Workflow getWorkflow(final String workflowName) {
+        return new GalaxyWorkflow(workflowName);
+    }
+
+    @Override
     public void runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
         logger.info("nl.vumc.biomedbridges.v2.galaxy.GalaxyWorkflowEngine.runWorkflow");
         logger.info("");

@@ -18,7 +18,7 @@ import java.util.Map;
 import nl.vumc.biomedbridges.v2.core.FileUtils;
 import nl.vumc.biomedbridges.v2.core.Workflow;
 import nl.vumc.biomedbridges.v2.core.WorkflowEngine;
-import nl.vumc.biomedbridges.v2.core.WorkflowFactory;
+import nl.vumc.biomedbridges.v2.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.v2.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -87,12 +87,12 @@ public class ConcatenateExample extends BaseExample {
     public void runExample() {
         initializeExample(logger, "ConcatenateExample.runExample");
 
-        //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
-        final String workflowType = WorkflowFactory.GALAXY_TYPE;
+        //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType, configuration);
-        final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
+        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final Workflow workflow = workflowEngine.getWorkflow(TEST_WORKFLOW_NAME);
 
         workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
         workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));

@@ -18,24 +18,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * Unit test for the WorkflowFactory class.
+ * Unit test for the WorkflowEngineFactory class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class WorkflowFactoryTest {
+public class WorkflowEngineFactoryTest {
     /**
      * Test the getWorkflowEngine method.
      */
     @Test
     public void testGetWorkflowEngine() {
-        checkEngineReturnType(DemonstrationWorkflowEngine.class, WorkflowFactory.DEMONSTRATION_TYPE);
-        checkEngineReturnType(GalaxyWorkflowEngine.class, WorkflowFactory.GALAXY_TYPE);
-        checkEngineReturnType(MolgenisWorkflowEngine.class, WorkflowFactory.MOLGENIS_TYPE);
+        checkEngineReturnType(DemonstrationWorkflowEngine.class, WorkflowEngineFactory.DEMONSTRATION_TYPE);
+        checkEngineReturnType(GalaxyWorkflowEngine.class, WorkflowEngineFactory.GALAXY_TYPE);
+        checkEngineReturnType(MolgenisWorkflowEngine.class, WorkflowEngineFactory.MOLGENIS_TYPE);
         checkEngineReturnType(null, "unknown workflow (engine) type");
     }
 
     private void checkEngineReturnType(final Class<? extends WorkflowEngine> returnType, final String workflowType) {
-        final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
+        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
         if (returnType == null)
             assertNull(workflowEngine);
         else
@@ -44,20 +44,22 @@ public class WorkflowFactoryTest {
 
     /**
      * Test the getWorkflow method.
+     *
+     * todo: move to the workflow engine unit tests?
      */
     @Test
     public void testGetWorkflow() {
-        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowFactory.DEMONSTRATION_TYPE);
-        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowFactory.GALAXY_TYPE);
-        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowFactory.MOLGENIS_TYPE);
-        checkWorkflowReturnType(null, "unknown workflow type");
+        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowEngineFactory.DEMONSTRATION_TYPE);
+        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowEngineFactory.GALAXY_TYPE);
+        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowEngineFactory.MOLGENIS_TYPE);
     }
 
-    private void checkWorkflowReturnType(final Class<? extends Workflow> returnType, final String workflowType) {
-        final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, "unused workflow name");
-        if (returnType == null)
+    private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType) {
+        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+        final Workflow workflow = workflowEngine.getWorkflow("unused workflow name");
+        if (workflowClass == null)
             assertNull(workflow);
         else
-            assertEquals(returnType, workflow.getClass());
+            assertEquals(workflowClass, workflow.getClass());
     }
 }

@@ -82,10 +82,10 @@ public class WorkflowRunnerVersion2 {
             logger.info("WorkflowRunnerVersion2.main has started.");
 
             final long startTime = System.currentTimeMillis();
-            //final String workflowType = WorkflowFactory.DEMONSTRATION_TYPE;
-            final String workflowType = WorkflowFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = WorkflowFactory.getWorkflowEngine(workflowType);
-            final Workflow workflow = WorkflowFactory.getWorkflow(workflowType, TEST_WORKFLOW_NAME);
+            //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+            final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+            final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+            final Workflow workflow = workflowEngine.getWorkflow(TEST_WORKFLOW_NAME);
             final String input1Key = "input1";
             if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
                 workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));

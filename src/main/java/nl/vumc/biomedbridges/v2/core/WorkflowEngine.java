@@ -21,6 +21,14 @@ public interface WorkflowEngine {
     void configure(final String configurationData);
 
     /**
+     * Create a named workflow.
+     *
+     * @param workflowName the workflow name.
+     * @return the new workflow.
+     */
+    Workflow getWorkflow(final String workflowName);
+
+    /**
      * Run the workflow on this workflow engine.
      *
      * @param workflow the workflow to run.

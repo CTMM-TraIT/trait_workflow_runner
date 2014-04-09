@@ -10,6 +10,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -98,7 +99,8 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      */
     private String getJsonContent() {
         try {
-            return Resources.asCharSource(GalaxyWorkflow.class.getResource(getJsonFilename()), Charsets.UTF_8).read();
+            final URL resourceUrl = GalaxyWorkflow.class.getResource(getJsonFilename());
+            return resourceUrl != null ? Resources.asCharSource(resourceUrl, Charsets.UTF_8).read() : null;
         } catch (final IOException e) {
             logger.error("Exception while retrieving json design in workflow file {}.", getJsonFilename(), e);
             throw new RuntimeException(e);
@@ -110,24 +112,27 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      */
     public void parseJson() {
         try {
-            final JSONObject workflowJson = (JSONObject) new JSONParser().parse(getJsonContent());
-            final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
-            logger.info("This workflow contains [" + stepsMapJson.size() + "] steps:\n");
             inputs = new ArrayList<>();
             outputs = new ArrayList<>();
+            final String jsonContent = getJsonContent();
+            if (jsonContent != null) {
+                final JSONObject workflowJson = (JSONObject) new JSONParser().parse(jsonContent);
+                final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
+                logger.info("This workflow contains [" + stepsMapJson.size() + "] steps:\n");
 
-            // Sort the step IDs to have a well defined order.
-            // todo: numerical sort for 11+ steps.
-            final List<String> stepIds = new ArrayList<>();
-            for (Object keyId : stepsMapJson.keySet())
-                stepIds.add((String) keyId);
-            Collections.sort(stepIds);
+                // Sort the step IDs to have a well defined order.
+                // todo: numerical sort for 11+ steps.
+                final List<String> stepIds = new ArrayList<>();
+                for (Object keyId : stepsMapJson.keySet())
+                    stepIds.add((String) keyId);
+                Collections.sort(stepIds);
 
-            for (final Object stepId : stepIds) {
-                final JSONObject stepJson = (JSONObject) stepsMapJson.get(stepId);
+                for (final Object stepId : stepIds) {
+                    final JSONObject stepJson = (JSONObject) stepsMapJson.get(stepId);
 
-                addJsonInputs((JSONArray) stepJson.get("inputs"));
-                addJsonOutputs((JSONArray) stepJson.get("outputs"));
+                    addJsonInputs((JSONArray) stepJson.get("inputs"));
+                    addJsonOutputs((JSONArray) stepJson.get("outputs"));
+                }
             }
         } catch (final ParseException e) {
             logger.error("Exception while parsing json design in workflow file {}.", getJsonFilename(), e);

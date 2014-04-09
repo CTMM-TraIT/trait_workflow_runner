@@ -15,6 +15,11 @@ public class MolgenisWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
+    public Workflow getWorkflow(final String workflowName) {
+        return new MolgenisWorkflow(workflowName);
+    }
+
+    @Override
     public void runWorkflow(final Workflow workflow) {
         System.out.println("MolgenisWorkflowEngine.runWorkflow...");
     }
