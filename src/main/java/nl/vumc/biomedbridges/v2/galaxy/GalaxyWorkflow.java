@@ -66,6 +66,7 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      */
     public void ensureWorkflowIsOnServer(final WorkflowsClient workflowsClient) {
         boolean found = false;
+        // CHECKSTYLE_OFF: IllegalCatchCheck
         try {
             for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow : workflowsClient.getWorkflows())
                 if (blend4jWorkflow.getName().equals(getName())
@@ -73,10 +74,11 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
                     found = true;
                     break;
                 }
-        } catch (final Exception e) {
+        } catch (final RuntimeException e) {
             // todo: could blend4j catch the com.sun.jersey.api.client.ClientHandlerException and throw a known one?
             logger.error("Error retrieving the available workflows from the Galaxy server.");
         }
+        // CHECKSTYLE_ON: IllegalCatchCheck
         if (!found)
             workflowsClient.importWorkflow(getJsonContent());
     }

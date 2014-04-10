@@ -40,6 +40,16 @@ public class GalaxyConfiguration {
     public static final String HISTORY_NAME_PROPERTY_KEY = "galaxy.history.name";
 
     /**
+     * The separator between key and value of a configuration property.
+     */
+    public static final String KEY_VALUE_SEPARATOR = "=";
+
+    /**
+     * The separator between configuration properties.
+     */
+    public static final String PROPERTY_SEPARATOR = "|";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyConfiguration.class);
@@ -65,8 +75,9 @@ public class GalaxyConfiguration {
      */
     public static String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey,
                                             final String galaxyHistoryName) {
-        return GALAXY_INSTANCE_PROPERTY_KEY + "=" + galaxyInstanceUrl + "|" + API_KEY_PROPERTY_KEY + "=" + galaxyApiKey
-               + "|" + HISTORY_NAME_PROPERTY_KEY + "=" + galaxyHistoryName;
+        return GALAXY_INSTANCE_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyInstanceUrl + PROPERTY_SEPARATOR
+               + API_KEY_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyApiKey + PROPERTY_SEPARATOR + HISTORY_NAME_PROPERTY_KEY
+               + KEY_VALUE_SEPARATOR + galaxyHistoryName;
     }
 
     /**

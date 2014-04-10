@@ -122,35 +122,54 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public void configure(final String configurationData) {
-        final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY + "=";
-        final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + "=";
-        final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY + "=";
-        boolean instanceFound = false;
-        boolean apiKeyFound = false;
-        String message = null;
-        if (configurationData.contains("|") && configurationData.contains(instancePrefix)
-            && configurationData.contains(apiKeyPrefix)) {
-            for (final String propertyDefinition : configurationData.split("\\|"))
-                if (propertyDefinition.startsWith(instancePrefix)) {
-                    galaxyInstanceUrl = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                    instanceFound = true;
-                    logger.trace("Galaxy instance URL: " + galaxyInstanceUrl);
-                } else if (propertyDefinition.startsWith(apiKeyPrefix)) {
-                    apiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                    apiKeyFound = true;
-                    logger.trace("Galaxy API key: " + apiKey);
-                } else if (propertyDefinition.startsWith(historyNamePrefix)) {
-                    historyName = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                    logger.trace("Galaxy history name: " + historyName);
-                }
-            if (!instanceFound || !apiKeyFound)
-                message = String.format("Not all expected properties were not found in configuration data %s.",
-                                        configurationData);
-        } else
+        final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
+                                      + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
+        final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
+        final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
+        String message;
+        if (configurationData.contains(GalaxyConfiguration.PROPERTY_SEPARATOR)
+            && configurationData.contains(instancePrefix)
+            && configurationData.contains(apiKeyPrefix))
+            message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
+        else
             message = String.format("Expected properties were not found in configuration data %s.", configurationData);
         if (message != null)
-            logger.error(message + " Please specify: {}" + "[Galaxy server URL]" + "|" + "{}" + "[API key]",
-                         instancePrefix, apiKeyPrefix);
+            logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
+                         GalaxyConfiguration.PROPERTY_SEPARATOR, apiKeyPrefix);
+    }
+
+    /**
+     * Process all configuration properties.
+     *
+     * @param configurationData the configuration data.
+     * @param instancePrefix    the Galaxy instance property prefix.
+     * @param apiKeyPrefix      the api key property prefix.
+     * @param historyNamePrefix the history name property prefix.
+     * @return the logging message or null if there is nothing to log.
+     */
+    private String processConfigurationProperties(final String configurationData, final String instancePrefix,
+                                                  final String apiKeyPrefix, final String historyNamePrefix) {
+        String message = null;
+        boolean instanceFound = false;
+        boolean apiKeyFound = false;
+        for (final String propertyDefinition : configurationData.split("\\|"))
+            if (propertyDefinition.startsWith(instancePrefix)) {
+                galaxyInstanceUrl = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                instanceFound = true;
+                logger.trace("Read property Galaxy instance URL: {}.", galaxyInstanceUrl);
+            } else if (propertyDefinition.startsWith(apiKeyPrefix)) {
+                apiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                apiKeyFound = true;
+                logger.trace("Read property Galaxy API key: {}.", apiKey);
+            } else if (propertyDefinition.startsWith(historyNamePrefix)) {
+                historyName = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                logger.trace("Read property Galaxy history name: {}.", historyName);
+            }
+        if (!instanceFound || !apiKeyFound)
+            message = String.format("Not all expected properties (Galaxy instance and API key) were found in"
+                                    + " configuration data %s.", configurationData);
+        return message;
     }
 
     @Override
@@ -162,9 +181,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     public void runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
         logger.info("nl.vumc.biomedbridges.v2.galaxy.GalaxyWorkflowEngine.runWorkflow");
         logger.info("");
-        logger.info("Galaxy server: " + galaxyInstanceUrl);
-        logger.info("Galaxy API key: " + apiKey);
-        logger.info("Galaxy history name: " + historyName);
+        logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
+        logger.info("Galaxy API key: {}.", apiKey);
+        logger.info("Galaxy history name: {}.", historyName);
         logger.info("");
 
         galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);
@@ -285,21 +304,20 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         HistoryDetails details = null;
         boolean finished = false;
         int waitCount = 0;
-        while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
+        while (!finished) {
             logger.info("  + Now waiting for {} seconds...", UPLOAD_WAIT_SECONDS);
             Thread.sleep(UPLOAD_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
             details = historiesClient.showHistory(historyId);
             logger.info("  + History is " + (details.isReady() ? "ready." : "not ready yet."));
-            finished = details.isReady();
+            finished = details.isReady() || waitCount >= UPLOAD_MAX_WAIT_BLOCKS;
             waitCount++;
         }
-        if (details != null)
+        final String state = details.getState();
+        if ("ok".equals(state))
             logger.debug("details.getStateIds(): " + details.getStateIds());
-        final String state = details != null ? details.getState() : "timeout";
-        if (!"ok".equals(state)) {
+        else {
             logger.error("History no longer running, but not in 'ok' state. State is: '{}'.", state);
-            if (details != null)
-                logger.error("historiesClient.showHistory(historyId).getStateIds(): " + details.getStateIds());
+            logger.error("historiesClient.showHistory(historyId).getStateIds(): " + details.getStateIds());
         }
         Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
     }
@@ -397,6 +415,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      *
      * @param workflow  the workflow.
      * @param historyId the ID of the history to use for workflow input and output.
+     * @return whether all output files were downloaded successfully.
      */
     private boolean downloadOutputFiles(final Workflow workflow, final String historyId) {
         boolean success = true;
@@ -410,7 +429,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense).
                 workflow.addOutput(outputId, outputFile);
             }
-        } catch (final Exception e) {
+        } catch (final IllegalArgumentException | IOException | SecurityException e) {
             logger.error("Error downloading a workflow output file.", e);
             success = false;
         }

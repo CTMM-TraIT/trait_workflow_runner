@@ -103,7 +103,7 @@ public class WorkflowRunnerVersion2 {
             logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
         }
     }
-    // CHECKSTYLE_OFF: UncommentedMain
+    // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Check the output after running the workflow.
