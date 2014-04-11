@@ -125,7 +125,7 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
                 // Sort the step IDs to have a well defined order.
                 // todo: numerical sort for 11+ steps.
                 final List<String> stepIds = new ArrayList<>();
-                for (Object keyId : stepsMapJson.keySet())
+                for (final Object keyId : stepsMapJson.keySet())
                     stepIds.add((String) keyId);
                 Collections.sort(stepIds);
 

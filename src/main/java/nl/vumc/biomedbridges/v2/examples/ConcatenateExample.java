@@ -79,7 +79,7 @@ public class ConcatenateExample extends BaseExample {
     public static void main(final String[] arguments) {
         new ConcatenateExample().runExample();
     }
-    // CHECKSTYLE_OFF: UncommentedMain
+    // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: combine two input files into one output file.

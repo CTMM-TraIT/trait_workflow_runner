@@ -55,7 +55,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
     public static void main(final String[] arguments) {
         new RemoveTopAndLeftExample().runExample();
     }
-    // CHECKSTYLE_OFF: UncommentedMain
+    // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: remove a number of lines from the input file and remove a number of characters from

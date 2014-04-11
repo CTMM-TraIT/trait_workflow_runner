@@ -175,7 +175,7 @@ public class WorkflowRunner {
             logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
         }
     }
-    // CHECKSTYLE_OFF: UncommentedMain
+    // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Create a test file with a single line.
