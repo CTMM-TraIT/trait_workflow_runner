@@ -12,10 +12,11 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import nl.vumc.biomedbridges.v2.core.DefaultWorkflow;
 import nl.vumc.biomedbridges.v2.core.Workflow;
@@ -122,16 +123,16 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
                 final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
                 logger.info("This workflow contains [" + stepsMapJson.size() + "] steps:\n");
 
-                // Sort the step IDs to have a well defined order.
-                // todo: numerical sort for 11+ steps.
-                final List<String> stepIds = new ArrayList<>();
-                for (final Object keyId : stepsMapJson.keySet())
-                    stepIds.add((String) keyId);
-                Collections.sort(stepIds);
+                // Sort the steps to have a well defined order.
+                final SortedMap<Integer, JSONObject> sortedStepsMap = new TreeMap<>();
+                for (final Object stepObject : stepsMapJson.entrySet())
+                    if (stepObject instanceof Map.Entry) {
+                        final Map.Entry stepEntry = (Map.Entry) stepObject;
+                        final int stepId = Integer.parseInt((String) stepEntry.getKey());
+                        sortedStepsMap.put(stepId, (JSONObject) stepEntry.getValue());
+                    }
 
-                for (final Object stepId : stepIds) {
-                    final JSONObject stepJson = (JSONObject) stepsMapJson.get(stepId);
-
+                for (final JSONObject stepJson : sortedStepsMap.values()) {
                     addJsonInputs((JSONArray) stepJson.get("inputs"));
                     addJsonOutputs((JSONArray) stepJson.get("outputs"));
                 }
