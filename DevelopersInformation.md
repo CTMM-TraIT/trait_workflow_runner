@@ -73,7 +73,7 @@ for an explanation of the build lifecycle and the build phases):
 **`mvn test`**
 
 \# Run one of the examples:<br/>
-**`mvn exec:java -Dexec.mainClass="nl.vumc.biomedbridges.v2.examples.ConcatenateExample"`**
+**`mvn exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.ConcatenateExample"`**
 
 \# Take the compiled code and package it in the WorkflowRunner-x.y.z.jar file (in the target directory):<br/>
 **`mvn package`**
