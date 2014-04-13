@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 
@@ -67,7 +68,7 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     public void runWorkflow(final Workflow workflow) {
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
-            if ("TestWorkflowConcatenate".equals(workflow.getName())) {
+            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflow.getName())) {
                 logger.info("Running workflow " + workflow.getName() + "...");
                 final Object input1 = workflow.getInput("input1");
                 final Object input2 = workflow.getInput("input2");

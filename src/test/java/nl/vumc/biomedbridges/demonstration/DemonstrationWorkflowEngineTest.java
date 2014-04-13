@@ -8,8 +8,11 @@ package nl.vumc.biomedbridges.demonstration;
 import java.io.File;
 import java.math.BigInteger;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
+import nl.vumc.biomedbridges.core.Workflow;
 
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -19,13 +22,30 @@ import org.junit.Test;
  */
 public class DemonstrationWorkflowEngineTest {
     /**
+     * The workflow engine to test.
+     */
+    private DemonstrationWorkflowEngine demonstrationWorkflowEngine;
+
+    /**
+     * The workflow to use.
+     */
+    private Workflow demonstrationWorkflow;
+
+    /**
+     * Set up for each unit test.
+     */
+    @Before
+    public void setUp() {
+        demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
+        demonstrationWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+    }
+
+    /**
      * Test the runWorkflow method with an invalid parameter.
      */
     @Test
     public void testRunWorkflowInvalidParameter() {
-        final DemonstrationWorkflowEngine demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
-        final DemonstrationWorkflow demonstrationWorkflow = new DemonstrationWorkflow("TestWorkflowConcatenate");
-        demonstrationWorkflow.addInput("input1", new BigInteger("123456"));
+        demonstrationWorkflow.addInput("WorkflowInput1", new BigInteger("123456"));
         demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow);
     }
 
@@ -34,10 +54,8 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowNonExistingFiles() {
-        final DemonstrationWorkflowEngine demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
-        final DemonstrationWorkflow demonstrationWorkflow = new DemonstrationWorkflow("TestWorkflowConcatenate");
-        demonstrationWorkflow.addInput("input1", new File("non-existing file 1"));
-        demonstrationWorkflow.addInput("input2", new File("non-existing file 2"));
+        demonstrationWorkflow.addInput("WorkflowInput1", new File("non-existing file 1"));
+        demonstrationWorkflow.addInput("WorkflowInput2", new File("non-existing file 2"));
         demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow);
     }
 
@@ -46,10 +64,8 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowCorrectParameters() {
-        final DemonstrationWorkflowEngine demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
-        final DemonstrationWorkflow demonstrationWorkflow = new DemonstrationWorkflow("TestWorkflowConcatenate");
-        demonstrationWorkflow.addInput("input1", FileUtils.createInputFile("line 1"));
-        demonstrationWorkflow.addInput("input2", FileUtils.createInputFile("line 2"));
+        demonstrationWorkflow.addInput("WorkflowInput1", FileUtils.createInputFile("line 1"));
+        demonstrationWorkflow.addInput("WorkflowInput2", FileUtils.createInputFile("line 2"));
         demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow);
     }
 }

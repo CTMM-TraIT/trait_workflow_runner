@@ -15,16 +15,15 @@ import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
-import com.google.common.collect.ImmutableMap;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.core.WorkflowRunnerVersion2;
 import nl.vumc.biomedbridges.examples.RemoveTopAndLeftExample;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -204,7 +203,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 expectedOutputLength += ((File) input).length();
 
         final int scatterPlotOutputLength = 4733;
-        if (workflow.getName().equals(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_2))
+        if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT))
             expectedOutputLength = scatterPlotOutputLength;
 
         final boolean finished = executeWorkflow(historyId, inputs, expectedOutputLength);
@@ -257,21 +256,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.trace("galaxyWorkflowId: " + galaxyWorkflowId);
         inputs.setWorkflowId(galaxyWorkflowId);
         final WorkflowDetails workflowDetails = workflowsClient.showWorkflow(galaxyWorkflowId);
-        // todo: make input labels uniform; for now, we map generic labels to Galaxy labels.
-        final String input1Key = "input1";
-        final Map<String, String> genericToGalaxyLabelMap;
-        if (workflow.getName().equals(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_1))
-            genericToGalaxyLabelMap = ImmutableMap.of(input1Key, "WorkflowInput1", "input2", "WorkflowInput2");
-        else
-            genericToGalaxyLabelMap = ImmutableMap.of(input1Key, input1Key);
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
-//        final String inputId = historiesClient.getDatasetIdByName(fileName, historyId);
             final String inputId = HistoryUtils.getDatasetIdByName(fileName, historiesClient, historyId);
-//        inputs.setInputByLabel("WorkflowInput1", workflowDetails, new WorkflowInput(input1Id, InputSourceType.HDA));
             final WorkflowInput workflowInput = new WorkflowInput(inputId, WorkflowInputs.InputSourceType.HDA);
-            final String label = genericToGalaxyLabelMap.get(inputEntry.getKey());
-            WorkflowUtils.setInputByLabel(label, workflowDetails, inputs, workflowInput);
+            WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
         }
         return inputs;
     }
@@ -426,7 +415,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 // todo: is it necessary to fill in the data type (last parameter)?
                 success &= HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
                                                         outputFile.getAbsolutePath(), false, null);
-                // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense).
+                // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense)?
                 workflow.addOutput(outputId, outputFile);
             }
         } catch (final IllegalArgumentException | IOException | SecurityException e) {

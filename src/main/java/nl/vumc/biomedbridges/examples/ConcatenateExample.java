@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -48,11 +49,6 @@ public class ConcatenateExample extends BaseExample {
      * The name of the Galaxy history.
      */
     private static final String HISTORY_NAME = "Concatenate History";
-
-    /**
-     * The name of the concatenate workflow.
-     */
-    private static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
 
     /**
      * Line for test file 1.
@@ -92,16 +88,16 @@ public class ConcatenateExample extends BaseExample {
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
-        final Workflow workflow = workflowEngine.getWorkflow(TEST_WORKFLOW_NAME);
+        final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
 
-        workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
-        workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
+        workflow.addInput("WorkflowInput1", FileUtils.createInputFile(LINE_TEST_FILE_1));
+        workflow.addInput("WorkflowInput2", FileUtils.createInputFile(LINE_TEST_FILE_2));
 
         try {
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
+            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_CONCATENATE, e);
         }
 
         finishExample(logger);

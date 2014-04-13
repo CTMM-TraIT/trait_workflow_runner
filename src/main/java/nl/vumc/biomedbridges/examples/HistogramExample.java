@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -29,11 +30,6 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class HistogramExample extends BaseExample {
-    /**
-     * The name of the first test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME = "TestWorkflowConcatenate";
-
     /**
      * The logger for this class.
      */
@@ -76,7 +72,7 @@ public class HistogramExample extends BaseExample {
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
-            final Workflow workflow = workflowEngine.getWorkflow(TEST_WORKFLOW_NAME);
+            final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_HISTOGRAM);
 
             workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
             workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
@@ -85,7 +81,7 @@ public class HistogramExample extends BaseExample {
 
             finishExample(logger);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
+            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_HISTOGRAM, e);
         }
     }
 

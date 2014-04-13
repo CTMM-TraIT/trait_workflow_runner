@@ -29,21 +29,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkflowRunnerVersion2 {
     /**
-     * The name of the first test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME_1 = "TestWorkflowConcatenate";
-
-    /**
-     * The name of the second test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME_2 = "TestWorkflowScatterplot";
-
-    /**
-     * The name of the test workflow.
-     */
-    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_NAME_2;
-
-    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
@@ -85,9 +70,9 @@ public class WorkflowRunnerVersion2 {
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
-            final Workflow workflow = workflowEngine.getWorkflow(TEST_WORKFLOW_NAME);
+            final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_NAME);
             final String input1Key = "input1";
-            if (TEST_WORKFLOW_NAME.equals(TEST_WORKFLOW_NAME_1)) {
+            if (Constants.TEST_WORKFLOW_NAME.equals(Constants.TEST_WORKFLOW_CONCATENATE)) {
                 workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));
                 workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
             } else {
@@ -100,7 +85,7 @@ public class WorkflowRunnerVersion2 {
             logger.info("");
             logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
         } catch (final InterruptedException | IOException | URISyntaxException e) {
-            logger.error("Exception while running workflow {}.", TEST_WORKFLOW_NAME, e);
+            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_NAME, e);
         }
     }
     // CHECKSTYLE_ON: UncommentedMain
@@ -112,12 +97,12 @@ public class WorkflowRunnerVersion2 {
      * @throws IOException if reading an output file fails.
      */
     private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
+        // todo: look at all outputs (since GalaxyWorkflowEngine.downloadOutputFiles now downloads all output files).
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;
-            // todo: create generic way to handle output files.
-            if (workflow.getName().equals(TEST_WORKFLOW_NAME_2)) {
-                logger.debug("Create pdf file for workflow {}.", TEST_WORKFLOW_NAME_2);
+            if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT)) {
+                logger.debug("Create pdf file for workflow {}.", Constants.TEST_WORKFLOW_SCATTERPLOT);
                 Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
             }
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);

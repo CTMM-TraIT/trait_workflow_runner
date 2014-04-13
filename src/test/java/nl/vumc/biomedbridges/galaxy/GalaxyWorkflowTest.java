@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import nl.vumc.biomedbridges.core.WorkflowRunnerVersion2;
+import nl.vumc.biomedbridges.core.Constants;
 
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class GalaxyWorkflowTest {
      */
     @Test
     public void testConstructorAndJsonParsing() {
-        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(WorkflowRunnerVersion2.TEST_WORKFLOW_NAME_1);
+        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
         final List<Map<String, String>> expectedInputs = new ArrayList<>();
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput1"));
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput2"));
