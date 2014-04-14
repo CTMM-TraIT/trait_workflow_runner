@@ -9,6 +9,8 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 
+import java.io.File;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -39,5 +41,19 @@ public class HistoryUtilsTest {
 
         assertTrue(historyUtilsSpy.downloadDataset(galaxyInstance, historiesClient, historyId, datasetId, filePath,
                                                    false, null));
+    }
+
+    /**
+     * Test the downloadFileFromUrl method.
+     */
+    @Test
+    public void testDownloadFileFromUrl() throws Exception {
+        final HistoryUtils historyUtils = new HistoryUtils();
+        final String flagUrl = "http://www.biomedbridges.eu/sites/biomedbridges.eu/files/images/euflag.png";
+        final String filePath = System.getProperty("java.io.tmpdir") + "testDownloadFileFromUrl.txt";
+
+        assertTrue(historyUtils.downloadFileFromUrl(flagUrl, filePath));
+        assertTrue(new File(filePath).exists());
+        assertTrue(new File(filePath).delete());
     }
 }
