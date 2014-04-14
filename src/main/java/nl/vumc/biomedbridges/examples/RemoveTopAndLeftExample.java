@@ -63,7 +63,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
      */
     public void runExample() {
         try {
-            initializeExample(logger, "WorkflowRunnerVersion2.main");
+            initializeExample(logger, "RemoveTopAndLeftExample.main");
 
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
@@ -97,16 +97,6 @@ public class RemoveTopAndLeftExample extends BaseExample {
             final String lineSeparator = " | ";
             logger.info("- Output file contains the following lines:");
             logger.info("  " + Joiner.on(lineSeparator).join(lines));
-//            final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-//            final String lineSeparator = " | ";
-//            if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
-//                logger.info("- Concatenated file contains the lines we expected!!!");
-//                logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
-//            } else {
-//                logger.error("- Concatenated file does not contain the lines we expected!");
-//                logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
-//                logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
-//            }
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else

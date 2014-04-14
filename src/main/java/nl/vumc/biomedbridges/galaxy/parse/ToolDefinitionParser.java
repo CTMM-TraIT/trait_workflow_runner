@@ -23,11 +23,29 @@ import org.xml.sax.SAXException;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class ToolDefinitionParser {
-    public static void main(final String[] args) {
+    /**
+     * Hidden constructor. The main method below will be used for now.
+     */
+    private ToolDefinitionParser() {
+    }
+
+    /**
+     * Main method.
+     *
+     * @param arguments unused command-line arguments.
+     */
+    // CHECKSTYLE_OFF: UncommentedMain
+    public static void main(final String[] arguments) {
         final String filePath = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\etc\\histogram2.xml";
         new ToolDefinitionParser().parseToolDefinition(filePath);
     }
+    // CHECKSTYLE_ON: UncommentedMain
 
+    /**
+     * Parse the definition of a tool.
+     *
+     * @param filePath the file path with the xml tool definition.
+     */
     private void parseToolDefinition(final String filePath) {
         System.out.println("filePath: " + filePath);
         try {

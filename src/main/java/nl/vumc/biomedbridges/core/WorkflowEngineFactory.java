@@ -36,7 +36,7 @@ public class WorkflowEngineFactory {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowEngineFactory.class);
 
     /**
      * Message for an unexpected workflow type.

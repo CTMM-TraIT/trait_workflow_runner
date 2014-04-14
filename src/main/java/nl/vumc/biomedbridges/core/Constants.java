@@ -30,4 +30,10 @@ public class Constants {
      * The name of the current test workflow.
      */
     public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_SCATTERPLOT;
+
+    /**
+     * Hidden constructor. Only the static fields of this class are meant to be used.
+     */
+    private Constants() {
+    }
 }

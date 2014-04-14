@@ -6,13 +6,12 @@
 package nl.vumc.biomedbridges.examples;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
@@ -36,16 +35,6 @@ public class HistogramExample extends BaseExample {
     private static final Logger logger = LoggerFactory.getLogger(HistogramExample.class);
 
     /**
-     * Line for test file 1.
-     */
-    private static final String LINE_TEST_FILE_1 = "Hello workflow engine!!!";
-
-    /**
-     * Line for test file 2.
-     */
-    private static final String LINE_TEST_FILE_2 = "Do you wanna play?";
-
-    /**
      * Hidden constructor. The main method below will run this example.
      */
     private HistogramExample() {
@@ -67,15 +56,14 @@ public class HistogramExample extends BaseExample {
      */
     public void runExample() {
         try {
-            initializeExample(logger, "ConcatenateExample.runExample");
+            initializeExample(logger, "HistogramExample.runExample");
 
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
             final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_HISTOGRAM);
 
-            workflow.addInput("input1", FileUtils.createInputFile(LINE_TEST_FILE_1));
-            workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
+            workflow.addInput("input", FileUtils.createInputFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
 
@@ -92,22 +80,24 @@ public class HistogramExample extends BaseExample {
      * @throws java.io.IOException if reading an output file fails.
      */
     private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
-        final Object output = workflow.getOutput("output");
+        final Map<String, Object> outputMap = workflow.getOutputMap();
+        final Object output = outputMap.isEmpty() ? null : outputMap.values().iterator().next();
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            final String lineSeparator = " | ";
-            if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
-                logger.info("- Concatenated file contains the lines we expected!!!");
-                logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
-            } else {
-                logger.error("- Concatenated file does not contain the lines we expected!");
-                logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
-                logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
-            }
+            final String pdfHeader = "%PDF-1.4";
+            final int lineCountLowLimit = 50;
+            final int lineCountHighLimit = 70;
+            if (pdfHeader.equals(lines.get(0)))
+                if (lineCountLowLimit < lines.size() && lines.size() < lineCountHighLimit)
+                    logger.info("- Histogram pdf output file appears to be ok!!!");
+                else
+                    logger.error("- Histogram pdf output file does not contain the amount of lines we expected!");
+            else
+                logger.error("- Histogram pdf output file does not start the expected pdf header {} !", pdfHeader);
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
-            logger.error("There is no output parameter named \"output\" of type File.");
+            logger.error("There is no single output parameter of type File.");
     }
 }

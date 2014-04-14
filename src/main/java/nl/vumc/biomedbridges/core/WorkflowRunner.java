@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class WorkflowRunnerVersion2 {
+public class WorkflowRunner {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunnerVersion2.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowRunner.class);
 
     /**
      * The number of milliseconds in a second.
@@ -51,7 +51,7 @@ public class WorkflowRunnerVersion2 {
     /**
      * Hidden constructor. The main method below will create a workflow runner.
      */
-    private WorkflowRunnerVersion2() {
+    private WorkflowRunner() {
     }
 
     /**
@@ -62,9 +62,9 @@ public class WorkflowRunnerVersion2 {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         try {
-            DOMConfigurator.configure(WorkflowRunnerVersion2.class.getClassLoader().getResource("log4j.xml"));
+            DOMConfigurator.configure(WorkflowRunner.class.getClassLoader().getResource("log4j.xml"));
             logger.info("========================================");
-            logger.info("WorkflowRunnerVersion2.main has started.");
+            logger.info("WorkflowRunner.main has started.");
 
             final long startTime = System.currentTimeMillis();
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
@@ -76,7 +76,7 @@ public class WorkflowRunnerVersion2 {
                 workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));
                 workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
             } else {
-                final URL scatterplotInputURL = WorkflowRunnerVersion2.class.getResource("ScatterplotInput.txt");
+                final URL scatterplotInputURL = WorkflowRunner.class.getResource("ScatterplotInput.txt");
                 workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));
             }
             workflowEngine.runWorkflow(workflow);
