@@ -55,7 +55,7 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
      *
      * @param name the name of the workflow.
      */
-    public GalaxyWorkflow(final String name) {
+    protected GalaxyWorkflow(final String name) {
         super(name);
         parseJson();
     }

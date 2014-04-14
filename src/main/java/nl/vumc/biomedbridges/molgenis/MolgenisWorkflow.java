@@ -14,7 +14,7 @@ public class MolgenisWorkflow extends DefaultWorkflow implements Workflow {
      *
      * @param name the workflow name.
      */
-    public MolgenisWorkflow(final String name) {
+    protected MolgenisWorkflow(final String name) {
         super(name);
     }
 }

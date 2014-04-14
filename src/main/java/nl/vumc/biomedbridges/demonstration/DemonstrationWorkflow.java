@@ -19,7 +19,7 @@ public class DemonstrationWorkflow extends DefaultWorkflow implements Workflow {
      *
      * @param name the workflow name.
      */
-    public DemonstrationWorkflow(final String name) {
+    protected DemonstrationWorkflow(final String name) {
         super(name);
     }
 }
