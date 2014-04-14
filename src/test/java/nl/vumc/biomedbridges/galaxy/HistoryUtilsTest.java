@@ -9,18 +9,8 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertTrue;
 
@@ -29,35 +19,25 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({HistoryUtils.class, URL.class})
 public class HistoryUtilsTest {
     /**
      * Test the downloadDataset method.
      */
     @Test
     public void testDownloadDataset() throws Exception {
+        final HistoryUtils historyUtilsSpy = Mockito.spy(new HistoryUtils());
         final HistoriesClient historiesClient = Mockito.mock(HistoriesClient.class);
         final String historyId = "123456";
         final String datasetId = "dataset-id";
         final Dataset dataset = new Dataset();
         final GalaxyInstance galaxyInstance = Mockito.mock(GalaxyInstance.class);
-        final URL url = PowerMockito.mock(URL.class);
-        final HttpURLConnection urlConnection = Mockito.mock(HttpURLConnection.class);
-        final InputStream inputStream = new ByteArrayInputStream("testDownloadDataset".getBytes());
         final String filePath = System.getProperty("java.io.tmpdir") + "testDownloadDataset.txt";
 
         Mockito.when(historiesClient.showDataset(Mockito.eq(historyId), Mockito.eq(datasetId))).thenReturn(dataset);
         Mockito.when(galaxyInstance.getGalaxyUrl()).thenReturn("http://");
-        PowerMockito.whenNew(URL.class).withArguments(Mockito.anyString()).thenReturn(url);
-        Mockito.when(url.openConnection()).thenReturn(urlConnection);
-        Mockito.when(urlConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
-        Mockito.when(urlConnection.getInputStream()).thenReturn(inputStream);
+        Mockito.when(historyUtilsSpy.downloadFileFromUrl(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 
-        assertTrue(HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId, datasetId, filePath,
-                                                false, null));
-
-        assertTrue(new File(filePath).exists());
-        assertTrue(new File(filePath).delete());
+        assertTrue(historyUtilsSpy.downloadDataset(galaxyInstance, historiesClient, historyId, datasetId, filePath,
+                                                   false, null));
     }
 }

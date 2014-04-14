@@ -248,7 +248,7 @@
                     <!--suppress MavenModelInspection -->
                     <!-- todo [Freek]: IntelliJ doesn't like the line below (Error: Could not find or load main class
                                        ${surefireArgLine}), while Maven needs it... -->
-                    <!--<argLine>${surefireArgLine}</argLine>-->
+                    <argLine>${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
 

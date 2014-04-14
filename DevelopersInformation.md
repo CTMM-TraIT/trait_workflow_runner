@@ -69,7 +69,7 @@ for an explanation of the build lifecycle and the build phases):
 \# Compile the source code of the project:<br/>
 **`mvn compile`**
 
-\# Test the compiled source code using the JUnit unit testing framework:<br/>
+\# Run all unit tests and generate code coverage information (in target\site\code-coverage-jacoco):<br/>
 **`mvn test`**
 
 \# Run one of the examples:<br/>

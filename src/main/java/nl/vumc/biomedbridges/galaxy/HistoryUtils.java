@@ -11,12 +11,12 @@ import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +33,6 @@ public class HistoryUtils {
     private static final Logger logger = LoggerFactory.getLogger(HistoryUtils.class);
 
     /**
-     * The size of the buffer for downloading datasets from Galaxy.
-     */
-    private static final int DOWNLOAD_BUFFER_SIZE = 8 * 1024;
-
-    /**
-     * Hidden constructor. Only the static methods of this class are meant to be used.
-     */
-    private HistoryUtils() {
-    }
-
-    /**
      * Download a dataset from Galaxy.
      *
      * @param galaxyInstance  the Galaxy server to retrieve the dataset from.
@@ -55,9 +44,9 @@ public class HistoryUtils {
      * @param dataType        the explicit data type of the dataset (or null to use the data type from the dataset).
      * @return whether the download was successful.
      */
-    public static boolean downloadDataset(final GalaxyInstance galaxyInstance, final HistoriesClient historiesClient,
-                                          final String historyId, final String datasetId, final String filePath,
-                                          final boolean useDatasetName, final String dataType) {
+    public boolean downloadDataset(final GalaxyInstance galaxyInstance, final HistoriesClient historiesClient,
+                                   final String historyId, final String datasetId, final String filePath,
+                                   final boolean useDatasetName, final String dataType) {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
         final String toExt = (dataType != null) ? dataType : dataset.getDataType();
         final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
@@ -73,33 +62,17 @@ public class HistoryUtils {
      * @param fullFilePath the full file path to download the dataset to.
      * @return whether the download was successful.
      */
-    private static boolean downloadFileFromUrl(final String url, final String fullFilePath) {
-        boolean success = true;
-        OutputStream outputStream = null;
+    protected boolean downloadFileFromUrl(final String url, final String fullFilePath) {
+        boolean success = false;
         try {
             final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            final int responseCode = connection.getResponseCode();
-            final InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK)
-                                            ? connection.getInputStream()
-                                            : connection.getErrorStream();
-            outputStream = new FileOutputStream(fullFilePath);
-            final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, bytesRead);
+            final boolean ok = connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+            try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
+                Files.copy(inputStream, Paths.get(fullFilePath));
+                success = true;
             }
         } catch (final IOException e) {
-            logger.error("HistoryUtils.downloadFileFromUrl: error downloading or writing dataset file.", e);
-            success = false;
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (final IOException e) {
-                    logger.error("HistoryUtils.downloadFileFromUrl: error closing dataset file.", e);
-                    success = false;
-                }
-            }
+            logger.error("Error downloading or writing dataset file.", e);
         }
         return success;
     }
@@ -112,10 +85,10 @@ public class HistoryUtils {
      * @param historyId       the ID of the history that contains the dataset.
      * @return the dataset ID.
      */
-    public static String getDatasetIdByName(final String datasetName, final HistoriesClient historiesClient,
-                                            final String historyId) {
+    public String getDatasetIdByName(final String datasetName, final HistoriesClient historiesClient,
+                                     final String historyId) {
         String datasetId = null;
-        for (HistoryContents historyDataset : historiesClient.showHistoryContents(historyId))
+        for (final HistoryContents historyDataset : historiesClient.showHistoryContents(historyId))
             if (historyDataset.getName().equals(datasetName)) {
                 datasetId = historyDataset.getId();
                 break;

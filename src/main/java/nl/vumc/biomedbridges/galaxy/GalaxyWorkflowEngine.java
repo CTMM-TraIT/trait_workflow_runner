@@ -253,12 +253,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final WorkflowInputs inputs = new WorkflowInputs();
         inputs.setDestination(new WorkflowInputs.ExistingHistory(historyId));
         final String galaxyWorkflowId = getGalaxyWorkflowId(workflow.getName());
-        logger.trace("galaxyWorkflowId: " + galaxyWorkflowId);
+        logger.trace("galaxyWorkflowId: {}.", galaxyWorkflowId);
         inputs.setWorkflowId(galaxyWorkflowId);
         final WorkflowDetails workflowDetails = workflowsClient.showWorkflow(galaxyWorkflowId);
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
-            final String inputId = HistoryUtils.getDatasetIdByName(fileName, historiesClient, historyId);
+            final String inputId = new HistoryUtils().getDatasetIdByName(fileName, historiesClient, historyId);
             final WorkflowInput workflowInput = new WorkflowInput(inputId, WorkflowInputs.InputSourceType.HDA);
             WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
         }
@@ -383,10 +383,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (workflowOutputs.getOutputIds().size() == 1) {
             final File concatenationFile = new File(OUTPUT_FILE_PATH);
             try {
-//                historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
-//                                                concatenationFilePath, false, null);
-                HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
-                                             workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
+                new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId,
+                                                   workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
                 if (concatenationFile.exists())
                     outputLength = concatenationFile.length();
                 else
@@ -413,8 +411,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 // todo: use configurable output directory.
                 final File outputFile = File.createTempFile("workflow-runner-" + historyId + "-" + outputId, ".txt");
                 // todo: is it necessary to fill in the data type (last parameter)?
-                success &= HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                        outputFile.getAbsolutePath(), false, null);
+                success &= new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
+                                                              outputFile.getAbsolutePath(), false, null);
                 // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense)?
                 workflow.addOutput(outputId, outputFile);
             }
@@ -440,11 +438,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final int outputCount = workflowOutputs.getOutputIds().size();
         if (outputCount != 1)
             logger.warn("Unexpected number of workflow outputs: {} (instead of 1).", outputCount);
-        //historiesClient.downloadDataset(historyId, workflowOutputs.getOutputIds().get(0),
-        //                                concatenationFilePath, false, null);
         // Freek: the last workflow output file is most likely to be the end result?
-        HistoryUtils.downloadDataset(galaxyInstance, historiesClient, historyId,
-                                     workflowOutputs.getOutputIds().get(outputCount - 1), OUTPUT_FILE_PATH, false, null);
+        final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
+        new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId,
+                                           OUTPUT_FILE_PATH, false, null);
         if (concatenationFile.exists())
             logger.info("- Concatenated file exists.");
         else
