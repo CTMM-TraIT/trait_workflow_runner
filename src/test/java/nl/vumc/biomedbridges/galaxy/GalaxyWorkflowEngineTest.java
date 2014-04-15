@@ -23,6 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,6 +43,46 @@ import static org.junit.Assert.assertTrue;
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({GalaxyInstanceFactory.class, HistoryUtils.class, URL.class})
 public class GalaxyWorkflowEngineTest {
+    /**
+     * Test the configure method with nonsense configuration data.
+     */
+    @Test
+    public void testConfigureNonsense() {
+        assertFalse(new GalaxyWorkflowEngine().configure("nonsense"));
+    }
+
+    /**
+     * Test the configure method with configuration data that appears to be valid but is not.
+     */
+    @Test
+    public void testConfigureInvalid() {
+        final String configurationData = GalaxyConfiguration.PROPERTY_SEPARATOR
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR
+                                         + GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR
+                                         + GalaxyConfiguration.API_KEY_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
+        assertFalse(new GalaxyWorkflowEngine().configure(configurationData));
+    }
+
+    /**
+     * Test the configure method with valid configuration data.
+     */
+    @Test
+    public void testConfigureValid() {
+        final String configurationData = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR + "https://usegalaxy.org/"
+                                         + GalaxyConfiguration.PROPERTY_SEPARATOR
+                                         + GalaxyConfiguration.API_KEY_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR
+                                         + "some-api-key"
+                                         + GalaxyConfiguration.PROPERTY_SEPARATOR
+                                         + GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR
+                                         + "some-history-name";
+        assertTrue(new GalaxyWorkflowEngine().configure(configurationData));
+    }
+
     /**
      * Test the runWorkflow method.
      */
@@ -78,8 +120,8 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(historiesClientMock.showHistory(Mockito.anyString())).thenReturn(historyDetailsOK);
         Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
         PowerMockito.when(new HistoryUtils().downloadDataset(Mockito.eq(galaxyMock), Mockito.eq(historiesClientMock),
-                                                       Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                                                       Mockito.anyBoolean(), Mockito.anyString())).thenReturn(true);
+                                                             Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                                                             Mockito.anyBoolean(), Mockito.anyString())).thenReturn(true);
         Mockito.when(historiesClientMock.showDataset(Mockito.anyString(), Mockito.anyString())).thenReturn(datasetMock);
         Mockito.when(galaxyMock.getGalaxyUrl()).thenReturn("http://");
         PowerMockito.whenNew(URL.class).withArguments(Mockito.anyString()).thenReturn(url);
@@ -88,7 +130,9 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(urlConnection.getInputStream()).thenReturn(inputStream);
         Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(Arrays.asList("one item"));
 
+        final String configuration = GalaxyConfiguration.buildConfiguration("GALAXY_INSTANCE_URL", "apiKey", "HISTORY_NAME");
         final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine();
+        galaxyWorkflowEngine.configure(configuration);
         galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow("TestWorkflow"));
 
         assertFalse(dummyFile.delete());

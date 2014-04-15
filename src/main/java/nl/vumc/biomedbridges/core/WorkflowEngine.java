@@ -17,8 +17,9 @@ public interface WorkflowEngine {
      * Configure the workflow engine.
      *
      * @param configurationData the configuration data.
+     * @return whether configuring was successful.
      */
-    void configure(final String configurationData);
+    boolean configure(final String configurationData);
 
     /**
      * Create a named workflow.

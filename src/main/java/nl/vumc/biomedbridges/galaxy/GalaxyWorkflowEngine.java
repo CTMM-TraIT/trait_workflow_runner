@@ -120,13 +120,13 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private WorkflowOutputs workflowOutputs;
 
     @Override
-    public void configure(final String configurationData) {
+    public boolean configure(final String configurationData) {
         final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
                                       + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
         final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
         final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        String message;
+        final String message;
         if (configurationData.contains(GalaxyConfiguration.PROPERTY_SEPARATOR)
             && configurationData.contains(instancePrefix)
             && configurationData.contains(apiKeyPrefix))
@@ -136,6 +136,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (message != null)
             logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
                          GalaxyConfiguration.PROPERTY_SEPARATOR, apiKeyPrefix);
+        return message == null;
     }
 
     /**
