@@ -8,12 +8,15 @@ package nl.vumc.biomedbridges.galaxy;
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
+import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -55,5 +58,23 @@ public class HistoryUtilsTest {
         assertTrue(historyUtils.downloadFileFromUrl(flagUrl, filePath));
         assertTrue(new File(filePath).exists());
         assertTrue(new File(filePath).delete());
+    }
+
+    /**
+     * Test the getDatasetIdByName method.
+     */
+    @Test
+    public void testGetDatasetIdByName() throws Exception {
+        final HistoryUtils historyUtils = new HistoryUtils();
+        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
+        final String historyId = "history-id";
+        final String datasetId = "dataset-id";
+        final String datasetName = "dataset-name";
+        final HistoryContents historyContents = new HistoryContents();
+        historyContents.setId(datasetId);
+        historyContents.setName(datasetName);
+        Mockito.when(historiesClientMock.showHistoryContents(historyId)).thenReturn(Arrays.asList(historyContents));
+
+        assertEquals(datasetId, historyUtils.getDatasetIdByName(datasetName, historiesClientMock, historyId));
     }
 }
