@@ -5,16 +5,12 @@
 
 package nl.vumc.biomedbridges.core;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
@@ -104,16 +100,6 @@ public class WorkflowRunner {
             if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT)) {
                 logger.debug("Create pdf file for workflow {}.", Constants.TEST_WORKFLOW_SCATTERPLOT);
                 Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
-            }
-            final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            final String lineSeparator = " | ";
-            if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
-                logger.info("- Concatenated file contains the lines we expected!!!");
-                logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
-            } else {
-                logger.error("- Concatenated file does not contain the lines we expected!");
-                logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
-                logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
             }
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());

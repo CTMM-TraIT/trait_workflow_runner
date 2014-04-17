@@ -69,7 +69,7 @@ for an explanation of the build lifecycle and the build phases):
 \# Compile the source code of the project:<br/>
 **`mvn compile`**
 
-\# Run all unit tests and generate code coverage information (in target\site\code-coverage-jacoco):<br/>
+\# Run all unit tests and generate code coverage report (in target\site\code-coverage-jacoco):<br/>
 **`mvn test`**
 
 \# Run one of the examples:<br/>
@@ -81,16 +81,16 @@ for an explanation of the build lifecycle and the build phases):
 \# Install the package into the local repository, for use as a dependency in other projects locally:<br/>
 **`mvn install`**
 
-\# Perform a Checkstyle analysis, and generate a report on issues (in target\checkstyle-result.xml):<br/>
+\# Check for Checkstyle issues (report in target\checkstyle-result.xml):<br/>
 **`mvn checkstyle:checkstyle`**
 
-\# Check if there are any FindBugs issues in the source code (in target\findbugsXml.xml):<br/>
+\# Check for FindBugs issues (report in target\findbugsXml.xml):<br/>
 **`mvn compile findbugs:check`**
 
-\# Check if there are any PMD issues in the source code (in target\pmd.xml):<br/>
+\# Check for PMD issues (report in target\pmd.xml):<br/>
 **`mvn compile pmd:check`**
 
-\# Check if there are any CPD issues in the source code (in target\cpd.xml):<br/>
+\# Check for CPD issues (report in target\cpd.xml):<br/>
 **`mvn compile pmd:cpd-check`**
 
 

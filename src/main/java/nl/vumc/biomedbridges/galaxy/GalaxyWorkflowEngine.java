@@ -133,10 +133,17 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
         else
             message = String.format("Expected properties were not found in configuration data %s.", configurationData);
-        if (message != null)
+        final boolean success = message == null;
+        if (success) {
+            galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);
+            workflowsClient = galaxyInstance.getWorkflowsClient();
+            historiesClient = galaxyInstance.getHistoriesClient();
+        } else {
             logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
                          GalaxyConfiguration.PROPERTY_SEPARATOR, apiKeyPrefix);
-        return message == null;
+            galaxyInstance = null;
+        }
+        return success;
     }
 
     /**
@@ -179,46 +186,45 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public void runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
-        logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
-        logger.info("");
-        logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
-        logger.info("Galaxy API key: {}.", apiKey);
-        logger.info("Galaxy history name: {}.", historyName);
-        logger.info("");
+        if (galaxyInstance != null) {
+            logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
+            logger.info("");
+            logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
+            logger.info("Galaxy API key: {}.", apiKey);
+            logger.info("Galaxy history name: {}.", historyName);
+            logger.info("");
 
-        galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);
-        workflowsClient = galaxyInstance.getWorkflowsClient();
-        historiesClient = galaxyInstance.getHistoriesClient();
+            logger.info("Ensure the test workflow is available.");
+            ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
-        logger.info("Ensure the test workflow is available.");
-        ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
+            logger.info("Prepare the input files.");
 
-        logger.info("Prepare the input files.");
+            final String historyId = createNewHistory();
+            final WorkflowInputs inputs = prepareWorkflow(historyId, workflow);
 
-        final String historyId = createNewHistory();
-        final WorkflowInputs inputs = prepareWorkflow(historyId, workflow);
+            int expectedOutputLength = 0;
+            for (final Object input : workflow.getAllInputValues())
+                if (input instanceof File)
+                    expectedOutputLength += ((File) input).length();
 
-        int expectedOutputLength = 0;
-        for (final Object input : workflow.getAllInputValues())
-            if (input instanceof File)
-                expectedOutputLength += ((File) input).length();
+            final int scatterPlotOutputLength = 4733;
+            if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT))
+                expectedOutputLength = scatterPlotOutputLength;
 
-        final int scatterPlotOutputLength = 4733;
-        if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT))
-            expectedOutputLength = scatterPlotOutputLength;
+            final boolean finished = executeWorkflow(historyId, inputs, expectedOutputLength);
+            final boolean success = downloadOutputFiles(workflow, historyId);
+            logger.trace("Download output files success: {}.", success);
+            // todo: return result from runWorkflow: finished && success && checkResults.
 
-        final boolean finished = executeWorkflow(historyId, inputs, expectedOutputLength);
-        final boolean success = downloadOutputFiles(workflow, historyId);
-        logger.trace("Download output files success: {}.", success);
-        // todo: return result from runWorkflow: finished && success && checkResults.
-
-        if (finished)
-            checkWorkflowResults(historyId, expectedOutputLength);
-        else {
-            logger.info("Timeout while waiting for workflow output file(s).");
-            // Freek: test the output anyway to generate some logging for analysis.
-            checkWorkflowResults(historyId, expectedOutputLength);
-        }
+            if (finished)
+                checkWorkflowResults(historyId, expectedOutputLength);
+            else {
+                logger.info("Timeout while waiting for workflow output file(s).");
+                // Freek: test the output anyway to generate some logging for analysis.
+                checkWorkflowResults(historyId, expectedOutputLength);
+            }
+        } else
+            logger.error("Galaxy instance is not initialized properly.");
     }
 
     /**
@@ -336,7 +342,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private String getGalaxyWorkflowId(final String workflowName) {
         com.github.jmchilton.blend4j.galaxy.beans.Workflow matchingWorkflow = null;
-        //logger.trace("workflow.getName(): " + workflow.getName());
         for (final com.github.jmchilton.blend4j.galaxy.beans.Workflow workflow : workflowsClient.getWorkflows())
             if (workflow.getName().startsWith(workflowName))
                 matchingWorkflow = workflow;
