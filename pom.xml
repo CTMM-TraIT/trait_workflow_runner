@@ -45,6 +45,7 @@
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
         <maven-pmd-plugin.version>3.0</maven-pmd-plugin.version>
+        <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
 
     </properties>
@@ -250,6 +251,12 @@
                                        ${surefireArgLine}), while Maven needs it... -->
                     <argLine>${surefireArgLine}</argLine>
                 </configuration>
+            </plugin>
+
+            <!-- This plugin report general project information. -->
+            <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
             </plugin>
 
         </plugins>
