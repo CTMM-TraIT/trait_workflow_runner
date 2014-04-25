@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public class HistoryUtils {
             final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             final boolean ok = connection.getResponseCode() == HttpURLConnection.HTTP_OK;
             try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
-                Files.copy(inputStream, Paths.get(fullFilePath));
+                Files.copy(inputStream, Paths.get(fullFilePath), StandardCopyOption.REPLACE_EXISTING);
                 success = true;
             }
         } catch (final IOException e) {

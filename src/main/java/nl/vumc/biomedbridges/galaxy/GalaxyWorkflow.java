@@ -121,7 +121,8 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
             if (jsonContent != null) {
                 final JSONObject workflowJson = (JSONObject) new JSONParser().parse(jsonContent);
                 final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
-                logger.info("This workflow contains [" + stepsMapJson.size() + "] steps:\n");
+                logger.info("This workflow contains " + stepsMapJson.size() + " step"
+                            + (stepsMapJson.size() != 1 ? "s" : "") + ":");
 
                 // Sort the steps to have a well defined order.
                 final SortedMap<Integer, JSONObject> sortedStepsMap = new TreeMap<>();
@@ -192,7 +193,7 @@ public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
         final List<Map<String, String>> listOfMaps = new ArrayList<>();
         for (final Object object : jsonArray) {
             final JSONObject jsonObject = (JSONObject) object;
-            logger.trace("jsonObject: " + jsonObject);
+            //logger.trace("jsonObject: " + jsonObject);
             final Map<String, String> propertyMap = new HashMap<>();
             for (final Object entry : jsonObject.entrySet())
                 if (entry instanceof Map.Entry) {

@@ -38,14 +38,6 @@ public class ConcatenateExample extends BaseExample {
     private static final Logger logger = LoggerFactory.getLogger(ConcatenateExample.class);
 
     /**
-     * The Galaxy server (instance URL) to use.
-     *
-     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository.
-     * Please change the Galaxy server and the API key together to keep them in sync.
-     */
-    private static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
-
-    /**
      * The name of the Galaxy history.
      */
     private static final String HISTORY_NAME = "Concatenate History";

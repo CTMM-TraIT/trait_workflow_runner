@@ -15,6 +15,15 @@ import org.slf4j.Logger;
  */
 public class BaseExample {
     /**
+     * The Galaxy server (instance URL) to use.
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    protected static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
+
+    /**
      * The number of milliseconds in a second.
      */
     private static final int MILLISECONDS_PER_SECOND = 1000;
