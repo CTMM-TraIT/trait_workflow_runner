@@ -12,7 +12,7 @@ package nl.vumc.biomedbridges.core;
  */
 public class Constants {
     /**
-     * The name of the first concatenate workflow.
+     * The name of the concatenate test workflow.
      */
     public static final String TEST_WORKFLOW_CONCATENATE = "TestWorkflowConcatenate";
 
@@ -22,12 +22,17 @@ public class Constants {
     public static final String TEST_WORKFLOW_SCATTERPLOT = "TestWorkflowScatterplot";
 
     /**
-     * The name of the histogram test workflow.
+     * The name of the histogram workflow.
      */
-    public static final String TEST_WORKFLOW_HISTOGRAM = "Histogram";
+    public static final String WORKFLOW_HISTOGRAM = "Histogram";
 
     /**
-     * The name of the current test workflow.
+     * The name of the RandomLinesTwice workflow.
+     */
+    public static final String WORKFLOW_RANDOM_LINES_TWICE = "RandomLinesTwice";
+
+    /**
+     * The name of the current workflow.
      */
     public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_SCATTERPLOT;
 

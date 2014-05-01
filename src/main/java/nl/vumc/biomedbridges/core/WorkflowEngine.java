@@ -33,9 +33,10 @@ public interface WorkflowEngine {
      * Run the workflow on this workflow engine.
      *
      * @param workflow the workflow to run.
+     * @return whether the workflow ran successfully.
      * @throws IOException          if reading the workflow results fails.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
      *                              engine.
      */
-    void runWorkflow(final Workflow workflow) throws InterruptedException, IOException;
+    boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException;
 }

@@ -10,6 +10,7 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
+import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
@@ -19,9 +20,11 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.examples.RemoveTopAndLeftExample;
@@ -72,7 +75,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * The maximum number of times to wait for the workflow to finish.
      */
-    private static final int WORKFLOW_WAIT_MAX_WAIT_BLOCKS = 10;
+    private static final int WORKFLOW_WAIT_MAX_WAIT_BLOCKS = 20;
 
     /**
      * The number of seconds to wait for the workflow to finish (for each wait cycle).
@@ -185,7 +188,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
-    public void runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
+    public boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
+        boolean result = false;
         if (galaxyInstance != null) {
             logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
             logger.info("");
@@ -194,7 +198,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             logger.info("Galaxy history name: {}.", historyName);
             logger.info("");
 
-            logger.info("Ensure the test workflow is available.");
+            logger.info("Ensure the workflow is available.");
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
@@ -202,29 +206,25 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             final String historyId = createNewHistory();
             final WorkflowInputs inputs = prepareWorkflow(historyId, workflow);
 
-            int expectedOutputLength = 0;
-            for (final Object input : workflow.getAllInputValues())
-                if (input instanceof File)
-                    expectedOutputLength += ((File) input).length();
+            final boolean workflowFinished = executeWorkflow(historyId, inputs);
+            final boolean downloadsSuccessful = downloadOutputFiles(workflow, historyId);
+            logger.trace("Download output files downloadsSuccessful: {}.", downloadsSuccessful);
 
-            final int scatterPlotOutputLength = 4733;
-            if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT))
-                expectedOutputLength = scatterPlotOutputLength;
-
-            final boolean finished = executeWorkflow(historyId, inputs, expectedOutputLength);
-            final boolean success = downloadOutputFiles(workflow, historyId);
-            logger.trace("Download output files success: {}.", success);
-            // todo: return result from runWorkflow: finished && success && checkResults.
-
-            if (finished)
-                checkWorkflowResults(historyId, expectedOutputLength);
+            final boolean checkResults;
+            if (workflowFinished)
+                checkResults = checkWorkflowResults(historyId);
             else {
                 logger.info("Timeout while waiting for workflow output file(s).");
                 // Freek: test the output anyway to generate some logging for analysis.
-                checkWorkflowResults(historyId, expectedOutputLength);
+                checkResults = checkWorkflowResults(historyId);
             }
+            logger.trace("workflowFinished: " + workflowFinished);
+            logger.trace("downloadsSuccessful: " + downloadsSuccessful);
+            logger.trace("checkResults: " + checkResults);
+            result = workflowFinished && downloadsSuccessful && checkResults;
         } else
             logger.error("Galaxy instance is not initialized properly.");
+        return result;
     }
 
     /**
@@ -267,7 +267,19 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             final String fileName = ((File) inputEntry.getValue()).getName();
             final String inputId = new HistoryUtils().getDatasetIdByName(fileName, historiesClient, historyId);
             final WorkflowInput workflowInput = new WorkflowInput(inputId, WorkflowInputs.InputSourceType.HDA);
+            logger.trace("Add input file {} for input label {}.", fileName, inputEntry.getKey());
             WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
+        }
+        if (workflow.getParameters() != null && workflow.getParameters().size() > 0) {
+            final List<String> stepIds = new ArrayList<>(workflowDetails.getSteps().keySet());
+            Collections.sort(stepIds);
+            for (final Object stepNumber : workflow.getParameters().keySet())
+                for (final Map.Entry<String, Object> entry : workflow.getParameters().get(stepNumber).entrySet()) {
+                    final String stepId = stepIds.get(Integer.parseInt(stepNumber.toString()) - 1);
+                    logger.trace("Set workflow step {} (id: {}) parameter {} to value {}.", stepNumber, stepId,
+                                 entry.getKey(), entry.getValue());
+                    inputs.setStepParameter(stepId, entry.getKey(), entry.getValue());
+                }
         }
         return inputs;
     }
@@ -297,42 +309,29 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
      */
     private void waitForHistoryUpload(final String historyId) throws InterruptedException {
-        HistoryDetails details = null;
+        HistoryDetails historyDetails = null;
         boolean finished = false;
         int waitCount = 0;
-        while (!finished) {
+        while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
             logger.info("  + Now waiting for {} seconds...", UPLOAD_WAIT_SECONDS);
             Thread.sleep(UPLOAD_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
-            details = historiesClient.showHistory(historyId);
-            logger.info("  + History is " + (details.isReady() ? "ready." : "not ready yet."));
-            finished = details.isReady() || waitCount >= UPLOAD_MAX_WAIT_BLOCKS;
+            historyDetails = historiesClient.showHistory(historyId);
+            // todo: upload input count is known? Then we can check it below...
+            finished = /*historyDetails.getStateIds().get("ok").size() == 3
+                       &&*/ historyDetails.getStateIds().get("running").size() == 0
+                            && historyDetails.getStateIds().get("queued").size() == 0;
             waitCount++;
         }
-        final String state = details.getState();
+        final String state = historyDetails != null ? historyDetails.getState() : "";
+        final Map<String, List<String>> stateIds = historyDetails != null ? historyDetails.getStateIds() : null;
         if ("ok".equals(state))
-            logger.debug("details.getStateIds(): " + details.getStateIds());
+            logger.debug("historyDetails.getStateIds(): " + stateIds);
         else {
             logger.error("History no longer running, but not in 'ok' state. State is: '{}'.", state);
-            logger.error("historiesClient.showHistory(historyId).getStateIds(): " + details.getStateIds());
+            logger.error("historiesClient.showHistory(historyId).getStateIds(): " + stateIds);
         }
         Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
     }
-
-    // todo: do we need to check getStateIds in waitForHistoryUpload (like below) or does isReady cover everything?
-
-    // Freek: quick test for retrieving the status of files in the history.
-//    private boolean testHistoryStatus(final String historyId, final HistoriesClient historiesClient) {
-//        System.out.println();
-//        for (final History history : historiesClient.getHistories())
-//            if (history.getName().equals(historyId))
-//                System.out.println("History " + historyId + " found.");
-//        final HistoryDetails historyDetails = historiesClient.showHistory(historyId);
-//        System.out.println("historyDetails: " + historyDetails);
-//        System.out.println("historyDetails.getState(): " + historyDetails.getState());
-//        System.out.println("historyDetails.getStateIds(): " + historyDetails.getStateIds());
-//        System.out.println();
-//        return true;
-//    }
 
     /**
      * Get the ID of the Galaxy workflow.
@@ -351,56 +350,40 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Execute the workflow that was prepared with the workflows client.
      *
-     * @param historyId            the ID of the history to use for workflow input and output.
-     * @param workflowInputs       the blend4j workflow inputs.
-     * @param expectedOutputLength the expected output file length.
+     * @param historyId      the ID of the history to use for workflow input and output.
+     * @param workflowInputs the blend4j workflow inputs.
      * @return whether the workflow finished successfully.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
      */
-    private boolean executeWorkflow(final String historyId, final WorkflowInputs workflowInputs,
-                                    final int expectedOutputLength)
+    private boolean executeWorkflow(final String historyId, final WorkflowInputs workflowInputs)
             throws InterruptedException {
         workflowOutputs = workflowsClient.runWorkflow(workflowInputs);
         logger.info("Running the workflow (history ID: {}).", workflowOutputs.getHistoryId());
+        HistoryDetails historyDetails = null;
         boolean finished = false;
         int waitCount = 0;
         while (!finished && waitCount < WORKFLOW_WAIT_MAX_WAIT_BLOCKS) {
             logger.info("- Now waiting for {} seconds...", WORKFLOW_WAIT_SECONDS);
             Thread.sleep(WORKFLOW_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
-            final long outputLength = getOutputLength(historyId);
-            logger.info("- Output length: {} (expect: {}).", outputLength, expectedOutputLength);
-            finished = outputLength == expectedOutputLength;
-            // todo: check status output files using the history instead of the code above?!?
+            // Check status of the output files using the history.
+            historyDetails = historiesClient.showHistory(historyId);
+            finished = /*historyDetails.getStateIds().get("ok").size() == 3
+                       &&*/ historyDetails.getStateIds().get("running").size() == 0
+                       && historyDetails.getStateIds().get("queued").size() == 0;
+            logger.debug("finished: " + finished);
+            logger.debug("details.getStateIds(): " + historyDetails.getStateIds());
             waitCount++;
         }
-        return finished;
-    }
-
-    /**
-     * Determine the length of the output file.
-     *
-     * @param historyId the ID of the history to use for workflow input and output.
-     * @return the length of the output file (or -1 when the number of workflow output is not equal to one, or -2 when
-     * writing the workflow output file fails).
-     */
-    private long getOutputLength(final String historyId) {
-        long outputLength = -1;
-        logger.trace("workflowOutputs.getOutputIds().size(): " + workflowOutputs.getOutputIds().size());
-        if (workflowOutputs.getOutputIds().size() == 1) {
-            final File concatenationFile = new File(OUTPUT_FILE_PATH);
-            try {
-                new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId,
-                                                   workflowOutputs.getOutputIds().get(0), OUTPUT_FILE_PATH, false, null);
-                if (concatenationFile.exists())
-                    outputLength = concatenationFile.length();
-                else
-                    outputLength = -2;
-            } finally {
-                if (!concatenationFile.delete())
-                    logger.error("Deleting output file {} failed (after determining length).", OUTPUT_FILE_PATH);
-            }
+        if (finished)
+            logger.info("Workflow seems to be finished after roughly {} seconds.", waitCount * WORKFLOW_WAIT_SECONDS);
+        else
+            logger.warn("Stopped waiting for the workflow to finish after {} seconds.",
+                        WORKFLOW_WAIT_MAX_WAIT_BLOCKS * WORKFLOW_WAIT_SECONDS);
+        if (historyDetails != null) {
+            logger.debug("details.getStateIds(): " + historyDetails.getStateIds());
+            logger.debug("{} output file(s) ready for download.", historyDetails.getStateIds().get("ok").size());
         }
-        return outputLength;
+        return finished;
     }
 
     /**
@@ -414,13 +397,16 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         boolean success = true;
         try {
             for (final String outputId : workflowOutputs.getOutputIds()) {
-                // todo: use configurable output directory.
-                final File outputFile = File.createTempFile("workflow-runner-" + historyId + "-" + outputId, ".txt");
+                final Dataset dataset = historiesClient.showDataset(historyId, outputId);
+                final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
+                // todo: make downloading optional (only some files might be needed) and use configurable output directory.
+                final String prefix = "workflow-runner-" + historyId + "-" + outputName + "-";
+                final File outputFile = File.createTempFile(prefix, ".txt");
+                logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
                 // todo: is it necessary to fill in the data type (last parameter)?
                 success &= new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
                                                               outputFile.getAbsolutePath(), false, null);
-                // todo: use the Galaxy label of the output instead of the outputId (the ID makes no sense)?
-                workflow.addOutput(outputId, outputFile);
+                workflow.addOutput(outputName, outputFile);
             }
         } catch (final IllegalArgumentException | IOException | SecurityException e) {
             logger.error("Error downloading a workflow output file.", e);
@@ -432,29 +418,35 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Check the results of the workflow.
      *
-     * @param historyId            the ID of the history to use for workflow input and output.
-     * @param expectedOutputLength the expected output file length.
+     * @param historyId the ID of the history to use for workflow input and output.
+     * @return whether the workflow results appear to be valid.
      * @throws IOException if reading the workflow results fails.
      */
-    private void checkWorkflowResults(final String historyId, final int expectedOutputLength) throws IOException {
+    private boolean checkWorkflowResults(final String historyId) throws IOException {
+        boolean valid = true;
         logger.info("Check outputs.");
         for (final String outputId : workflowOutputs.getOutputIds())
             logger.info("- Workflow output ID: " + outputId + ".");
-        final File concatenationFile = new File(OUTPUT_FILE_PATH);
         final int outputCount = workflowOutputs.getOutputIds().size();
-        if (outputCount != 1)
-            logger.warn("Unexpected number of workflow outputs: {} (instead of 1).", outputCount);
-        // Freek: the last workflow output file is most likely to be the end result?
-        final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
-        new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId,
-                                           OUTPUT_FILE_PATH, false, null);
-        if (concatenationFile.exists())
-            logger.info("- Concatenated file exists.");
-        else
-            logger.info("- Concatenated file does not exist!");
-        // todo: this has to change; maybe only warn when the file length is zero?
-        if (concatenationFile.length() != expectedOutputLength)
-            logger.warn("Output file length {} not equal to expected length {}.", concatenationFile.length(),
-                        expectedOutputLength);
+        if (outputCount == 0)
+            logger.warn("No workflow output found.");
+        else if (outputCount > 1)
+            logger.warn("More than one workflow outputs found ({}).", outputCount);
+        if (outputCount > 0) {
+            // Freek: the last workflow output file is most likely to be the end result?
+            final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
+            new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId,
+                                               OUTPUT_FILE_PATH, false, null);
+            final File outputFile = new File(OUTPUT_FILE_PATH);
+            if (outputFile.exists())
+                logger.info("- Output file exists.");
+            else {
+                valid = false;
+                logger.error("- Output file does not exist!");
+            }
+            if (outputFile.length() == 0)
+                logger.warn("- Output file is empty.");
+        }
+        return valid;
     }
 }

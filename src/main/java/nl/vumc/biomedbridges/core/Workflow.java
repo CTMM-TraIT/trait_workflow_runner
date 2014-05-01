@@ -81,4 +81,22 @@ public interface Workflow {
      * @return the map with all outputs.
      */
     Map<String, Object> getOutputMap();
+
+    /**
+     * Set a workflow parameter.
+     *
+     * @param stepId the Galaxy step id.
+     * @param name the parameter name.
+     * @param value the parameter value.
+     */
+    // todo: make parameter handling independent of Galaxy.
+    void setParameter(final int stepId, String name, Object value);
+
+    /**
+     * Retrieve all workflow parameters.
+     *
+     * @return the workflow parameters.
+     */
+    // todo: make parameter handling independent of Galaxy.
+    Map<Object, Map<String, Object>> getParameters();
 }

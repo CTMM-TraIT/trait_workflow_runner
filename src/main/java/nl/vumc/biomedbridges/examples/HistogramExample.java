@@ -18,6 +18,7 @@ import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,11 @@ public class HistogramExample extends BaseExample {
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(HistogramExample.class);
+
+    /**
+     * The name of the Galaxy history.
+     */
+    private static final String HISTORY_NAME = "Histogram History";
 
     /**
      * Hidden constructor. The main method below will run this example.
@@ -55,22 +61,30 @@ public class HistogramExample extends BaseExample {
      * Run this example workflow: combine two input files into one output file.
      */
     public void runExample() {
+        initializeExample(logger, "HistogramExample.runExample");
+
+        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
+        final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
+        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
+
+        workflow.addInput("input", FileUtils.createInputFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
+        workflow.setParameter(2, "title", "A histogram example");
+        workflow.setParameter(2, "numerical_column", 1);
+        workflow.setParameter(2, "breaks", 6);
+        workflow.setParameter(2, "xlab", "Number");
+        workflow.setParameter(2, "density", true);
+        workflow.setParameter(2, "frequency", false);
+
         try {
-            initializeExample(logger, "HistogramExample.runExample");
-
-            //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
-            final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
-            final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_HISTOGRAM);
-
-            workflow.addInput("input", FileUtils.createInputFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
             workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
-
-            finishExample(logger);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_HISTOGRAM, e);
+            logger.error("Exception while running workflow {}.", Constants.WORKFLOW_HISTOGRAM, e);
         }
+
+        finishExample(logger);
     }
 
     /**
@@ -85,19 +99,30 @@ public class HistogramExample extends BaseExample {
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            final String pdfHeader = "%PDF-1.4";
-            final int lineCountLowLimit = 50;
-            final int lineCountHighLimit = 70;
-            if (pdfHeader.equals(lines.get(0)))
-                if (lineCountLowLimit < lines.size() && lines.size() < lineCountHighLimit)
-                    logger.info("- Histogram pdf output file appears to be ok!!!");
-                else
-                    logger.error("- Histogram pdf output file does not contain the amount of lines we expected!");
-            else
-                logger.error("- Histogram pdf output file does not start the expected pdf header {} !", pdfHeader);
+            checkPdfContents(lines);
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
             logger.error("There is no single output parameter of type File.");
+    }
+
+    /**
+     * Check the contents of the pdf file with the histogram.
+     *
+     * @param lines the lines from the pdf file.
+     */
+    private static void checkPdfContents(final List<String> lines) {
+        final int lineCountLowLimit = 400;
+        final int lineCountHighLimit = 550;
+        final String pdfHeader = "%PDF-1.4";
+        if (lineCountLowLimit <= lines.size() && lines.size() <= lineCountHighLimit) {
+            if (pdfHeader.equals(lines.get(0)))
+                logger.info("- Histogram pdf file appears to be ok!!!");
+            else
+                logger.error("- Histogram pdf file does not start with the expected pdf header {} !", pdfHeader);
+        } else
+            logger.error("- Histogram pdf file does not contain the number of lines we expected ({} actual lines, "
+                         + "which is not in expected range [{}..{}])!", lines.size(), lineCountLowLimit,
+                         lineCountHighLimit);
     }
 }

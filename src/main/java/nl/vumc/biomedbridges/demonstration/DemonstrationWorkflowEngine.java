@@ -66,7 +66,8 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
-    public void runWorkflow(final Workflow workflow) {
+    public boolean runWorkflow(final Workflow workflow) {
+        boolean result = true;
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
             if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflow.getName())) {
@@ -80,12 +81,16 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
                     logger.info("input 2: " + inputString2);
                     workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
                     logger.info("output: " + inputString1 + " " + inputString2);
-                } else
+                } else {
+                    result = false;
                     logger.error("Input parameters are not of the expected type (two input files where expected).");
+                }
             }
         } catch (final IOException e) {
+            result = false;
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
+        return result;
     }
 
     /**

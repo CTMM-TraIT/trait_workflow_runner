@@ -28,6 +28,13 @@ public class DefaultWorkflow implements Workflow {
     private final Map<String, Object> inputs = new HashMap<>();
 
     /**
+     * The mapping of the parameter names to the actual parameter objects. For the moment, the parameters are stored in
+     * a map for each Galaxy step id.
+     */
+    // todo: make parameter handling independent of Galaxy.
+    private final Map<Object, Map<String, Object>> parameters = new HashMap<>();
+
+    /**
      * The mapping of the output names to the actual output objects.
      */
     private final Map<String, Object> outputs = new HashMap<>();
@@ -84,5 +91,19 @@ public class DefaultWorkflow implements Workflow {
     @Override
     public Map<String, Object> getOutputMap() {
         return new HashMap<>(outputs);
+    }
+
+    @Override
+    // todo: make setting parameters independent of Galaxy.
+    public void setParameter(final int stepId, final String name, final Object value) {
+        Map<String, Object> keyValueMap = parameters.get(stepId);
+        if (keyValueMap == null)
+            keyValueMap = new HashMap<>();
+        keyValueMap.put(name, value);
+        parameters.put(stepId, keyValueMap);
+    }
+
+    public Map<Object, Map<String, Object>> getParameters() {
+        return parameters;
     }
 }

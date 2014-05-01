@@ -21,7 +21,8 @@ public class MolgenisWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
-    public void runWorkflow(final Workflow workflow) {
+    public boolean runWorkflow(final Workflow workflow) {
         System.out.println("MolgenisWorkflowEngine.runWorkflow...");
+        return true;
     }
 }
