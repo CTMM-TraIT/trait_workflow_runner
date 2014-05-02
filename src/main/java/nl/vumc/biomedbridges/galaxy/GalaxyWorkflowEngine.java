@@ -88,6 +88,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
 
     /**
+     * History state ok.
+     */
+    private static final String STATE_OK = "ok";
+
+    /**
      * The Galaxy server URL.
      */
     private static String galaxyInstanceUrl = GalaxyConfiguration.getGalaxyInstanceUrl();
@@ -191,20 +196,14 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     public boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
         boolean result = false;
         if (galaxyInstance != null) {
-            logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
-            logger.info("");
-            logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
-            logger.info("Galaxy API key: {}.", apiKey);
-            logger.info("Galaxy history name: {}.", historyName);
-            logger.info("");
+            logStartRunWorkflow();
 
-            logger.info("Ensure the workflow is available.");
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
-
             final String historyId = createNewHistory();
-            final WorkflowInputs inputs = prepareWorkflow(historyId, workflow);
+            uploadInputFiles(historyId, workflow);
+            final WorkflowInputs inputs = createInputsObject(historyId, workflow);
 
             final boolean workflowFinished = executeWorkflow(historyId, inputs);
             final boolean downloadsSuccessful = downloadOutputFiles(workflow, historyId);
@@ -228,6 +227,20 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
+     * Log Galaxy server details when starting a workflow.
+     */
+    private void logStartRunWorkflow() {
+        logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
+        logger.info("");
+        logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
+        logger.info("Galaxy API key: {}.", apiKey);
+        logger.info("Galaxy history name: {}.", historyName);
+        logger.info("");
+
+        logger.info("Ensure the workflow is available.");
+    }
+
+    /**
      * Create a new history and return its ID.
      *
      * @return the ID of the newly created history.
@@ -237,15 +250,13 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
-     * Prepare for execution of the workflow: upload the input files and create the workflow inputs object.
+     * Upload the input files and wait for it to finish.
      *
      * @param historyId the ID of the history to use for workflow input and output.
      * @param workflow  the workflow.
-     * @return the workflow inputs object.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
      */
-    private WorkflowInputs prepareWorkflow(final String historyId, final Workflow workflow)
-            throws InterruptedException {
+    private void uploadInputFiles(final String historyId, final Workflow workflow) throws InterruptedException {
         logger.info("- Upload the input files.");
         for (final Object inputObject : workflow.getAllInputValues())
             if (inputObject instanceof File) {
@@ -256,6 +267,79 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             }
         logger.info("- Waiting for upload to history to finish.");
         waitForHistoryUpload(historyId);
+    }
+
+    /**
+     * Upload an input file to a Galaxy server.
+     *
+     * @param workflow  the workflow.
+     * @param historyId the ID of the history to use for workflow input and output.
+     * @param inputFile the input file to upload.
+     * @return the client response from the Jersey library.
+     */
+    private ClientResponse uploadInputFile(final Workflow workflow, final String historyId, final File inputFile) {
+        final ToolsClient.FileUploadRequest fileUploadRequest = new ToolsClient.FileUploadRequest(historyId, inputFile);
+        // todo: do this based on what the Galaxy workflow needs.
+        if (workflow.getName().equals(RemoveTopAndLeftExample.WORKFLOW_NAME))
+            fileUploadRequest.setFileType("txt");
+        else
+            fileUploadRequest.setFileType("tabular");
+        return galaxyInstance.getToolsClient().uploadRequest(fileUploadRequest);
+    }
+
+    /**
+     * Wait for the input files upload to finish.
+     *
+     * @param historyId the ID of the history with the input files.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
+     */
+    private void waitForHistoryUpload(final String historyId) throws InterruptedException {
+        boolean finished = false;
+        int waitCount = 0;
+        while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
+            logger.info("  + Now waiting for {} seconds...", UPLOAD_WAIT_SECONDS);
+            Thread.sleep(UPLOAD_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
+            finished = isHistoryReady(historyId);
+            waitCount++;
+        }
+        final HistoryDetails historyDetails = historiesClient.showHistory(historyId);
+        final String state = historyDetails.getState();
+        final Map<String, List<String>> stateIds = historyDetails.getStateIds();
+        final String stateIdsMessage = "historyDetails.getStateIds(): " + stateIds;
+        if (STATE_OK.equals(state))
+            logger.debug(stateIdsMessage);
+        else {
+            logger.error("History upload no longer running, but not in 'ok' state. State is: '{}'.", state);
+            logger.error(stateIdsMessage);
+        }
+        Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
+    }
+
+    /**
+     * Check whether uploading/processing of all files in a history is ready.
+     *
+     * @param historyId the ID of the history with the input files.
+     * @return whether uploading/processing of all files in a history is ready.
+     */
+    private boolean isHistoryReady(final String historyId) {
+        final HistoryDetails historyDetails = historiesClient.showHistory(historyId);
+        // If the input/output file count is known, it could be checked too:
+        //                       historyDetails.getStateIds().get(STATE_OK).size() == [n]
+        final boolean finished = historyDetails.getStateIds().get("running").size() == 0
+                                 && historyDetails.getStateIds().get("queued").size() == 0;
+        logger.debug("finished: " + finished);
+        logger.debug("History state IDs: {}.", historyDetails.getStateIds());
+        return finished;
+    }
+
+    /**
+     * Create the workflow inputs object with the input files and parameters.
+     *
+     * @param historyId the ID of the history to use for workflow input and output.
+     * @param workflow  the workflow.
+     * @return the workflow inputs object.
+     */
+    private WorkflowInputs createInputsObject(final String historyId, final Workflow workflow) {
         logger.info("- Create the workflow inputs object.");
         final WorkflowInputs inputs = new WorkflowInputs();
         inputs.setDestination(new WorkflowInputs.ExistingHistory(historyId));
@@ -285,55 +369,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
-     * Upload an input file to a Galaxy server.
-     *
-     * @param workflow  the workflow.
-     * @param historyId the ID of the history to use for workflow input and output.
-     * @param inputFile the input file to upload.
-     * @return the client response from the Jersey library.
-     */
-    private ClientResponse uploadInputFile(final Workflow workflow, final String historyId, final File inputFile) {
-        final ToolsClient.FileUploadRequest fileUploadRequest = new ToolsClient.FileUploadRequest(historyId, inputFile);
-        // todo: do this based on what the Galaxy workflow needs.
-        if (workflow.getName().equals(RemoveTopAndLeftExample.WORKFLOW_NAME))
-            fileUploadRequest.setFileType("txt");
-        else
-            fileUploadRequest.setFileType("tabular");
-        return galaxyInstance.getToolsClient().uploadRequest(fileUploadRequest);
-    }
-
-    /**
-     * Wait for the input files upload to finish.
-     *
-     * @param historyId the ID of the history with the input files.
-     * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
-     */
-    private void waitForHistoryUpload(final String historyId) throws InterruptedException {
-        HistoryDetails historyDetails = null;
-        boolean finished = false;
-        int waitCount = 0;
-        while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
-            logger.info("  + Now waiting for {} seconds...", UPLOAD_WAIT_SECONDS);
-            Thread.sleep(UPLOAD_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
-            historyDetails = historiesClient.showHistory(historyId);
-            // todo: upload input count is known? Then we can check it below...
-            finished = /*historyDetails.getStateIds().get("ok").size() == 3
-                       &&*/ historyDetails.getStateIds().get("running").size() == 0
-                            && historyDetails.getStateIds().get("queued").size() == 0;
-            waitCount++;
-        }
-        final String state = historyDetails != null ? historyDetails.getState() : "";
-        final Map<String, List<String>> stateIds = historyDetails != null ? historyDetails.getStateIds() : null;
-        if ("ok".equals(state))
-            logger.debug("historyDetails.getStateIds(): " + stateIds);
-        else {
-            logger.error("History no longer running, but not in 'ok' state. State is: '{}'.", state);
-            logger.error("historiesClient.showHistory(historyId).getStateIds(): " + stateIds);
-        }
-        Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
-    }
-
-    /**
      * Get the ID of the Galaxy workflow.
      *
      * @param workflowName the name of the workflow.
@@ -359,19 +394,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             throws InterruptedException {
         workflowOutputs = workflowsClient.runWorkflow(workflowInputs);
         logger.info("Running the workflow (history ID: {}).", workflowOutputs.getHistoryId());
-        HistoryDetails historyDetails = null;
         boolean finished = false;
         int waitCount = 0;
         while (!finished && waitCount < WORKFLOW_WAIT_MAX_WAIT_BLOCKS) {
             logger.info("- Now waiting for {} seconds...", WORKFLOW_WAIT_SECONDS);
             Thread.sleep(WORKFLOW_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
-            // Check status of the output files using the history.
-            historyDetails = historiesClient.showHistory(historyId);
-            finished = /*historyDetails.getStateIds().get("ok").size() == 3
-                       &&*/ historyDetails.getStateIds().get("running").size() == 0
-                       && historyDetails.getStateIds().get("queued").size() == 0;
-            logger.debug("finished: " + finished);
-            logger.debug("details.getStateIds(): " + historyDetails.getStateIds());
+            finished = isHistoryReady(historyId);
             waitCount++;
         }
         if (finished)
@@ -379,10 +407,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         else
             logger.warn("Stopped waiting for the workflow to finish after {} seconds.",
                         WORKFLOW_WAIT_MAX_WAIT_BLOCKS * WORKFLOW_WAIT_SECONDS);
-        if (historyDetails != null) {
-            logger.debug("details.getStateIds(): " + historyDetails.getStateIds());
-            logger.debug("{} output file(s) ready for download.", historyDetails.getStateIds().get("ok").size());
-        }
+        final Map<String, List<String>> stateIds = historiesClient.showHistory(historyId).getStateIds();
+        logger.debug("History state IDs after execute: {}.", stateIds);
+        logger.debug("There are {} output file(s) ready for download.", stateIds.get(STATE_OK).size());
         return finished;
     }
 
@@ -400,7 +427,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 final Dataset dataset = historiesClient.showDataset(historyId, outputId);
                 final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
                 // todo: make downloading optional (only some files might be needed) and use configurable output directory.
-                final String prefix = "workflow-runner-" + historyId + "-" + outputName + "-";
+                final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
                 final File outputFile = File.createTempFile(prefix, ".txt");
                 logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
                 // todo: is it necessary to fill in the data type (last parameter)?

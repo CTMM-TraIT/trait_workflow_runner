@@ -103,6 +103,7 @@ public class DefaultWorkflow implements Workflow {
         parameters.put(stepId, keyValueMap);
     }
 
+    @Override
     public Map<Object, Map<String, Object>> getParameters() {
         return parameters;
     }

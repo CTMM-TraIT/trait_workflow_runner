@@ -94,8 +94,10 @@ public class RandomLinesExample extends BaseExample {
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
         workflow.addInput(INPUT_NAME, FileUtils.createInputFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
-        workflow.setParameter(2, LINE_COUNT_PARAMETER_NAME, INITIAL_LINE_COUNT);
-        workflow.setParameter(3, LINE_COUNT_PARAMETER_NAME, DEFINITIVE_LINE_COUNT);
+        final int stepIdFirstFilter = 2;
+        final int stepIdSecondFilter = 3;
+        workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, INITIAL_LINE_COUNT);
+        workflow.setParameter(stepIdSecondFilter, LINE_COUNT_PARAMETER_NAME, DEFINITIVE_LINE_COUNT);
 
         try {
             if (!workflowEngine.runWorkflow(workflow))
