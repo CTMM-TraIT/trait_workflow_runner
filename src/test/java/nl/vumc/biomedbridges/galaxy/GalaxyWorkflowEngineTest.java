@@ -85,6 +85,22 @@ public class GalaxyWorkflowEngineTest {
 
     /**
      * Test the runWorkflow method.
+     *
+     * todo: complete this test.
+     */
+    @Ignore
+    @Test
+    public void testRunWorkflowV2() throws Exception {
+        final GalaxyWorkflow galaxyWorkflow = Mockito.mock(GalaxyWorkflow.class);
+        final String configuration = GalaxyConfiguration.buildConfiguration("...", "...", "...");
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine();
+        galaxyWorkflowEngine.configure(configuration);
+        //galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow("TestWorkflow"));
+        galaxyWorkflowEngine.runWorkflow(galaxyWorkflow);
+    }
+
+    /**
+     * Test the runWorkflow method.
      */
     @Ignore
     @Test

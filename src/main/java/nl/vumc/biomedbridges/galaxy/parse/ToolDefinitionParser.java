@@ -36,7 +36,7 @@ public class ToolDefinitionParser {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        final String filePath = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\etc\\histogram2.xml";
+        final String filePath = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\etc\\histogram\\histogram2.xml";
         new ToolDefinitionParser().parseToolDefinition(filePath);
     }
     // CHECKSTYLE_ON: UncommentedMain
