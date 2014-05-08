@@ -1,0 +1,60 @@
+{
+    "a_galaxy_workflow": "true", 
+    "annotation": "", 
+    "format-version": "0.1", 
+    "name": "Histogram", 
+    "steps": {
+        "0": {
+            "annotation": "", 
+            "id": 0, 
+            "input_connections": {}, 
+            "inputs": [
+                {
+                    "description": "", 
+                    "name": "input"
+                }
+            ], 
+            "name": "Input dataset", 
+            "outputs": [], 
+            "position": {
+                "left": 193.5, 
+                "top": 270.5
+            }, 
+            "tool_errors": null, 
+            "tool_id": null, 
+            "tool_state": "{\"name\": \"input\"}", 
+            "tool_version": null, 
+            "type": "data_input", 
+            "user_outputs": []
+        }, 
+        "1": {
+            "annotation": "", 
+            "id": 1, 
+            "input_connections": {
+                "input": {
+                    "id": 0, 
+                    "output_name": "output"
+                }
+            }, 
+            "inputs": [], 
+            "name": "Histogram", 
+            "outputs": [
+                {
+                    "name": "out_file1", 
+                    "type": "pdf"
+                }
+            ], 
+            "position": {
+                "left": 483.5, 
+                "top": 270
+            }, 
+            "post_job_actions": {}, 
+            "tool_errors": null, 
+            "tool_id": "histogram_rpy", 
+            "tool_state": "{\"xlab\": \"\\\"V1\\\"\", \"density\": \"\\\"True\\\"\", \"__page__\": 0, \"title\": \"\\\"Histogram\\\"\", \"breaks\": \"\\\"5\\\"\", \"numerical_column\": \"{\\\"__class__\\\": \\\"UnvalidatedValue\\\", \\\"value\\\": \\\"2\\\"}\", \"frequency\": \"\\\"False\\\"\", \"input\": \"null\", \"__rerun_remap_job_id__\": null}", 
+            "tool_version": "1.0.3", 
+            "type": "tool", 
+            "user_outputs": []
+        }
+    }
+}

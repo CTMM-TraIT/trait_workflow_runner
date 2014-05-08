@@ -7,6 +7,8 @@ package nl.vumc.biomedbridges.galaxy.parse;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,10 +26,20 @@ import org.xml.sax.SAXException;
  */
 public class ToolDefinitionParser {
     /**
-     * Hidden constructor. The main method below will be used for now.
+     * Project directory.
      */
-    private ToolDefinitionParser() {
-    }
+    private static final String PROJECT_DIRECTORY = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\";
+
+    /**
+     * Galaxy configuration data directory for testing.
+     */
+    private static final String DATA_DIRECTORY = PROJECT_DIRECTORY + "data\\Galaxy configuration\\";
+
+//    /**
+//     * Hidden constructor. The main method below will be used for now.
+//     */
+//    private ToolDefinitionParser() {
+//    }
 
     /**
      * Main method.
@@ -36,10 +48,37 @@ public class ToolDefinitionParser {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        final String filePath = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\etc\\histogram\\histogram2.xml";
-        new ToolDefinitionParser().parseToolDefinition(filePath);
+        // Test parsing the tools configuration.
+        final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
+        final List<String> toolDefinitionPaths = new ToolDefinitionParser().parseToolsConfiguration(configurationFilePath);
+        System.out.println("toolDefinitionPaths: " + toolDefinitionPaths);
+        // Test parsing a tool definition.
+        final String histogramFilePath = DATA_DIRECTORY + "tools\\plotting\\histogram2.xml";
+        if (arguments.length < 0)
+            new ToolDefinitionParser().parseToolDefinition(histogramFilePath);
     }
     // CHECKSTYLE_ON: UncommentedMain
+
+    public List<String> parseToolsConfiguration(final String filePath) {
+        final List<String> toolDefinitionFilePaths = new ArrayList<>();
+        try {
+            final Element toolboxElement = parseXmlDocument(filePath);
+            final NodeList sectionElements = toolboxElement.getElementsByTagName("section");
+            for (int sectionIndex = 0; sectionIndex < sectionElements.getLength(); sectionIndex++) {
+                final Element sectionElement = (Element) sectionElements.item(sectionIndex);
+                final NodeList toolElements = sectionElement.getElementsByTagName("tool");
+                for (int toolIndex = 0; toolIndex < toolElements.getLength(); toolIndex++) {
+                    final Element toolElement = (Element) toolElements.item(toolIndex);
+                    final String fileAttribute = toolElement.getAttribute("file");
+                    toolDefinitionFilePaths.add(fileAttribute);
+                    System.out.println("fileAttribute: " + fileAttribute);
+                }
+            }
+        } catch (final SAXException | IOException | ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        return toolDefinitionFilePaths;
+    }
 
     /**
      * Parse the definition of a tool.
@@ -49,8 +88,7 @@ public class ToolDefinitionParser {
     private void parseToolDefinition(final String filePath) {
         System.out.println("filePath: " + filePath);
         try {
-            final DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            final Element toolElement = documentBuilder.parse(new File(filePath)).getDocumentElement();
+            final Element toolElement = parseXmlDocument(filePath);
             System.out.println("tool id: " + toolElement.getAttribute("id"));
             System.out.println("tool name: " + toolElement.getAttribute("name"));
             System.out.println("tool version: " + toolElement.getAttribute("version"));
@@ -74,5 +112,20 @@ public class ToolDefinitionParser {
         } catch (final SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Parse the XML document at the file path and return the document element.
+     *
+     * @param filePath the file path where the XML document is located.
+     * @return the document element.
+     * @throws ParserConfigurationException when the XML parser (document builder) cannot be configured.
+     * @throws SAXException when there is an exception during parsing.
+     * @throws IOException when there is an I/O except during reading of the XML file.
+     */
+    private Element parseXmlDocument(final String filePath)
+            throws ParserConfigurationException, SAXException, IOException {
+        final DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return documentBuilder.parse(new File(filePath)).getDocumentElement();
     }
 }

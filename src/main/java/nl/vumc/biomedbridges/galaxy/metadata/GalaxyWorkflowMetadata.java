@@ -6,8 +6,10 @@
 package nl.vumc.biomedbridges.galaxy.metadata;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -28,9 +30,9 @@ public class GalaxyWorkflowMetadata {
 
     public GalaxyWorkflowMetadata(final JSONObject workflowJson) {
         this.aGalaxyWorkflow = "true".equals(workflowJson.get("a_galaxy_workflow"));
-        this.annotation = workflowJson.get("a_galaxy_workflow").toString();
-        this.formatVersion = workflowJson.get("a_galaxy_workflow").toString();
-        this.name = workflowJson.get("a_galaxy_workflow").toString();
+        this.annotation = workflowJson.get("annotation").toString();
+        this.formatVersion = workflowJson.get("format-version").toString();
+        this.name = workflowJson.get("name").toString();
         this.steps = new ArrayList<>();
 
         final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
@@ -46,7 +48,7 @@ public class GalaxyWorkflowMetadata {
 
         for (final JSONObject stepJson : sortedStepsMap.values())
             steps.add(new GalaxyWorkflowStep(stepJson));
-    }
+        }
 
     public boolean isGalaxyWorkflow() {
         return aGalaxyWorkflow;
@@ -62,5 +64,17 @@ public class GalaxyWorkflowMetadata {
 
     public String getName() {
         return name;
+    }
+
+    public List<GalaxyWorkflowStep> getSteps() {
+        return steps;
+    }
+
+    public Set<String> getToolIds() {
+        final Set<String> toolIds = new HashSet<>();
+        for (final GalaxyWorkflowStep workflowStep : steps)
+            if (workflowStep.getToolId() != null)
+                toolIds.add(workflowStep.getToolId());
+        return toolIds;
     }
 }

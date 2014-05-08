@@ -6,10 +6,14 @@
 package nl.vumc.biomedbridges.galaxy.metadata;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * The Galaxy workflow step metadata (which is part of a GalaxyWorkflowMetadata object).
@@ -18,47 +22,94 @@ import org.json.simple.JSONObject;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyWorkflowStep {
-    private final String annotation;
-    private final long id;
-    //            "input_connections": {},
-    private final List<GalaxyStepInput> inputs;
-    //            "inputs": [
-    //                {
-    //                    "description": "",
-    //                    "name": "input"
-    //                }
-    //            ],
+    private final Long id;
     private final String name;
-    //            "outputs": [],
-    //            "position": {
-    //                "left": 193.5,
-    //                "top": 270.5
-    //            },
-    //            "tool_errors": null,
-    //            "tool_id": null,
-    //            "tool_state": "{\"name\": \"input\"}",
-    //            "tool_version": null,
     private final String type;
-    //            "user_outputs": []
-
+    private final String toolId;
+    private final String toolVersion;
+    private final String annotation;
+    private final GalaxyStepPosition position;
+    private final Map<Object, Object> inputConnections;
+    private final List<GalaxyStepInput> inputs;
+    private final List<GalaxyStepOutput> outputs;
+    private final Map<Object, Object> toolErrors;
+    private final Map<String, Object> toolState;
+    private final List<Object> userOutputs;  // Appears to be unused.
 
     public GalaxyWorkflowStep(final JSONObject stepJson) {
-        this.annotation = stepJson.get("annotation").toString();
-        this.id = Long.parseLong(stepJson.get("id").toString());
-        this.name = stepJson.get("name").toString();
-        this.type = stepJson.get("type").toString();
+        this.id = getJsonLong(stepJson, "id");
+        this.name = getJsonString(stepJson, "name");
+        this.type = getJsonString(stepJson, "type");
+        this.toolId = getJsonString(stepJson, "tool_id");
+        this.toolVersion = getJsonString(stepJson, "tool_version");
+        this.annotation = getJsonString(stepJson, "annotation");
+        this.position = new GalaxyStepPosition((JSONObject) stepJson.get("position"));
+        this.inputConnections = new HashMap<>();
+        this.toolErrors = new HashMap<>();
+        // Initialize inputs.
         this.inputs = new ArrayList<>();
-
         final JSONArray inputsArray = (JSONArray) stepJson.get("inputs");
         for (final Object input : inputsArray)
             this.inputs.add(new GalaxyStepInput((JSONObject) input));
+        // Initialize outputs.
+        this.outputs = new ArrayList<>();
+        final JSONArray outputsArray = (JSONArray) stepJson.get("outputs");
+        for (final Object output : outputsArray)
+            this.outputs.add(new GalaxyStepOutput((JSONObject) output));
+        // Initialize toolState.
+        this.toolState = new HashMap<>();
+        try {
+            final Object toolStateObject = stepJson.get("tool_state");
+            if (toolStateObject != null) {
+                final JSONObject toolStateJson = (JSONObject) new JSONParser().parse(toolStateObject.toString());
+                for (final Object parameterObject : toolStateJson.entrySet()) {
+                    final Map.Entry parameterEntry = (Map.Entry) parameterObject;
+                    final Object toolStateValue = getToolStateValue(parameterEntry.getValue());
+                    System.out.println(parameterEntry.getKey() + " -> " + toolStateValue
+                                       + (toolStateValue != null ? " (" + toolStateValue.getClass().getName() + ")" : ""));
+                    this.toolState.put((String) parameterEntry.getKey(), toolStateValue);
+                }
+            }
+        } catch (final ParseException e) {
+            e.printStackTrace();
+        }
+        // Initialize userOutputs.
+        this.userOutputs = new ArrayList<>();
     }
 
-    public String getAnnotation() {
-        return annotation;
+    private Object getToolStateValue(final Object initialValue) {
+        Object result = null;
+        if (initialValue != null) {
+            final String initialString = initialValue.toString();
+            if (initialString.startsWith("\"") && initialString.endsWith("\"")) {
+                final String cleanString = initialString.substring(1, initialString.length() - 1);
+                if (cleanString.equals("True") || cleanString.equals("False"))
+                    result = cleanString.equals("True");
+                else if (cleanString.matches("[-+]?\\d+(\\.\\d+)?"))
+                    result = Long.parseLong(cleanString);
+                else
+                    result = cleanString;
+            } else if (!"null".equals(initialString)) {
+                if (initialString.matches("[-+]?\\d+(\\.\\d+)?"))
+                    result = Long.parseLong(initialString);
+                else
+                    result = initialString;
+            }
+        }
+        return result;
     }
 
-    public long getId() {
+    private String getJsonString(final JSONObject jsonObject, final String key) {
+        final Object objectValue = jsonObject.get(key);
+        return objectValue != null ? objectValue.toString() : null;
+    }
+
+    private Long getJsonLong(final JSONObject jsonObject, final String key) {
+        final String stringValue = getJsonString(jsonObject, key);
+        return stringValue != null ? Long.parseLong(stringValue) : null;
+    }
+
+    public Long getId() {
         return id;
     }
 
@@ -68,5 +119,45 @@ public class GalaxyWorkflowStep {
 
     public String getType() {
         return type;
+    }
+
+    public String getToolId() {
+        return toolId;
+    }
+
+    public String getToolVersion() {
+        return toolVersion;
+    }
+
+    public String getAnnotation() {
+        return annotation;
+    }
+
+    public GalaxyStepPosition getPosition() {
+        return position;
+    }
+
+    public Map<Object, Object> getInputConnections() {
+        return inputConnections;
+    }
+
+    public List<GalaxyStepOutput> getOutputs() {
+        return outputs;
+    }
+
+    public List<GalaxyStepInput> getInputs() {
+        return inputs;
+    }
+
+    public Map<Object, Object> getToolErrors() {
+        return toolErrors;
+    }
+
+    public Map<String, Object> getToolState() {
+        return toolState;
+    }
+
+    public List<Object> getUserOutputs() {
+        return userOutputs;
     }
 }
