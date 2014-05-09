@@ -70,11 +70,11 @@ public class GalaxyWorkflowMetadata {
         return steps;
     }
 
-    public Set<String> getToolIds() {
-        final Set<String> toolIds = new HashSet<>();
+    public Set<ToolReference> getToolReferences() {
+        final Set<ToolReference> toolIds = new HashSet<>();
         for (final GalaxyWorkflowStep workflowStep : steps)
             if (workflowStep.getToolId() != null)
-                toolIds.add(workflowStep.getToolId());
+                toolIds.add(new ToolReference(workflowStep.getToolId(), workflowStep.getToolVersion()));
         return toolIds;
     }
 }

@@ -20,6 +20,8 @@ import java.util.Map;
 
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowStep;
+import nl.vumc.biomedbridges.galaxy.metadata.ToolMetadata;
+import nl.vumc.biomedbridges.galaxy.metadata.ToolReference;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -54,15 +56,20 @@ public class WorkflowDefinitionParser {
         final Map<String, GalaxyWorkflowMetadata> workflowsMap;
         workflowsMap = new WorkflowDefinitionParser().readWorkflowsFromDirectories(DATA_DIRECTORY + "workflows\\");
         System.out.println();
-        final List<String> toolIds = new ArrayList<>();
-        for (final GalaxyWorkflowMetadata workflowMetadata : workflowsMap.values())
-            toolIds.addAll(workflowMetadata.getToolIds());
-        System.out.println("toolIds: " + toolIds);
         System.out.println("workflowsMap: " + workflowsMap);
+        System.out.println();
+        final List<ToolReference> toolReferences = new ArrayList<>();
+        for (final GalaxyWorkflowMetadata workflowMetadata : workflowsMap.values())
+            toolReferences.addAll(workflowMetadata.getToolReferences());
+        System.out.println("toolReferences: " + toolReferences);
+        System.out.println();
+        System.out.println();
         final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
-        // todo: also check tool versions.
-        final List<String> toolDefinitionPaths = new ToolDefinitionParser().parseToolsConfiguration(configurationFilePath);
+        final ToolDefinitionParser toolDefinitionParser = new ToolDefinitionParser();
+        final List<String> toolDefinitionPaths = toolDefinitionParser.parseToolsConfiguration(configurationFilePath);
         System.out.println("toolDefinitionPaths: " + toolDefinitionPaths);
+        final List<ToolMetadata> toolsMetadata = toolDefinitionParser.parseToolsMetadata(toolDefinitionPaths, toolReferences);
+        System.out.println("toolsMetadata: " + toolsMetadata);
     }
     // CHECKSTYLE_ON: UncommentedMain
 

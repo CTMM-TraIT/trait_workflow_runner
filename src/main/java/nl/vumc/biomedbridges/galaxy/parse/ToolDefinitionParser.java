@@ -14,8 +14,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nl.vumc.biomedbridges.galaxy.metadata.ToolMetadata;
+import nl.vumc.biomedbridges.galaxy.metadata.ToolReference;
+
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -52,10 +54,10 @@ public class ToolDefinitionParser {
         final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
         final List<String> toolDefinitionPaths = new ToolDefinitionParser().parseToolsConfiguration(configurationFilePath);
         System.out.println("toolDefinitionPaths: " + toolDefinitionPaths);
-        // Test parsing a tool definition.
-        final String histogramFilePath = DATA_DIRECTORY + "tools\\plotting\\histogram2.xml";
-        if (arguments.length < 0)
-            new ToolDefinitionParser().parseToolDefinition(histogramFilePath);
+//        // Test parsing a tool definition.
+//        final String histogramFilePath = DATA_DIRECTORY + "tools\\plotting\\histogram2.xml";
+//        if (arguments.length < 0)
+//            new ToolDefinitionParser().parseToolDefinition(histogramFilePath, null);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -70,8 +72,9 @@ public class ToolDefinitionParser {
                 for (int toolIndex = 0; toolIndex < toolElements.getLength(); toolIndex++) {
                     final Element toolElement = (Element) toolElements.item(toolIndex);
                     final String fileAttribute = toolElement.getAttribute("file");
-                    toolDefinitionFilePaths.add(fileAttribute);
-                    System.out.println("fileAttribute: " + fileAttribute);
+                    final String toolFilePath = DATA_DIRECTORY + "tools\\" + fileAttribute.replaceAll("/", "\\\\");
+                    System.out.println("toolFilePath: " + toolFilePath);
+                    toolDefinitionFilePaths.add(toolFilePath);
                 }
             }
         } catch (final SAXException | IOException | ParserConfigurationException e) {
@@ -80,38 +83,34 @@ public class ToolDefinitionParser {
         return toolDefinitionFilePaths;
     }
 
+    public List<ToolMetadata> parseToolsMetadata(final List<String> toolDefinitionPaths,
+                                                 final List<ToolReference> toolReferences) {
+        final List<ToolMetadata> toolsMetadata = new ArrayList<>();
+        for (final String toolDefinitionPath : toolDefinitionPaths) {
+            final ToolMetadata toolMetadata = parseToolDefinition(toolDefinitionPath, toolReferences);
+            if (toolMetadata != null)
+                toolsMetadata.add(toolMetadata);
+        }
+        return toolsMetadata;
+    }
+
     /**
      * Parse the definition of a tool.
      *
      * @param filePath the file path with the xml tool definition.
+     * @param toolReferences the references to the tools that should be parsed.
      */
-    private void parseToolDefinition(final String filePath) {
+    private ToolMetadata parseToolDefinition(final String filePath, final List<ToolReference> toolReferences) {
         System.out.println("filePath: " + filePath);
+        ToolMetadata toolMetadata = null;
         try {
             final Element toolElement = parseXmlDocument(filePath);
-            System.out.println("tool id: " + toolElement.getAttribute("id"));
-            System.out.println("tool name: " + toolElement.getAttribute("name"));
-            System.out.println("tool version: " + toolElement.getAttribute("version"));
-            final NodeList descriptionElements = toolElement.getElementsByTagName("description");
-            if (descriptionElements.getLength() >= 1)
-                System.out.println("description: " + descriptionElements.item(0).getTextContent());
-            final NodeList inputsElements = toolElement.getElementsByTagName("inputs");
-            if (inputsElements.getLength() >= 1) {
-                final NodeList paramElements = ((Element) inputsElements.item(0)).getElementsByTagName("param");
-                for (int paramIndex = 0; paramIndex < paramElements.getLength(); paramIndex++) {
-                    final Element paramElement = (Element) paramElements.item(paramIndex);
-                    final NamedNodeMap paramAttributes = paramElement.getAttributes();
-                    System.out.println();
-                    for (int attributeIndex = 0; attributeIndex < paramAttributes.getLength(); attributeIndex++) {
-                        final String attributeName = paramAttributes.item(attributeIndex).getNodeName();
-                        final String attributeValue = paramAttributes.item(attributeIndex).getNodeValue();
-                        System.out.println("parameter " + attributeName + ": " + attributeValue);
-                    }
-                }
-            }
+            if (toolToBeParsed(toolReferences, toolElement))
+                toolMetadata = new ToolMetadata(toolElement);
         } catch (final SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
         }
+        return toolMetadata;
     }
 
     /**
@@ -127,5 +126,17 @@ public class ToolDefinitionParser {
             throws ParserConfigurationException, SAXException, IOException {
         final DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         return documentBuilder.parse(new File(filePath)).getDocumentElement();
+    }
+
+    private boolean toolToBeParsed(final List<ToolReference> toolReferences, final Element toolElement) {
+        boolean toBeParsed = false;
+        final String toolId = toolElement.getAttribute("id");
+        final String toolVersion = toolElement.getAttribute("version");
+        for (final ToolReference toolReference : toolReferences)
+            if (toolReference.getId().equals(toolId) && toolReference.getVersion().equals(toolVersion)) {
+                toBeParsed = true;
+                break;
+            }
+        return toBeParsed;
     }
 }
