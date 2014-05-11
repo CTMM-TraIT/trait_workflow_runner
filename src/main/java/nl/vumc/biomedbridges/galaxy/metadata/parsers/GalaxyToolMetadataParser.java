@@ -3,7 +3,7 @@
  * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
  */
 
-package nl.vumc.biomedbridges.galaxy.parse;
+package nl.vumc.biomedbridges.galaxy.metadata.parsers;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nl.vumc.biomedbridges.galaxy.metadata.ToolMetadata;
-import nl.vumc.biomedbridges.galaxy.metadata.ToolReference;
+import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolMetadata;
+import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,51 +24,17 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * The parser for the Galaxy tool definitions.
+ * The parser for the Galaxy tools configuration and individual metadata for each tool.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class ToolDefinitionParser {
+public class GalaxyToolMetadataParser {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(ToolDefinitionParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(GalaxyToolMetadataParser.class);
 
-    /**
-     * Project directory.
-     */
-    private static final String PROJECT_DIRECTORY = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\";
-
-    /**
-     * Galaxy configuration data directory for testing.
-     */
-    private static final String DATA_DIRECTORY = PROJECT_DIRECTORY + "data\\Galaxy configuration\\";
-
-//    /**
-//     * Hidden constructor. The main method below will be used for now.
-//     */
-//    private ToolDefinitionParser() {
-//    }
-
-    /**
-     * Main method.
-     *
-     * @param arguments unused command-line arguments.
-     */
-    // CHECKSTYLE_OFF: UncommentedMain
-    public static void main(final String[] arguments) {
-        // Test parsing the tools configuration.
-        final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
-        final List<String> toolDefinitionPaths = new ToolDefinitionParser().parseToolsConfiguration(configurationFilePath);
-        logger.trace("toolDefinitionPaths: " + toolDefinitionPaths);
-//        // Test parsing a tool definition.
-//        final String histogramFilePath = DATA_DIRECTORY + "tools\\plotting\\histogram2.xml";
-//        if (arguments.length < 0)
-//            new ToolDefinitionParser().parseToolDefinition(histogramFilePath, null);
-    }
-    // CHECKSTYLE_ON: UncommentedMain
-
-    public List<String> parseToolsConfiguration(final String filePath) {
+    public List<String> parseToolsConfiguration(final String filePath, final String toolsDirectory) {
         final List<String> toolDefinitionFilePaths = new ArrayList<>();
         try {
             final Element toolboxElement = parseXmlDocument(filePath);
@@ -79,7 +45,7 @@ public class ToolDefinitionParser {
                 for (int toolIndex = 0; toolIndex < toolElements.getLength(); toolIndex++) {
                     final Element toolElement = (Element) toolElements.item(toolIndex);
                     final String fileAttribute = toolElement.getAttribute("file");
-                    final String toolFilePath = DATA_DIRECTORY + "tools\\" + fileAttribute.replaceAll("/", "\\\\");
+                    final String toolFilePath = toolsDirectory + fileAttribute.replaceAll("/", "\\\\");
                     logger.trace("toolFilePath: " + toolFilePath);
                     toolDefinitionFilePaths.add(toolFilePath);
                 }
@@ -90,11 +56,11 @@ public class ToolDefinitionParser {
         return toolDefinitionFilePaths;
     }
 
-    public List<ToolMetadata> parseToolsMetadata(final List<String> toolDefinitionPaths,
-                                                 final List<ToolReference> toolReferences) {
-        final List<ToolMetadata> toolsMetadata = new ArrayList<>();
+    public List<GalaxyToolMetadata> parseToolsMetadata(final List<String> toolDefinitionPaths,
+                                                       final List<GalaxyToolReference> toolReferences) {
+        final List<GalaxyToolMetadata> toolsMetadata = new ArrayList<>();
         for (final String toolDefinitionPath : toolDefinitionPaths) {
-            final ToolMetadata toolMetadata = parseToolDefinition(toolDefinitionPath, toolReferences);
+            final GalaxyToolMetadata toolMetadata = parseToolDefinition(toolDefinitionPath, toolReferences);
             if (toolMetadata != null)
                 toolsMetadata.add(toolMetadata);
         }
@@ -107,13 +73,14 @@ public class ToolDefinitionParser {
      * @param filePath the file path with the xml tool definition.
      * @param toolReferences the references to the tools that should be parsed.
      */
-    private ToolMetadata parseToolDefinition(final String filePath, final List<ToolReference> toolReferences) {
+    private GalaxyToolMetadata parseToolDefinition(final String filePath,
+                                                   final List<GalaxyToolReference> toolReferences) {
         logger.trace("filePath: " + filePath);
-        ToolMetadata toolMetadata = null;
+        GalaxyToolMetadata toolMetadata = null;
         try {
             final Element toolElement = parseXmlDocument(filePath);
             if (toolToBeParsed(toolReferences, toolElement))
-                toolMetadata = new ToolMetadata(toolElement);
+                toolMetadata = new GalaxyToolMetadata(toolElement);
         } catch (final SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
         }
@@ -135,11 +102,11 @@ public class ToolDefinitionParser {
         return documentBuilder.parse(new File(filePath)).getDocumentElement();
     }
 
-    private boolean toolToBeParsed(final List<ToolReference> toolReferences, final Element toolElement) {
+    private boolean toolToBeParsed(final List<GalaxyToolReference> toolReferences, final Element toolElement) {
         boolean toBeParsed = false;
         final String toolId = toolElement.getAttribute("id");
         final String toolVersion = toolElement.getAttribute("version");
-        for (final ToolReference toolReference : toolReferences)
+        for (final GalaxyToolReference toolReference : toolReferences)
             if (toolReference.getId().equals(toolId) && toolReference.getVersion().equals(toolVersion)) {
                 toBeParsed = true;
                 break;

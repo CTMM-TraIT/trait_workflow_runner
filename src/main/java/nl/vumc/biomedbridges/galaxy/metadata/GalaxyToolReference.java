@@ -13,11 +13,11 @@ import com.google.common.base.Objects;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
-public class ToolReference {
+public class GalaxyToolReference {
     private final String id;
     private final String version;
 
-    public ToolReference(final String id, final String version) {
+    public GalaxyToolReference(final String id, final String version) {
         this.id = id;
         this.version = version;
     }
@@ -37,8 +37,8 @@ public class ToolReference {
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof ToolReference) {
-            final ToolReference that = (ToolReference) obj;
+        if (obj instanceof GalaxyToolReference) {
+            final GalaxyToolReference that = (GalaxyToolReference) obj;
             return Objects.equal(this.id, that.id) && Objects.equal(this.version, that.version);
         } else
             return false;

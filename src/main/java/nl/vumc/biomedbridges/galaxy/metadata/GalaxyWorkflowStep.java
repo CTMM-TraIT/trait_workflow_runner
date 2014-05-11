@@ -43,6 +43,8 @@ public class GalaxyWorkflowStep {
     private final Map<String, Object> toolState;
     private final List<Object> userOutputs;  // Appears to be unused.
 
+    private GalaxyToolMetadata toolMetadata;
+
     public GalaxyWorkflowStep(final JSONObject stepJson) {
         this.id = getJsonLong(stepJson, "id");
         this.name = getJsonString(stepJson, "name");
@@ -166,5 +168,22 @@ public class GalaxyWorkflowStep {
 
     public List<Object> getUserOutputs() {
         return userOutputs;
+    }
+
+    /**
+     * Add a tool metadata object to this workflow step.
+     *
+     * @param toolsMetadata the tool metadata objects.
+     */
+    public void addToolsMetadata(final List<GalaxyToolMetadata> toolsMetadata) {
+        for (final GalaxyToolMetadata availableToolMetadata : toolsMetadata)
+            if (toolId.equals(availableToolMetadata.getId()) && toolVersion.equals(availableToolMetadata.getVersion())) {
+                toolMetadata = availableToolMetadata;
+                break;
+            }
+    }
+
+    public GalaxyToolMetadata getToolMetadata() {
+        return toolMetadata;
     }
 }

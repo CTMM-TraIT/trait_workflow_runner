@@ -6,4 +6,4 @@
 /**
  * Galaxy definition parsing functionality for the Workflow Runner tool.
  */
-package nl.vumc.biomedbridges.galaxy.parse;
+package nl.vumc.biomedbridges.galaxy.metadata.parsers;

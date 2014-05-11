@@ -70,11 +70,21 @@ public class GalaxyWorkflowMetadata {
         return steps;
     }
 
-    public Set<ToolReference> getToolReferences() {
-        final Set<ToolReference> toolIds = new HashSet<>();
+    public Set<GalaxyToolReference> getToolReferences() {
+        final Set<GalaxyToolReference> toolIds = new HashSet<>();
         for (final GalaxyWorkflowStep workflowStep : steps)
             if (workflowStep.getToolId() != null)
-                toolIds.add(new ToolReference(workflowStep.getToolId(), workflowStep.getToolVersion()));
+                toolIds.add(new GalaxyToolReference(workflowStep.getToolId(), workflowStep.getToolVersion()));
         return toolIds;
+    }
+
+    /**
+     * Add tool metadata objects to the workflow steps.
+     *
+     * @param toolsMetadata the tool metadata objects.
+     */
+    public void addToolsMetadata(final List<GalaxyToolMetadata> toolsMetadata) {
+        for (final GalaxyWorkflowStep workflowStep : steps)
+            workflowStep.addToolsMetadata(toolsMetadata);
     }
 }
