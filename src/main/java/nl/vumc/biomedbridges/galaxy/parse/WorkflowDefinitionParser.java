@@ -26,6 +26,8 @@ import nl.vumc.biomedbridges.galaxy.metadata.ToolReference;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Galaxy workflow definition parser that reads the metadata from a .ga json file.
@@ -36,6 +38,11 @@ import org.json.simple.parser.ParseException;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class WorkflowDefinitionParser {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowDefinitionParser.class);
+
     /**
      * Project directory.
      */
@@ -55,21 +62,21 @@ public class WorkflowDefinitionParser {
     public static void main(final String[] arguments) {
         final Map<String, GalaxyWorkflowMetadata> workflowsMap;
         workflowsMap = new WorkflowDefinitionParser().readWorkflowsFromDirectories(DATA_DIRECTORY + "workflows\\");
-        System.out.println();
-        System.out.println("workflowsMap: " + workflowsMap);
-        System.out.println();
+        logger.trace("");
+        logger.info("workflowsMap: " + workflowsMap);
+        logger.trace("");
         final List<ToolReference> toolReferences = new ArrayList<>();
         for (final GalaxyWorkflowMetadata workflowMetadata : workflowsMap.values())
             toolReferences.addAll(workflowMetadata.getToolReferences());
-        System.out.println("toolReferences: " + toolReferences);
-        System.out.println();
-        System.out.println();
+        logger.info("toolReferences: " + toolReferences);
+        logger.trace("");
+        logger.trace("");
         final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
         final ToolDefinitionParser toolDefinitionParser = new ToolDefinitionParser();
         final List<String> toolDefinitionPaths = toolDefinitionParser.parseToolsConfiguration(configurationFilePath);
-        System.out.println("toolDefinitionPaths: " + toolDefinitionPaths);
+        logger.trace("toolDefinitionPaths: " + toolDefinitionPaths);
         final List<ToolMetadata> toolsMetadata = toolDefinitionParser.parseToolsMetadata(toolDefinitionPaths, toolReferences);
-        System.out.println("toolsMetadata: " + toolsMetadata);
+        logger.info("toolsMetadata: " + toolsMetadata);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -95,10 +102,10 @@ public class WorkflowDefinitionParser {
         final String filePath = workflowFile.getAbsolutePath();
         final GalaxyWorkflowMetadata workflowMetadata = new WorkflowDefinitionParser().parseWorkflowDefinition(filePath);
         workflowsMap.put(workflowMetadata.getName(), workflowMetadata);
-        System.out.println("workflowMetadata: " + workflowMetadata);
+        logger.trace("workflowMetadata: " + workflowMetadata);
         for (final GalaxyWorkflowStep step : workflowMetadata.getSteps())
             if (step.getToolId() != null)
-                System.out.println("step[" + step.getId() + "].getToolId(): " + step.getToolId());
+                logger.trace("step[" + step.getId() + "].getToolId(): " + step.getToolId());
     }
 
     private GalaxyWorkflowMetadata parseWorkflowDefinition(final String filePath) {
@@ -106,10 +113,10 @@ public class WorkflowDefinitionParser {
         try {
             final String jsonContent = Joiner.on("\n").join(Files.readAllLines(Paths.get(filePath), Charsets.UTF_8));
             final JSONObject workflowJson = (JSONObject) new JSONParser().parse(jsonContent);
-            System.out.println("workflowJson: " + workflowJson);
-            System.out.println();
+            logger.trace("workflowJson: " + workflowJson);
+            logger.trace("");
             result = new GalaxyWorkflowMetadata(workflowJson);
-            System.out.println();
+            logger.trace("");
         } catch (final IOException | ParseException e) {
             result = null;
             e.printStackTrace();

@@ -17,6 +17,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import nl.vumc.biomedbridges.galaxy.metadata.ToolMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.ToolReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -27,6 +29,11 @@ import org.xml.sax.SAXException;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class ToolDefinitionParser {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(ToolDefinitionParser.class);
+
     /**
      * Project directory.
      */
@@ -53,7 +60,7 @@ public class ToolDefinitionParser {
         // Test parsing the tools configuration.
         final String configurationFilePath = DATA_DIRECTORY + "tool_conf.xml";
         final List<String> toolDefinitionPaths = new ToolDefinitionParser().parseToolsConfiguration(configurationFilePath);
-        System.out.println("toolDefinitionPaths: " + toolDefinitionPaths);
+        logger.trace("toolDefinitionPaths: " + toolDefinitionPaths);
 //        // Test parsing a tool definition.
 //        final String histogramFilePath = DATA_DIRECTORY + "tools\\plotting\\histogram2.xml";
 //        if (arguments.length < 0)
@@ -73,7 +80,7 @@ public class ToolDefinitionParser {
                     final Element toolElement = (Element) toolElements.item(toolIndex);
                     final String fileAttribute = toolElement.getAttribute("file");
                     final String toolFilePath = DATA_DIRECTORY + "tools\\" + fileAttribute.replaceAll("/", "\\\\");
-                    System.out.println("toolFilePath: " + toolFilePath);
+                    logger.trace("toolFilePath: " + toolFilePath);
                     toolDefinitionFilePaths.add(toolFilePath);
                 }
             }
@@ -101,7 +108,7 @@ public class ToolDefinitionParser {
      * @param toolReferences the references to the tools that should be parsed.
      */
     private ToolMetadata parseToolDefinition(final String filePath, final List<ToolReference> toolReferences) {
-        System.out.println("filePath: " + filePath);
+        logger.trace("filePath: " + filePath);
         ToolMetadata toolMetadata = null;
         try {
             final Element toolElement = parseXmlDocument(filePath);

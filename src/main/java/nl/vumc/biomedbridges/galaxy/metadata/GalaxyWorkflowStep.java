@@ -14,6 +14,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Galaxy workflow step metadata (which is part of a GalaxyWorkflowMetadata object).
@@ -22,6 +24,11 @@ import org.json.simple.parser.ParseException;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyWorkflowStep {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowStep.class);
+
     private final Long id;
     private final String name;
     private final String type;
@@ -65,8 +72,8 @@ public class GalaxyWorkflowStep {
                 for (final Object parameterObject : toolStateJson.entrySet()) {
                     final Map.Entry parameterEntry = (Map.Entry) parameterObject;
                     final Object toolStateValue = getToolStateValue(parameterEntry.getValue());
-                    System.out.println(parameterEntry.getKey() + " -> " + toolStateValue
-                                       + (toolStateValue != null ? " (" + toolStateValue.getClass().getName() + ")" : ""));
+                    logger.trace(parameterEntry.getKey() + " -> " + toolStateValue
+                                 + (toolStateValue != null ? " (" + toolStateValue.getClass().getName() + ")" : ""));
                     this.toolState.put((String) parameterEntry.getKey(), toolStateValue);
                 }
             }
