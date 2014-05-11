@@ -49,7 +49,7 @@ public class GalaxyWorkflowEngineMetadata {
      * @return the metadata of all available Galaxy workflows.
      */
     public Collection<GalaxyWorkflowMetadata> getWorkflows() {
-        if (workflowsMap != null)
+        if (workflowsMap == null)
             initializeWorkflowMetadata();
         return workflowsMap != null ? workflowsMap.values() : null;
     }
@@ -60,7 +60,7 @@ public class GalaxyWorkflowEngineMetadata {
      * @return the metadata of a Galaxy workflow.
      */
     public GalaxyWorkflowMetadata getWorkflow(final String name) {
-        if (workflowsMap != null)
+        if (workflowsMap == null)
             initializeWorkflowMetadata();
         return workflowsMap != null ? workflowsMap.get(name) : null;
     }
