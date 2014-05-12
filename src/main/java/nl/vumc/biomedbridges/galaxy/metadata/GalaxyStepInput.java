@@ -14,19 +14,41 @@ import org.json.simple.JSONObject;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyStepInput {
-    private final String description;
+    /**
+     * The name of the input file.
+     */
     private final String name;
 
+    /**
+     * The description of the input file.
+     */
+    private final String description;
+
+    /**
+     * Create a Galaxy step input object.
+     *
+     * @param inputJson the input json object.
+     */
     public GalaxyStepInput(final JSONObject inputJson) {
-        this.description = inputJson.get("description").toString();
         this.name = inputJson.get("name").toString();
+        this.description = inputJson.get("description").toString();
     }
 
-    public String getDescription() {
-        return description;
-    }
-
+    /**
+     * Get the name.
+     *
+     * @return the name.
+     */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Get the description.
+     *
+     * @return the description.
+     */
+    public String getDescription() {
+        return description;
     }
 }

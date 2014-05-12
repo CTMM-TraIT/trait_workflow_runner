@@ -14,18 +14,40 @@ import org.json.simple.JSONObject;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyStepPosition {
+    /**
+     * The left coordinate of a Galaxy workflow step.
+     */
     private final double left;
+
+    /**
+     * The top coordinate of a Galaxy workflow step.
+     */
     private final double top;
 
+    /**
+     * Create a Galaxy step position object.
+     *
+     * @param positionJson the position json object.
+     */
     public GalaxyStepPosition(final JSONObject positionJson) {
         this.left = Double.parseDouble(positionJson.get("left").toString());
         this.top = Double.parseDouble(positionJson.get("top").toString());
     }
 
+    /**
+     * Get the left coordinate.
+     *
+     * @return the left coordinate.
+     */
     public double getLeft() {
         return left;
     }
 
+    /**
+     * Get the top coordinate.
+     *
+     * @return the top coordinate.
+     */
     public double getTop() {
         return top;
     }

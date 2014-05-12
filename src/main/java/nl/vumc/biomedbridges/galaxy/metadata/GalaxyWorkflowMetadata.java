@@ -87,4 +87,27 @@ public class GalaxyWorkflowMetadata {
         for (final GalaxyWorkflowStep workflowStep : steps)
             workflowStep.addToolsMetadata(toolsMetadata);
     }
+
+    public List<GalaxyToolParameterMetadata> getParameters() {
+        final List<GalaxyToolParameterMetadata> parameters = new ArrayList<>();
+        final List<String> parameterNames = new ArrayList<>();
+        boolean duplicateParameterName = false;
+        for (final GalaxyWorkflowStep workflowStep : steps)
+            if (workflowStep.getToolMetadata() != null) {
+                final List<GalaxyToolParameterMetadata> toolParameters = workflowStep.getToolMetadata().getParameters();
+                for (final GalaxyToolParameterMetadata toolParameter : toolParameters)
+                    if (!parameterNames.contains(toolParameter.getName()))
+                        parameterNames.add(toolParameter.getName());
+                    else
+                        duplicateParameterName = true;
+                parameters.addAll(toolParameters);
+            }
+        if (duplicateParameterName)
+            System.out.println("At least one parameter name is used more than once...");
+        else
+            System.out.println("No duplicate parameter names were found.");
+        // (If there is at least one duplicate, we need to make some names more specific...)
+        // todo: To make the user interface clear, it's probably best to support groups of parameters (steps).
+        return parameters;
+    }
 }
