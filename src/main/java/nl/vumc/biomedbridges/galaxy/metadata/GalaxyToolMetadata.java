@@ -28,12 +28,36 @@ public class GalaxyToolMetadata {
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyToolMetadata.class);
 
+    /**
+     * The id.
+     */
     private final String id;
+
+    /**
+     * The name.
+     */
     private final String name;
+
+    /**
+     * The version.
+     */
     private final String version;
+
+    /**
+     * The description.
+     */
     private final String description;
+
+    /**
+     * The parameters.
+     */
     private final List<GalaxyToolParameterMetadata> parameters;
 
+    /**
+     * Create a Galaxy tool metadata object.
+     *
+     * @param toolElement the tool element.
+     */
     public GalaxyToolMetadata(final Element toolElement) {
         this.id = toolElement.getAttribute("id");
         this.name = toolElement.getAttribute("name");
@@ -56,22 +80,47 @@ public class GalaxyToolMetadata {
         }
     }
 
+    /**
+     * Get the id.
+     *
+     * @return the id.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Get the name.
+     *
+     * @return the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the version.
+     *
+     * @return the version.
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Get the description.
+     *
+     * @return the description.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Get the parameters.
+     *
+     * @return the parameters.
+     */
     public List<GalaxyToolParameterMetadata> getParameters() {
         return parameters;
     }

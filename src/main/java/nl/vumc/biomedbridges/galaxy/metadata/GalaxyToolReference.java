@@ -14,18 +14,41 @@ import com.google.common.base.Objects;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyToolReference {
+    /**
+     * The id.
+     */
     private final String id;
+
+    /**
+     * The version.
+     */
     private final String version;
 
+    /**
+     * Create a Galaxy tool reference object.
+     *
+     * @param id the id.
+     * @param version the version.
+     */
     public GalaxyToolReference(final String id, final String version) {
         this.id = id;
         this.version = version;
     }
 
+    /**
+     * Get the id.
+     *
+     * @return the id.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Get the version.
+     *
+     * @return the version.
+     */
     public String getVersion() {
         return version;
     }

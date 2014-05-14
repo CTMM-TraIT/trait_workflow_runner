@@ -16,18 +16,42 @@ import java.util.TreeMap;
 import org.json.simple.JSONObject;
 
 /**
- * The Galaxy workflow metadata (which is read from a .ga json file).
+ * The Galaxy workflow metadata (which is read from a .ga file in json format).
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyWorkflowMetadata {
+    /**
+     * Whether this is a Galaxy workflow: should always be true.
+     */
     private final boolean aGalaxyWorkflow;
+
+    /**
+     * The optional annotation describing the workflow.
+     */
     private final String annotation;
+
+    /**
+     * The format version which currently (in 2014) is equal to "0.1".
+     */
     private final String formatVersion;
+
+    /**
+     * The name.
+     */
     private final String name;
+
+    /**
+     * The steps that form this workflow. A tool can be called during a step.
+     */
     private final List<GalaxyWorkflowStep> steps;
 
+    /**
+     * Create a Galaxy workflow metadata object from a json object.
+     *
+     * @param workflowJson the workflow json object.
+     */
     public GalaxyWorkflowMetadata(final JSONObject workflowJson) {
         this.aGalaxyWorkflow = "true".equals(workflowJson.get("a_galaxy_workflow"));
         this.annotation = workflowJson.get("annotation").toString();
@@ -48,12 +72,22 @@ public class GalaxyWorkflowMetadata {
 
         for (final JSONObject stepJson : sortedStepsMap.values())
             steps.add(new GalaxyWorkflowStep(stepJson));
-        }
+    }
 
+    /**
+     * Whether this is a Galaxy workflow; this method should always return true.
+     *
+     * @return true (whether this is a Galaxy workflow).
+     */
     public boolean isGalaxyWorkflow() {
         return aGalaxyWorkflow;
     }
 
+    /**
+     * Get the optional annotation describing the workflow.
+     *
+     * @return the optional annotation describing the workflow.
+     */
     public String getAnnotation() {
         return annotation;
     }

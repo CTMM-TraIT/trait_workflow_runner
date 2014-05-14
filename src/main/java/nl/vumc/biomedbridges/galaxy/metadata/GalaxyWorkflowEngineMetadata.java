@@ -57,7 +57,8 @@ public class GalaxyWorkflowEngineMetadata {
     /**
      * Get the metadata of a Galaxy workflow.
      *
-     * @return the metadata of a Galaxy workflow.
+     * @param name the name of the Galaxy workflow.
+     * @return the metadata of the Galaxy workflow.
      */
     public GalaxyWorkflowMetadata getWorkflow(final String name) {
         if (workflowsMap == null)

@@ -13,6 +13,12 @@ import org.w3c.dom.NamedNodeMap;
 /**
  * The Galaxy tool parameter metadata.
  *
+ * todo: Decide whether the Workflow Runner will only support a subset of all Galaxy workflow and tool functionality.
+ * - Some functionality might not be supported by the Galaxy API and/or blend4j.
+ * - Some functionality (like conditional parameters) will be too complicated to be supported by Workflow Runner version
+ *   1 (and/or the tranSMART workflow plugin version 1).
+ * - See galaxy-central-repository/lib/galaxy/tools/parameters/*.py for more details.
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
@@ -22,14 +28,46 @@ public class GalaxyToolParameterMetadata {
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyToolParameterMetadata.class);
 
+    /**
+     * The name.
+     */
     private final String name;
+
+    /**
+     * The label.
+     */
     private final String label;
+
+    /**
+     * The type.
+     */
     private final String type;
+
+    /**
+     * The size.
+     */
     private final String size;
+
+    /**
+     * The format.
+     */
     private final String format;
+
+    /**
+     * The value.
+     */
     private final String value;
+
+    /**
+     * The help text explaining this parameter.
+     */
     private final String help;
 
+    /**
+     * Create a Galaxy tool parameter metadata object.
+     *
+     * @param parameterElement the parameter element.
+     */
     public GalaxyToolParameterMetadata(final Element parameterElement) {
         this.name = parameterElement.getAttribute("name");
         this.label = parameterElement.getAttribute("label");
@@ -48,30 +86,65 @@ public class GalaxyToolParameterMetadata {
         }
     }
 
+    /**
+     * Get the name.
+     *
+     * @return the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the label.
+     *
+     * @return the label.
+     */
     public String getLabel() {
         return label;
     }
 
+    /**
+     * Get the type.
+     *
+     * @return the type.
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Get the size.
+     *
+     * @return the size.
+     */
     public String getSize() {
         return size;
     }
 
+    /**
+     * Get the format.
+     *
+     * @return the format.
+     */
     public String getFormat() {
         return format;
     }
 
+    /**
+     * Get the value.
+     *
+     * @return the value.
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Get the help text explaining this parameter.
+     *
+     * @return the help text.
+     */
     public String getHelp() {
         return help;
     }
