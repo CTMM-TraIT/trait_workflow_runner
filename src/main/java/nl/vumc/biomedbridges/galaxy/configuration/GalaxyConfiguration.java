@@ -5,17 +5,19 @@
 
 package nl.vumc.biomedbridges.galaxy.configuration;
 
-import com.github.jmchilton.blend4j.Config;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Configuration class which gives access to the Galaxy instance URL and API key to be used. These properties are read
- * from the .blend.properties file in the user's home directory (System.getProperty("user.home")).
+ * Configuration class which gives access to the Galaxy instance URL and API key to be used. These properties are by
+ * default read from the .blend.properties file in the user's home directory (System.getProperty("user.home")). It is
+ * also possible to specify a custom properties file.
  * <p/>
  * See the Config.getBlendPropertiesFile method in the blend4j library for more details:
  * https://github.com/jmchilton/blend4j/blob/master/src/main/java/com/github/jmchilton/blend4j/Config.java
@@ -55,9 +57,15 @@ public class GalaxyConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(GalaxyConfiguration.class);
 
     /**
-     * The blend(4j) properties. These are loaded when the first property is retrieved.
+     * The blend(4j) properties. These are loaded when the first property is retrieved or when an explicit properties
+     * file path is set.
      */
     private static Properties properties;
+
+    /**
+     * The path of the properties file.
+     */
+    private static String propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
 
     /**
      * Hidden constructor. Only the static methods of this class are meant to be used.
@@ -88,6 +96,12 @@ public class GalaxyConfiguration {
      */
     public static String buildConfiguration(final String galaxyInstanceUrl) {
         return buildConfiguration(galaxyInstanceUrl, getGalaxyApiKey(), getGalaxyHistoryName());
+    }
+
+    public static void setPropertiesFilePath(final String propertiesFilePath) {
+        GalaxyConfiguration.propertiesFilePath = propertiesFilePath;
+        properties = loadProperties(new File(propertiesFilePath));
+        checkConfiguration();
     }
 
     /**
@@ -136,9 +150,26 @@ public class GalaxyConfiguration {
      */
     private static void initializeIfNeeded() {
         if (properties == null) {
-            properties = Config.loadBlendProperties();
+            properties = loadProperties(getDefaultPropertiesFile());
             checkConfiguration();
         }
+    }
+
+    private static File getDefaultPropertiesFile() {
+        final File defaultPropertiesFile = new File(System.getProperty("user.home"), ".blend.properties");
+        return defaultPropertiesFile.exists() ? defaultPropertiesFile : null;
+    }
+
+    private static Properties loadProperties(final File propertiesFile) {
+        final Properties properties = new Properties();
+        if (propertiesFile != null) {
+            try (final InputStream inputStream = new FileInputStream(propertiesFile)) {
+                properties.load(inputStream);
+            } catch (final IOException e) {
+                logger.error("Error loading properties from file {}.", propertiesFile.getAbsolutePath(), e);
+            }
+        }
+        return properties;
     }
 
     /**
@@ -146,7 +177,6 @@ public class GalaxyConfiguration {
      */
     private static void checkConfiguration() {
         if (getGalaxyInstanceUrl() == null || getGalaxyApiKey() == null) {
-            final String propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
             if (!new File(propertiesFilePath).exists()) {
                 logger.error("The configuration file '{}' was not found.", propertiesFilePath);
                 logger.error("Please make sure a configuration file is available with the following properties:");
