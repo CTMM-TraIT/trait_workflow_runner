@@ -39,6 +39,12 @@ public class GalaxyWorkflowMetadataParser {
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowMetadataParser.class);
 
+    /**
+     * Read all workflow definition (.ga) files that are in subdirectories below the workflows directory.
+     *
+     * @param workflowsDirectoryPath the workflows directory.
+     * @return the map with workflow names to workflow metadata objects.
+     */
     public Map<String, GalaxyWorkflowMetadata> readWorkflowsFromDirectories(final String workflowsDirectoryPath) {
         final Map<String, GalaxyWorkflowMetadata> workflowsMap = new HashMap<>();
         final File[] subDirectories = new File(workflowsDirectoryPath).listFiles();
@@ -57,9 +63,15 @@ public class GalaxyWorkflowMetadataParser {
         return workflowsMap;
     }
 
+    /**
+     * Read a workflow definition (.ga) file.
+     *
+     * @param workflowsMap the workflows metadata map to which this workflow will be added.
+     * @param workflowFile the workflow definition (.ga) file.
+     */
     private void readWorkflow(final Map<String, GalaxyWorkflowMetadata> workflowsMap, final File workflowFile) {
         final String filePath = workflowFile.getAbsolutePath();
-        final GalaxyWorkflowMetadata workflowMetadata = new GalaxyWorkflowMetadataParser().parseWorkflowDefinition(filePath);
+        final GalaxyWorkflowMetadata workflowMetadata = parseWorkflowDefinition(filePath);
         workflowsMap.put(workflowMetadata.getName(), workflowMetadata);
         logger.trace("workflowMetadata: " + workflowMetadata);
         for (final GalaxyWorkflowStep step : workflowMetadata.getSteps())
@@ -67,6 +79,12 @@ public class GalaxyWorkflowMetadataParser {
                 logger.trace("step[" + step.getId() + "].getToolId(): " + step.getToolId());
     }
 
+    /**
+     * Parse the workflow definition (.ga) file. The file is in json format.
+     *
+     * @param filePath the file path to the workflow definition (.ga) file.
+     * @return the workflow metadata object.
+     */
     private GalaxyWorkflowMetadata parseWorkflowDefinition(final String filePath) {
         GalaxyWorkflowMetadata result;
         try {

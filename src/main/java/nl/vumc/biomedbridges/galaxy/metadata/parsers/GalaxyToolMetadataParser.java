@@ -34,6 +34,13 @@ public class GalaxyToolMetadataParser {
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyToolMetadataParser.class);
 
+    /**
+     * Parse all tool information from the tool configuration file (tool_conf.xml).
+     *
+     * @param filePath the file path of the tool configuration file.
+     * @param toolsDirectory the directory where the files with metadata of the individual tools is located.
+     * @return a list of file paths of tool definition files (in xml format).
+     */
     public List<String> parseToolsConfiguration(final String filePath, final String toolsDirectory) {
         final List<String> toolDefinitionFilePaths = new ArrayList<>();
         try {
@@ -56,6 +63,13 @@ public class GalaxyToolMetadataParser {
         return toolDefinitionFilePaths;
     }
 
+    /**
+     * Parse the tool definitions that are referenced by the workflows.
+     *
+     * @param toolDefinitionPaths the list of file paths of tool definition files (in xml format).
+     * @param toolReferences the tool references as used by the workflows.
+     * @return the list of tool metadata objects.
+     */
     public List<GalaxyToolMetadata> parseToolsMetadata(final List<String> toolDefinitionPaths,
                                                        final List<GalaxyToolReference> toolReferences) {
         final List<GalaxyToolMetadata> toolsMetadata = new ArrayList<>();
@@ -72,6 +86,7 @@ public class GalaxyToolMetadataParser {
      *
      * @param filePath the file path with the xml tool definition.
      * @param toolReferences the references to the tools that should be parsed.
+     * @return the definition of a tool.
      */
     private GalaxyToolMetadata parseToolDefinition(final String filePath,
                                                    final List<GalaxyToolReference> toolReferences) {
@@ -102,6 +117,14 @@ public class GalaxyToolMetadataParser {
         return documentBuilder.parse(new File(filePath)).getDocumentElement();
     }
 
+    /**
+     * Determine whether the tool specified by the tool element should be parsed: if it is in the list of tools that are
+     * referenced by the workflows.
+     *
+     * @param toolReferences the list of tools that are referenced by the workflows.
+     * @param toolElement the tool element specifying the tool that should be parsed or not.
+     * @return whether the tool specified by the tool element should be parsed or not.
+     */
     private boolean toolToBeParsed(final List<GalaxyToolReference> toolReferences, final Element toolElement) {
         boolean toBeParsed = false;
         final String toolId = toolElement.getAttribute("id");

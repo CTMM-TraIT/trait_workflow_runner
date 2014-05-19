@@ -25,6 +25,7 @@
 
         <!-- Dependency versions. -->
         <blend4j.version>0.1-alpha-8</blend4j.version>
+        <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
         <guava.version>15.0</guava.version>
         <httpclient.version>4.3.2</httpclient.version>
         <json-simple.version>1.1.1</json-simple.version>
@@ -131,6 +132,15 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Dependency for JSR-305 annotations (like @NonNull and @Nullable) for Findbugs. -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${findbugs-jsr305.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>

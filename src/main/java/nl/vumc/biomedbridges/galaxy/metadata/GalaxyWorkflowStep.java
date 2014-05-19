@@ -5,10 +5,14 @@
 
 package nl.vumc.biomedbridges.galaxy.metadata;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,22 +33,81 @@ public class GalaxyWorkflowStep {
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowStep.class);
 
+    /**
+     * The id.
+     */
     private final Long id;
-    private final String name;
-    private final String type;
-    private final String toolId;
-    private final String toolVersion;
-    private final String annotation;
-    private final GalaxyStepPosition position;
-    private final Map<Object, Object> inputConnections;
-    private final List<GalaxyStepInput> inputs;
-    private final List<GalaxyStepOutput> outputs;
-    private final Map<Object, Object> toolErrors;
-    private final Map<String, Object> toolState;
-    private final List<Object> userOutputs;  // Appears to be unused.
 
+    /**
+     * The name.
+     */
+    private final String name;
+
+    /**
+     * The type.
+     */
+    private final String type;
+
+    /**
+     * The tool id.
+     */
+    private final String toolId;
+
+    /**
+     * The tool version.
+     */
+    private final String toolVersion;
+
+    /**
+     * The optional annotation describing this step.
+     */
+    private final String annotation;
+
+    /**
+     * The position of this step in the graphical representation of the workflow.
+     */
+    private final GalaxyStepPosition position;
+
+    /**
+     * The input connections (to the previous step?).
+     */
+    private final Map<Object, Object> inputConnections;
+
+    /**
+     * The input files.
+     */
+    private final List<GalaxyStepInput> inputs;
+
+    /**
+     * The output files.
+     */
+    private final List<GalaxyStepOutput> outputs;
+
+    /**
+     * The tool errors (if any).
+     */
+    private final Map<Object, Object> toolErrors;
+
+    /**
+     * The tool state with inputs and parameters.
+     */
+    private final Map<String, Object> toolState;
+
+    /**
+     * The user outputs (appears to be unused).
+     */
+    private final List<Object> userOutputs;
+
+    /**
+     * The tool metadata (if there is a tool related to this step).
+     */
     private GalaxyToolMetadata toolMetadata;
 
+    /**
+     * Create a Galaxy workflow step.
+     *
+     * @param stepJson the json step object that contains the data for this step.
+     */
     public GalaxyWorkflowStep(final JSONObject stepJson) {
         this.id = getJsonLong(stepJson, "id");
         this.name = getJsonString(stepJson, "name");
@@ -67,13 +130,24 @@ public class GalaxyWorkflowStep {
             this.outputs.add(new GalaxyStepOutput((JSONObject) output));
         // Initialize toolState.
         this.toolState = new HashMap<>();
+        fillToolState(stepJson.get("tool_state"));
+        // Initialize userOutputs.
+        this.userOutputs = new ArrayList<>();
+    }
+
+    /**
+     * Fill the tool state map based on the values in the tool state json object.
+     *
+     * @param toolStateObject the tool state json object.
+     */
+    private void fillToolState(final Object toolStateObject) {
         try {
-            final Object toolStateObject = stepJson.get("tool_state");
             if (toolStateObject != null) {
                 final JSONObject toolStateJson = (JSONObject) new JSONParser().parse(toolStateObject.toString());
                 for (final Object parameterObject : toolStateJson.entrySet()) {
                     final Map.Entry parameterEntry = (Map.Entry) parameterObject;
-                    final Object toolStateValue = getToolStateValue(parameterEntry.getValue());
+                    final Object parameterValue = parameterEntry.getValue();
+                    final Object toolStateValue = parameterValue != null ? getToolStateValue(parameterValue) : null;
                     logger.trace(parameterEntry.getKey() + " -> " + toolStateValue
                                  + (toolStateValue != null ? " (" + toolStateValue.getClass().getName() + ")" : ""));
                     this.toolState.put((String) parameterEntry.getKey(), toolStateValue);
@@ -82,90 +156,168 @@ public class GalaxyWorkflowStep {
         } catch (final ParseException e) {
             e.printStackTrace();
         }
-        // Initialize userOutputs.
-        this.userOutputs = new ArrayList<>();
     }
 
-    private Object getToolStateValue(final Object initialValue) {
+    /**
+     * Get an individual tool state value. Strip superfluous double quotes and test for booleans & longs.
+     *
+     * @param initialValue the initial value from the json file, which should be non null.
+     * @return the transformed value.
+     */
+    private Object getToolStateValue(@Nonnull final Object initialValue) {
+        Preconditions.checkNotNull(initialValue);
         Object result = null;
-        if (initialValue != null) {
-            final String initialString = initialValue.toString();
-            if (initialString.startsWith("\"") && initialString.endsWith("\"")) {
-                final String cleanString = initialString.substring(1, initialString.length() - 1);
-                if (cleanString.equals("True") || cleanString.equals("False"))
-                    result = cleanString.equals("True");
-                else if (cleanString.matches("[-+]?\\d+(\\.\\d+)?"))
-                    result = Long.parseLong(cleanString);
-                else
-                    result = cleanString;
-            } else if (!"null".equals(initialString)) {
-                if (initialString.matches("[-+]?\\d+(\\.\\d+)?"))
-                    result = Long.parseLong(initialString);
-                else
-                    result = initialString;
-            }
-        }
+        final String initialString = initialValue.toString();
+        final String doubleQuote = "\"";
+        final String trueString = "True";
+        if (initialString.startsWith(doubleQuote) && initialString.endsWith(doubleQuote))
+            result = getToolStateValue(initialString.substring(1, initialString.length() - 1));
+        else  if (trueString.equals(initialString) || "False".equals(initialString))
+            result = trueString.equals(initialString);
+        else if (initialString.matches("[-+]?\\d+(\\.\\d+)?"))
+            result = Long.parseLong(initialString);
+        else if (!"null".equals(initialString))
+            result = initialString;
         return result;
     }
 
+    /**
+     * Utility method for retrieving a json string.
+     *
+     * @param jsonObject the json object that has the value.
+     * @param key the key of the value.
+     * @return the value converted to a string or null.
+     */
     private String getJsonString(final JSONObject jsonObject, final String key) {
         final Object objectValue = jsonObject.get(key);
         return objectValue != null ? objectValue.toString() : null;
     }
 
+    /**
+     * Utility method for retrieving a json number.
+     *
+     * @param jsonObject the json object that has the value.
+     * @param key the key of the value.
+     * @return the value converted to a long or null.
+     */
     private Long getJsonLong(final JSONObject jsonObject, final String key) {
         final String stringValue = getJsonString(jsonObject, key);
         return stringValue != null ? Long.parseLong(stringValue) : null;
     }
 
+    /**
+     * Get the id.
+     *
+     * @return the id.
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Get the name.
+     *
+     * @return the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the type.
+     *
+     * @return the type.
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Get the tool id.
+     *
+     * @return the tool id.
+     */
     public String getToolId() {
         return toolId;
     }
 
+    /**
+     * Get the tool version.
+     *
+     * @return the tool version.
+     */
     public String getToolVersion() {
         return toolVersion;
     }
 
+    /**
+     * Get the optional annotation describing this step.
+     *
+     * @return the optional annotation describing this step.
+     */
     public String getAnnotation() {
         return annotation;
     }
 
+    /**
+     * Get the position of this step in the graphical representation of the workflow.
+     *
+     * @return the position of this step in the graphical representation of the workflow.
+     */
     public GalaxyStepPosition getPosition() {
         return position;
     }
 
+    /**
+     * Get the input connections (to the previous step?).
+     *
+     * @return the input connections (to the previous step?).
+     */
     public Map<Object, Object> getInputConnections() {
         return inputConnections;
     }
 
-    public List<GalaxyStepOutput> getOutputs() {
-        return outputs;
-    }
-
+    /**
+     * Get the input files.
+     *
+     * @return the input files.
+     */
     public List<GalaxyStepInput> getInputs() {
         return inputs;
     }
 
+    /**
+     * Get the output files.
+     *
+     * @return the output files.
+     */
+    public List<GalaxyStepOutput> getOutputs() {
+        return outputs;
+    }
+
+    /**
+     * Get the tool errors (if any).
+     *
+     * @return the tool errors (if any).
+     */
     public Map<Object, Object> getToolErrors() {
         return toolErrors;
     }
 
+    /**
+     * Get the tool state with inputs and parameters.
+     *
+     * @return the tool state with inputs and parameters.
+     */
     public Map<String, Object> getToolState() {
         return toolState;
     }
 
+    /**
+     * Get the user outputs (appears to be unused).
+     *
+     * @return the user outputs (appears to be unused).
+     */
     public List<Object> getUserOutputs() {
         return userOutputs;
     }
@@ -184,6 +336,11 @@ public class GalaxyWorkflowStep {
             }
     }
 
+    /**
+     * Get the tool metadata (if there is a tool related to this step).
+     *
+     * @return the tool metadata (if there is a tool related to this step) or null.
+     */
     public GalaxyToolMetadata getToolMetadata() {
         return toolMetadata;
     }

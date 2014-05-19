@@ -28,7 +28,7 @@ public class GalaxyWorkflowMetadata {
     private final boolean aGalaxyWorkflow;
 
     /**
-     * The optional annotation describing the workflow.
+     * The optional annotation describing this workflow.
      */
     private final String annotation;
 
@@ -92,18 +92,38 @@ public class GalaxyWorkflowMetadata {
         return annotation;
     }
 
+    /**
+     * Get the format version which currently (in 2014) is equal to "0.1".
+     *
+     * @return the format version which currently (in 2014) is equal to "0.1".
+     */
     public String getFormatVersion() {
         return formatVersion;
     }
 
+    /**
+     * Get the name.
+     *
+     * @return the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the steps that form this workflow. A tool can be called during a step.
+     *
+     * @return the steps that form this workflow.
+     */
     public List<GalaxyWorkflowStep> getSteps() {
         return steps;
     }
 
+    /**
+     * Get the tools that are referenced by this workflow.
+     *
+     * @return the tools that are referenced by this workflow.
+     */
     public Set<GalaxyToolReference> getToolReferences() {
         final Set<GalaxyToolReference> toolIds = new HashSet<>();
         for (final GalaxyWorkflowStep workflowStep : steps)
@@ -122,6 +142,11 @@ public class GalaxyWorkflowMetadata {
             workflowStep.addToolsMetadata(toolsMetadata);
     }
 
+    /**
+     * Get the tool parameters for this workflow.
+     *
+     * @return the tool parameters for this workflow.
+     */
     public List<GalaxyToolParameterMetadata> getParameters() {
         final List<GalaxyToolParameterMetadata> parameters = new ArrayList<>();
         final List<String> parameterNames = new ArrayList<>();
