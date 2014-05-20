@@ -65,12 +65,27 @@ public class GalaxyConfiguration {
     /**
      * The path of the properties file.
      */
-    private static String propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
+    private static String propertiesFilePath;
+
+    /**
+     * Initialize the static fields.
+     */
+    static {
+        resetStaticFields();
+    }
 
     /**
      * Hidden constructor. Only the static methods of this class are meant to be used.
      */
     private GalaxyConfiguration() {
+    }
+
+    /**
+     * Reset (or initialize) all static fields.
+     */
+    protected static void resetStaticFields() {
+        properties = null;
+        propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
     }
 
     /**
@@ -98,10 +113,14 @@ public class GalaxyConfiguration {
         return buildConfiguration(galaxyInstanceUrl, getGalaxyApiKey(), getGalaxyHistoryName());
     }
 
+    /**
+     * Set the path of the properties file and load the properties.
+     *
+     * @param propertiesFilePath the path of the properties file.
+     */
     public static void setPropertiesFilePath(final String propertiesFilePath) {
         GalaxyConfiguration.propertiesFilePath = propertiesFilePath;
-        properties = loadProperties(new File(propertiesFilePath));
-        checkConfiguration();
+        loadProperties();
     }
 
     /**
@@ -138,7 +157,8 @@ public class GalaxyConfiguration {
      * @return the property value.
      */
     private static String getProperty(final String key) {
-        initializeIfNeeded();
+        if (properties == null)
+            loadProperties();
         String value = null;
         if (properties.containsKey(key))
             value = properties.getProperty(key);
@@ -146,30 +166,17 @@ public class GalaxyConfiguration {
     }
 
     /**
-     * Load and check the properties if they have not been retrieved yet.
+     * Load and check the properties.
      */
-    private static void initializeIfNeeded() {
-        if (properties == null) {
-            properties = loadProperties(getDefaultPropertiesFile());
-            checkConfiguration();
+    private static void loadProperties() {
+        properties = new Properties();
+        final File propertiesFile = new File(propertiesFilePath);
+        try (final InputStream inputStream = new FileInputStream(propertiesFile)) {
+            properties.load(inputStream);
+        } catch (final IOException e) {
+            logger.error("Error loading properties from file {}.", propertiesFile.getAbsolutePath(), e);
         }
-    }
-
-    private static File getDefaultPropertiesFile() {
-        final File defaultPropertiesFile = new File(System.getProperty("user.home"), ".blend.properties");
-        return defaultPropertiesFile.exists() ? defaultPropertiesFile : null;
-    }
-
-    private static Properties loadProperties(final File propertiesFile) {
-        final Properties properties = new Properties();
-        if (propertiesFile != null) {
-            try (final InputStream inputStream = new FileInputStream(propertiesFile)) {
-                properties.load(inputStream);
-            } catch (final IOException e) {
-                logger.error("Error loading properties from file {}.", propertiesFile.getAbsolutePath(), e);
-            }
-        }
-        return properties;
+        checkConfiguration();
     }
 
     /**
