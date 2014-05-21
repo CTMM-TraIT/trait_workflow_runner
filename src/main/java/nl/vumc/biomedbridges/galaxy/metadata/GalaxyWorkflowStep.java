@@ -14,6 +14,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import nl.vumc.biomedbridges.utilities.JsonUtilities;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -71,7 +73,7 @@ public class GalaxyWorkflowStep {
     /**
      * The input connections (to the previous step?).
      */
-    private final Map<Object, Object> inputConnections;
+    private final Map<String, GalaxyStepInputConnection> inputConnections;
 
     /**
      * The input files.
@@ -104,20 +106,28 @@ public class GalaxyWorkflowStep {
     private GalaxyToolMetadata toolMetadata;
 
     /**
-     * Create a Galaxy workflow step.
+     * Create a Galaxy workflow step from a step json object.
      *
      * @param stepJson the json step object that contains the data for this step.
      */
     public GalaxyWorkflowStep(final JSONObject stepJson) {
-        this.id = getJsonLong(stepJson, "id");
-        this.name = getJsonString(stepJson, "name");
-        this.type = getJsonString(stepJson, "type");
-        this.toolId = getJsonString(stepJson, "tool_id");
-        this.toolVersion = getJsonString(stepJson, "tool_version");
-        this.annotation = getJsonString(stepJson, "annotation");
+        this.id = JsonUtilities.getJsonLong(stepJson, "id");
+        this.name = JsonUtilities.getJsonString(stepJson, "name");
+        this.type = JsonUtilities.getJsonString(stepJson, "type");
+        this.toolId = JsonUtilities.getJsonString(stepJson, "tool_id");
+        this.toolVersion = JsonUtilities.getJsonString(stepJson, "tool_version");
+        this.annotation = JsonUtilities.getJsonString(stepJson, "annotation");
         this.position = new GalaxyStepPosition((JSONObject) stepJson.get("position"));
-        this.inputConnections = new HashMap<>();
         this.toolErrors = new HashMap<>();
+        // Initialize inputConnections.
+        this.inputConnections = new HashMap<>();
+        final JSONObject inputConnectionsMap = (JSONObject) stepJson.get("input_connections");
+        for (final Object inputConnectionObject : inputConnectionsMap.entrySet()) {
+            final Map.Entry inputConnectionEntry = (Map.Entry) inputConnectionObject;
+            final JSONObject inputConnectionJson = (JSONObject) inputConnectionEntry.getValue();
+            final GalaxyStepInputConnection inputConnection = new GalaxyStepInputConnection(inputConnectionJson);
+            this.inputConnections.put((String) inputConnectionEntry.getKey(), inputConnection);
+        }
         // Initialize inputs.
         this.inputs = new ArrayList<>();
         final JSONArray inputsArray = (JSONArray) stepJson.get("inputs");
@@ -179,30 +189,6 @@ public class GalaxyWorkflowStep {
         else if (!"null".equals(initialString))
             result = initialString;
         return result;
-    }
-
-    /**
-     * Utility method for retrieving a json string.
-     *
-     * @param jsonObject the json object that has the value.
-     * @param key the key of the value.
-     * @return the value converted to a string or null.
-     */
-    private String getJsonString(final JSONObject jsonObject, final String key) {
-        final Object objectValue = jsonObject.get(key);
-        return objectValue != null ? objectValue.toString() : null;
-    }
-
-    /**
-     * Utility method for retrieving a json number.
-     *
-     * @param jsonObject the json object that has the value.
-     * @param key the key of the value.
-     * @return the value converted to a long or null.
-     */
-    private Long getJsonLong(final JSONObject jsonObject, final String key) {
-        final String stringValue = getJsonString(jsonObject, key);
-        return stringValue != null ? Long.parseLong(stringValue) : null;
     }
 
     /**
@@ -273,7 +259,7 @@ public class GalaxyWorkflowStep {
      *
      * @return the input connections (to the previous step?).
      */
-    public Map<Object, Object> getInputConnections() {
+    public Map<String, GalaxyStepInputConnection> getInputConnections() {
         return inputConnections;
     }
 
