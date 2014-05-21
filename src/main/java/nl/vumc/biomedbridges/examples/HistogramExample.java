@@ -41,12 +41,6 @@ public class HistogramExample extends BaseExample {
     private static final String HISTORY_NAME = "Histogram History";
 
     /**
-     * Hidden constructor. The main method below will run this example.
-     */
-    private HistogramExample() {
-    }
-
-    /**
      * Main method.
      *
      * @param arguments unused command-line arguments.
@@ -59,8 +53,10 @@ public class HistogramExample extends BaseExample {
 
     /**
      * Run this example workflow: combine two input files into one output file.
+     *
+     * @return whether the workflow ran successfully.
      */
-    public void runExample() {
+    public boolean runExample() {
         initializeExample(logger, "HistogramExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
@@ -79,33 +75,40 @@ public class HistogramExample extends BaseExample {
         workflow.setParameter(stepId, "density", true);
         workflow.setParameter(stepId, "frequency", false);
 
+        boolean result = true;
         try {
-            workflowEngine.runWorkflow(workflow);
-            checkWorkflowOutput(workflow);
+            result = workflowEngine.runWorkflow(workflow);
+            result &= checkWorkflowOutput(workflow);
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", Constants.WORKFLOW_HISTOGRAM, e);
         }
-
         finishExample(logger);
+        return result;
     }
 
     /**
      * Check the output after running the workflow.
      *
      * @param workflow the workflow that has been executed.
+     * @return whether the workflow output is correct.
      * @throws java.io.IOException if reading an output file fails.
      */
-    private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
+    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
+        boolean result = false;
         final Map<String, Object> outputMap = workflow.getOutputMap();
         final Object output = outputMap.isEmpty() ? null : outputMap.values().iterator().next();
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
+            // todo: result should depend on checkPdfContents too.
             checkPdfContents(lines);
-            if (!outputFile.delete())
+            if (outputFile.delete())
+                result = true;
+            else
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
             logger.error("There is no single output parameter of type File.");
+        return result;
     }
 
     /**

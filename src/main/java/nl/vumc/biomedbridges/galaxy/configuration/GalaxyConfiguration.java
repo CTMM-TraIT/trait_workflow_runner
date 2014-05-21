@@ -85,7 +85,7 @@ public class GalaxyConfiguration {
      */
     protected static void resetStaticFields() {
         properties = null;
-        propertiesFilePath = System.getProperty("user.home") + ".blend.properties";
+        propertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
     }
 
     /**

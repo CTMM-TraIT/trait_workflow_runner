@@ -34,7 +34,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for the GalaxyWorkflowEngine class.
+ * Unit tests for the GalaxyWorkflowEngine class.
  *
  * todo: rewrite without PowerMock, since it interferes with JaCoCo that is determining code coverage.
  *
