@@ -67,8 +67,8 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowCorrectParameters() {
-        demonstrationWorkflow.addInput("input1", FileUtils.createInputFile("line 1"));
-        demonstrationWorkflow.addInput("input2", FileUtils.createInputFile("line 2"));
+        demonstrationWorkflow.addInput("input1", FileUtils.createTemporaryFile("line 1"));
+        demonstrationWorkflow.addInput("input2", FileUtils.createTemporaryFile("line 2"));
         assertTrue(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
     }
 

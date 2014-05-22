@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import nl.vumc.biomedbridges.core.DefaultWorkflow;
+import nl.vumc.biomedbridges.core.BaseWorkflow;
 import nl.vumc.biomedbridges.core.Workflow;
 
 import org.json.simple.JSONArray;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
-public class GalaxyWorkflow extends DefaultWorkflow implements Workflow {
+public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     /**
      * The logger for this class.
      */

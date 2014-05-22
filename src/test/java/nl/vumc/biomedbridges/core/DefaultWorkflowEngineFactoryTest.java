@@ -18,11 +18,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * Unit test for the WorkflowEngineFactory class.
+ * Unit test for the DefaultWorkflowEngineFactory class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class WorkflowEngineFactoryTest {
+public class DefaultWorkflowEngineFactoryTest {
     /**
      * Test the getWorkflowEngine method.
      */
@@ -35,7 +35,7 @@ public class WorkflowEngineFactoryTest {
     }
 
     private void checkEngineReturnType(final Class<? extends WorkflowEngine> returnType, final String workflowType) {
-        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
         if (returnType == null)
             assertNull(workflowEngine);
         else
@@ -55,7 +55,7 @@ public class WorkflowEngineFactoryTest {
     }
 
     private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType) {
-        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
         final Workflow workflow = workflowEngine.getWorkflow("unused workflow name");
         if (workflowClass == null)
             assertNull(workflow);

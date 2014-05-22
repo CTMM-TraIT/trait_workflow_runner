@@ -65,12 +65,12 @@ public class WorkflowRunner {
             final long startTime = System.currentTimeMillis();
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+            final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
             final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_NAME);
             final String input1Key = "input1";
             if (Constants.TEST_WORKFLOW_NAME.equals(Constants.TEST_WORKFLOW_CONCATENATE)) {
-                workflow.addInput(input1Key, FileUtils.createInputFile(LINE_TEST_FILE_1));
-                workflow.addInput("input2", FileUtils.createInputFile(LINE_TEST_FILE_2));
+                workflow.addInput(input1Key, FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
+                workflow.addInput("input2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
             } else {
                 final URL scatterplotInputURL = WorkflowRunner.class.getResource("ScatterplotInput.txt");
                 workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));

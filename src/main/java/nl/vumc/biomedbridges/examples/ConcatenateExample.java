@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -79,11 +80,11 @@ public class ConcatenateExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
 
-        workflow.addInput("WorkflowInput1", FileUtils.createInputFile(LINE_TEST_FILE_1));
-        workflow.addInput("WorkflowInput2", FileUtils.createInputFile(LINE_TEST_FILE_2));
+        workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
+        workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
         try {
             workflowEngine.runWorkflow(workflow);

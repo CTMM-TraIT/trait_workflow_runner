@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class DefaultWorkflow implements Workflow {
+public class BaseWorkflow implements Workflow {
     /**
      * The name of the workflow.
      */
@@ -40,11 +40,11 @@ public class DefaultWorkflow implements Workflow {
     private final Map<String, Object> outputs = new HashMap<>();
 
     /**
-     * Construct a default workflow. This is only meant to be used by subclasses.
+     * Construct a base workflow. This is only meant to be used by subclasses.
      *
      * @param name the name of the workflow.
      */
-    protected DefaultWorkflow(final String name) {
+    protected BaseWorkflow(final String name) {
         this.name = name;
     }
 
@@ -94,7 +94,7 @@ public class DefaultWorkflow implements Workflow {
     }
 
     @Override
-    // todo: make setting parameters independent of Galaxy.
+    // todo: make setting parameters independent of Galaxy?
     public void setParameter(final int stepId, final String name, final Object value) {
         Map<String, Object> keyValueMap = parameters.get(stepId);
         if (keyValueMap == null)

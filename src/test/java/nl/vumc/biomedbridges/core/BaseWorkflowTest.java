@@ -18,11 +18,11 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit test for the DefaultWorkflow class.
+ * Unit test for the BaseWorkflow class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class DefaultWorkflowTest {
+public class BaseWorkflowTest {
     /**
      * Test workflow name.
      */
@@ -31,14 +31,14 @@ public class DefaultWorkflowTest {
     /**
      * Test workflow.
      */
-    private DefaultWorkflow defaultWorkflow;
+    private BaseWorkflow baseWorkflow;
 
     /**
      * Initialize the test workflow.
      */
     @Before
     public void setUp() {
-        defaultWorkflow = new DefaultWorkflow(WORKFLOW_NAME);
+        baseWorkflow = new BaseWorkflow(WORKFLOW_NAME);
     }
 
     /**
@@ -48,8 +48,8 @@ public class DefaultWorkflowTest {
     public void testAddAndGetInput() {
         final String inputKey1 = "input1";
         final File inputFile1 = new File("input file 1");
-        defaultWorkflow.addInput(inputKey1, inputFile1);
-        assertEquals(inputFile1, defaultWorkflow.getInput(inputKey1));
+        baseWorkflow.addInput(inputKey1, inputFile1);
+        assertEquals(inputFile1, baseWorkflow.getInput(inputKey1));
     }
 
     /**
@@ -62,12 +62,12 @@ public class DefaultWorkflowTest {
         final Object inputFile1 = new File("input file 1");
         final Object inputFile2 = new File("input file 2");
 
-        defaultWorkflow.addInput(inputKey1, inputFile1);
-        defaultWorkflow.addInput(inputKey2, inputFile2);
+        baseWorkflow.addInput(inputKey1, inputFile1);
+        baseWorkflow.addInput(inputKey2, inputFile2);
 
-        final Set<Object> allInputValues = new HashSet<>(defaultWorkflow.getAllInputValues());
+        final Set<Object> allInputValues = new HashSet<>(baseWorkflow.getAllInputValues());
         assertEquals(ImmutableSet.of(inputFile1, inputFile2), allInputValues);
-        assertEquals(ImmutableMap.of(inputKey1, inputFile1, inputKey2, inputFile2), defaultWorkflow.getInputMap());
+        assertEquals(ImmutableMap.of(inputKey1, inputFile1, inputKey2, inputFile2), baseWorkflow.getInputMap());
     }
 
     /**
@@ -77,8 +77,8 @@ public class DefaultWorkflowTest {
     public void testAddAndGetOutput() {
         final String outputKey1 = "output1";
         final File outputFile1 = new File("output file 1");
-        defaultWorkflow.addOutput(outputKey1, outputFile1);
-        assertEquals(outputFile1, defaultWorkflow.getOutput(outputKey1));
+        baseWorkflow.addOutput(outputKey1, outputFile1);
+        assertEquals(outputFile1, baseWorkflow.getOutput(outputKey1));
     }
 
     /**
@@ -91,9 +91,9 @@ public class DefaultWorkflowTest {
         final Object outputFile1 = new File("output file 1");
         final Object outputFile2 = new File("output file 2");
 
-        defaultWorkflow.addOutput(outputKey1, outputFile1);
-        defaultWorkflow.addOutput(outputKey2, outputFile2);
+        baseWorkflow.addOutput(outputKey1, outputFile1);
+        baseWorkflow.addOutput(outputKey2, outputFile2);
 
-        assertEquals(ImmutableMap.of(outputKey1, outputFile1, outputKey2, outputFile2), defaultWorkflow.getOutputMap());
+        assertEquals(ImmutableMap.of(outputKey1, outputFile1, outputKey2, outputFile2), baseWorkflow.getOutputMap());
     }
 }

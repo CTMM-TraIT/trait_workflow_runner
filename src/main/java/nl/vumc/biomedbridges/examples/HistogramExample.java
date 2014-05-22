@@ -7,6 +7,9 @@ package nl.vumc.biomedbridges.examples;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -40,6 +44,9 @@ public class HistogramExample extends BaseExample {
      */
     private static final String HISTORY_NAME = "Histogram History";
 
+    // todo: move to BaseExample later?
+    private final WorkflowEngineFactory workflowEngineFactory;
+
     /**
      * Main method.
      *
@@ -47,9 +54,26 @@ public class HistogramExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new HistogramExample().runExample();
+        // todo: use Guice modules everywhere and make the DefaultWorkflowEngineFactory constructor private again.
+//        new HistogramExample(new DefaultWorkflowEngineFactory()).runExample();
+
+        // Create a Guice injector and use it to build the HistogramExample object.
+        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+        final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
+
+        histogramExample.runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
+
+    /**
+     * Construct the histogram example.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
+     */
+    @Inject
+    public HistogramExample(final WorkflowEngineFactory workflowEngineFactory) {
+        this.workflowEngineFactory = workflowEngineFactory;
+    }
 
     /**
      * Run this example workflow: combine two input files into one output file.
@@ -62,10 +86,10 @@ public class HistogramExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
 
-        workflow.addInput("input", FileUtils.createInputFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
+        workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
         final int stepId = 2;
         final int barCount = 6;
         workflow.setParameter(stepId, "title", "A histogram example");
@@ -91,7 +115,7 @@ public class HistogramExample extends BaseExample {
      *
      * @param workflow the workflow that has been executed.
      * @return whether the workflow output is correct.
-     * @throws java.io.IOException if reading an output file fails.
+     * @throws IOException if reading an output file fails.
      */
     private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;

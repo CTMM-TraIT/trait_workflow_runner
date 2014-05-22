@@ -27,6 +27,7 @@
         <blend4j.version>0.1-alpha-8</blend4j.version>
         <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
         <guava.version>15.0</guava.version>
+        <guice.version>3.0</guice.version>
         <httpclient.version>4.3.2</httpclient.version>
         <json-simple.version>1.1.1</json-simple.version>
         <junit.version>4.11</junit.version>
@@ -141,6 +142,14 @@
             <version>${findbugs-jsr305.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Dependency for Google Guice dependency injection. See https://code.google.com/p/google-guice/ for more
+             information. -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
         </dependency>
 
     </dependencies>

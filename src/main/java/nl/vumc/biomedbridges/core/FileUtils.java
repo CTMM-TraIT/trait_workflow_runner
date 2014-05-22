@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple utility method for creating temporary input files.
+ * Simple utility method for creating temporary files.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
@@ -38,7 +38,7 @@ public class FileUtils {
      * @param lines the lines to write to the test file.
      * @return the test file.
      */
-    public static File createInputFile(final String... lines) {
+    public static File createTemporaryFile(final String... lines) {
         try {
             final File tempFile = File.createTempFile("workflow-runner", ".txt");
             try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {

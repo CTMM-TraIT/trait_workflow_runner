@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -90,10 +91,10 @@ public class RandomLinesExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
-        workflow.addInput(INPUT_NAME, FileUtils.createInputFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
+        workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
         final int stepIdFirstFilter = 2;
         final int stepIdSecondFilter = 3;
         workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, INITIAL_LINE_COUNT);

@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -67,10 +68,10 @@ public class RemoveTopAndLeftExample extends BaseExample {
 
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = WorkflowEngineFactory.getWorkflowEngine(workflowType);
+            final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
             final Workflow workflow = workflowEngine.getWorkflow(WORKFLOW_NAME);
 
-            workflow.addInput("input", FileUtils.createInputFile("First line", "Second line", "Third line"));
+            workflow.addInput("input", FileUtils.createTemporaryFile("First line", "Second line", "Third line"));
 
             workflowEngine.runWorkflow(workflow);
 
