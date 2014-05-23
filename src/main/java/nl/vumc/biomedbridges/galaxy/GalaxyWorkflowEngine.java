@@ -39,6 +39,8 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
 /**
  * The workflow engine implementation for Galaxy.
  *
+ * todo: make galaxyInstanceUrl, apiKey, and historyName non static to enable using multiple Galaxy servers?
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyWorkflowEngine implements WorkflowEngine {
@@ -128,19 +130,25 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private WorkflowOutputs workflowOutputs;
 
     @Override
+    public boolean configure() {
+        return configure(null);
+    }
+
+    @Override
     public boolean configure(final String configurationData) {
         final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
                                       + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
         final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
         final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        final String message;
-        if (configurationData.contains(GalaxyConfiguration.PROPERTY_SEPARATOR)
-            && configurationData.contains(instancePrefix)
-            && configurationData.contains(apiKeyPrefix))
-            message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
-        else
-            message = String.format("Expected properties were not found in configuration data %s.", configurationData);
+        String message = null;
+        if (configurationData != null)
+            if (configurationData.contains(GalaxyConfiguration.PROPERTY_SEPARATOR)
+                && configurationData.contains(instancePrefix)
+                && configurationData.contains(apiKeyPrefix))
+                message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
+            else
+                message = String.format("Expected properties were not found in configuration data %s.", configurationData);
         final boolean success = message == null;
         if (success) {
             galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);

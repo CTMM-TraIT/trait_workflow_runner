@@ -31,7 +31,7 @@ public class BaseWorkflow implements Workflow {
      * The mapping of the parameter names to the actual parameter objects. For the moment, the parameters are stored in
      * a map for each Galaxy step id.
      */
-    // todo: make parameter handling independent of Galaxy.
+    // todo: make parameter handling independent of Galaxy?
     private final Map<Object, Map<String, Object>> parameters = new HashMap<>();
 
     /**

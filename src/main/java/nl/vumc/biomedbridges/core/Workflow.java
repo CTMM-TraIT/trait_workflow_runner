@@ -89,7 +89,7 @@ public interface Workflow {
      * @param name the parameter name.
      * @param value the parameter value.
      */
-    // todo: make parameter handling independent of Galaxy.
+    // todo: make parameter handling independent of Galaxy?
     void setParameter(final int stepId, String name, Object value);
 
     /**
@@ -97,6 +97,6 @@ public interface Workflow {
      *
      * @return the workflow parameters.
      */
-    // todo: make parameter handling independent of Galaxy.
+    // todo: make parameter handling independent of Galaxy?
     Map<Object, Map<String, Object>> getParameters();
 }

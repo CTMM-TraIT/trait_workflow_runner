@@ -8,6 +8,9 @@ package nl.vumc.biomedbridges.examples;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
-import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -54,9 +57,13 @@ public class ConcatenateExample extends BaseExample {
     private static final String LINE_TEST_FILE_2 = "Do you wanna play?";
 
     /**
-     * Hidden constructor. The main method below will run this example.
+     * Construct the concatenate example.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
      */
-    private ConcatenateExample() {
+    @Inject
+    public ConcatenateExample(final WorkflowEngineFactory workflowEngineFactory) {
+        super(workflowEngineFactory);
     }
 
     /**
@@ -66,7 +73,11 @@ public class ConcatenateExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new ConcatenateExample().runExample();
+        // Create a Guice injector and use it to build the ConcatenateExample object.
+        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+        final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
+
+        concatenateExample.runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -80,7 +91,7 @@ public class ConcatenateExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType, configuration);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
 
         workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));

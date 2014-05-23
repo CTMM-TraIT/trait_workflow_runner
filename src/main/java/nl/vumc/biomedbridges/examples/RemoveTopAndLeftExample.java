@@ -8,12 +8,15 @@ package nl.vumc.biomedbridges.examples;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -42,9 +45,13 @@ public class RemoveTopAndLeftExample extends BaseExample {
     private static final Logger logger = LoggerFactory.getLogger(RemoveTopAndLeftExample.class);
 
     /**
-     * Hidden constructor. The main method below will run this example.
+     * Construct the remove top and left example.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
      */
-    private RemoveTopAndLeftExample() {
+    @Inject
+    protected RemoveTopAndLeftExample(final WorkflowEngineFactory workflowEngineFactory) {
+        super(workflowEngineFactory);
     }
 
     /**
@@ -54,7 +61,11 @@ public class RemoveTopAndLeftExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new RemoveTopAndLeftExample().runExample();
+        // Create a Guice injector and use it to build the RemoveTopAndLeftExample object.
+        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+        final RemoveTopAndLeftExample removeTopAndLeftExample = injector.getInstance(RemoveTopAndLeftExample.class);
+
+        removeTopAndLeftExample.runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -68,7 +79,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
 
             //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
+            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType);
             final Workflow workflow = workflowEngine.getWorkflow(WORKFLOW_NAME);
 
             workflow.addInput("input", FileUtils.createTemporaryFile("First line", "Second line", "Third line"));

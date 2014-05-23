@@ -44,8 +44,15 @@ public class HistogramExample extends BaseExample {
      */
     private static final String HISTORY_NAME = "Histogram History";
 
-    // todo: move to BaseExample later?
-    private final WorkflowEngineFactory workflowEngineFactory;
+    /**
+     * Construct the histogram example.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
+     */
+    @Inject
+    protected HistogramExample(final WorkflowEngineFactory workflowEngineFactory) {
+        super(workflowEngineFactory);
+    }
 
     /**
      * Main method.
@@ -54,9 +61,6 @@ public class HistogramExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        // todo: use Guice modules everywhere and make the DefaultWorkflowEngineFactory constructor private again.
-//        new HistogramExample(new DefaultWorkflowEngineFactory()).runExample();
-
         // Create a Guice injector and use it to build the HistogramExample object.
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
@@ -64,16 +68,6 @@ public class HistogramExample extends BaseExample {
         histogramExample.runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
-
-    /**
-     * Construct the histogram example.
-     *
-     * @param workflowEngineFactory the workflow engine factory to use.
-     */
-    @Inject
-    public HistogramExample(final WorkflowEngineFactory workflowEngineFactory) {
-        this.workflowEngineFactory = workflowEngineFactory;
-    }
 
     /**
      * Run this example workflow: combine two input files into one output file.
@@ -117,17 +111,16 @@ public class HistogramExample extends BaseExample {
      * @return whether the workflow output is correct.
      * @throws IOException if reading an output file fails.
      */
-    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
+    private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
         final Map<String, Object> outputMap = workflow.getOutputMap();
         final Object output = outputMap.isEmpty() ? null : outputMap.values().iterator().next();
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            // todo: result should depend on checkPdfContents too.
-            checkPdfContents(lines);
+            final boolean pdfCorrect = checkPdfContents(lines);
             if (outputFile.delete())
-                result = true;
+                result = pdfCorrect;
             else
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
@@ -139,19 +132,23 @@ public class HistogramExample extends BaseExample {
      * Check the contents of the pdf file with the histogram.
      *
      * @param lines the lines from the pdf file.
+     * @return whether the contents of the pdf file appear to be correct.
      */
-    private static void checkPdfContents(final List<String> lines) {
+    private boolean checkPdfContents(final List<String> lines) {
+        boolean result = false;
         final int lineCountLowLimit = 400;
         final int lineCountHighLimit = 550;
         final String pdfHeader = "%PDF-1.4";
         if (lineCountLowLimit <= lines.size() && lines.size() <= lineCountHighLimit) {
-            if (pdfHeader.equals(lines.get(0)))
+            if (pdfHeader.equals(lines.get(0))) {
+                result = true;
                 logger.info("- Histogram pdf file appears to be ok!!!");
-            else
+            } else
                 logger.error("- Histogram pdf file does not start with the expected pdf header {} !", pdfHeader);
         } else
             logger.error("- Histogram pdf file does not contain the number of lines we expected ({} actual lines, "
                          + "which is not in expected range [{}..{}])!", lines.size(), lineCountLowLimit,
                          lineCountHighLimit);
+        return result;
     }
 }

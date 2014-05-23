@@ -5,6 +5,8 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 
@@ -29,9 +31,23 @@ public class BaseExample {
     private static final int MILLISECONDS_PER_SECOND = 1000;
 
     /**
+     * The workflow engine factory to use.
+     */
+    protected final WorkflowEngineFactory workflowEngineFactory;
+
+    /**
      * The start time of this example (in milliseconds).
      */
     private long startTime;
+
+    /**
+     * Construct a base example object.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
+     */
+    public BaseExample(final WorkflowEngineFactory workflowEngineFactory) {
+        this.workflowEngineFactory = workflowEngineFactory;
+    }
 
     /**
      * Initialize running an example by configuring the logging and storing the start time.

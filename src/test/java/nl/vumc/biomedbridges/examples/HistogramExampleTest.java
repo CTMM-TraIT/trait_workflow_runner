@@ -5,13 +5,17 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.vumc.biomedbridges.core.DummyWorkflow;
-import nl.vumc.biomedbridges.core.DummyWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
+import nl.vumc.biomedbridges.core.TestGuiceModule;
+import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
 
@@ -25,28 +29,22 @@ import static org.junit.Assert.assertTrue;
 public class HistogramExampleTest {
     /**
      * Test the histogram example.
-     *
-     * todo: test fails when running with Maven (mvn test):
-     * "java.lang.AssertionError: null
-             at org.junit.Assert.fail(Assert.java:86)
-             at org.junit.Assert.assertTrue(Assert.java:41)
-             at org.junit.Assert.assertTrue(Assert.java:52)
-             at nl.vumc.biomedbridges.examples.HistogramExampleTest.testHistogramExample(HistogramExampleTest.java:23)".
      */
     @Test
     public void testHistogramExample() {
-        // todo: create Guice module for unit testing, maybe in core package?
-        final DummyWorkflowEngineFactory workflowEngineFactory = new DummyWorkflowEngineFactory();
-        addPdfToOutputMap(workflowEngineFactory);
-        assertTrue(new HistogramExample(workflowEngineFactory).runExample());
+        // Create a Guice injector and use it to build the HistogramExample object.
+        final Injector injector = Guice.createInjector(new TestGuiceModule());
+        final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
+        addPdfToOutputMap(histogramExample.workflowEngineFactory);
+        assertTrue(histogramExample.runExample());
     }
 
     /**
+     * Add a dummy temporary pdf file to the output map of the dummy workflow.
      *
-     *
-     * @param workflowEngineFactory
+     * @param workflowEngineFactory the dummy workflow engine factory.
      */
-    private void addPdfToOutputMap(final DummyWorkflowEngineFactory workflowEngineFactory) {
+    private void addPdfToOutputMap(final WorkflowEngineFactory workflowEngineFactory) {
         final List<String> dummyLines = new ArrayList<>();
         dummyLines.add("%PDF-1.4");
         for (int lineIndex = 0; lineIndex < 499; lineIndex++)

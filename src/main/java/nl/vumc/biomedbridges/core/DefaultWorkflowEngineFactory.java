@@ -29,11 +29,9 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
     private static final String UNEXPECTED_TYPE_MESSAGE = "Unexpected workflow type: {}.";
 
     /**
-     * Hidden constructor. Only the static fields and methods of this class are meant to be used.
-     *
-     * todo: make the DefaultWorkflowEngineFactory constructor private again.
+     * Hidden constructor. Instances of this class are created by Guice.
      */
-    public DefaultWorkflowEngineFactory() {
+    protected DefaultWorkflowEngineFactory() {
     }
 
     /**

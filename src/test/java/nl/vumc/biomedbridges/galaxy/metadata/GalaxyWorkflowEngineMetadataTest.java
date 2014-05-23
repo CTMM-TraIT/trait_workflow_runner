@@ -22,7 +22,7 @@ public class GalaxyWorkflowEngineMetadataTest {
     @Test
     public void testGetWorkflows() {
         final GalaxyWorkflowEngineMetadata metadata = new GalaxyWorkflowEngineMetadata();
-        assertEquals(2, metadata.getWorkflows().size());
+        assertEquals(3, metadata.getWorkflows().size());
     }
 
     /**

@@ -9,6 +9,11 @@ public class DummyWorkflowEngine implements WorkflowEngine {
     private final DummyWorkflow dummyWorkflow = new DummyWorkflow("dummy workflow");
 
     @Override
+    public boolean configure() {
+        return true;
+    }
+
+    @Override
     public boolean configure(final String configurationData) {
         return true;
     }

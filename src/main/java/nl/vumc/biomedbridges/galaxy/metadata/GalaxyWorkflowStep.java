@@ -184,7 +184,9 @@ public class GalaxyWorkflowStep {
             result = getToolStateValue(initialString.substring(1, initialString.length() - 1));
         else  if (trueString.equals(initialString) || "False".equals(initialString))
             result = trueString.equals(initialString);
-        else if (initialString.matches("[-+]?\\d+(\\.\\d+)?"))
+        else if (initialString.matches("[-+]?\\d+\\.\\d+"))
+            result = Double.parseDouble(initialString);
+        else if (initialString.matches("[-+]?\\d+"))
             result = Long.parseLong(initialString);
         else if (!"null".equals(initialString))
             result = initialString;

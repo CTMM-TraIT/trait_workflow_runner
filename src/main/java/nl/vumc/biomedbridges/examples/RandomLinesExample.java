@@ -7,13 +7,16 @@ package nl.vumc.biomedbridges.examples;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
-import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -66,9 +69,13 @@ public class RandomLinesExample extends BaseExample {
     private static final int DEFINITIVE_LINE_COUNT = 3;
 
     /**
-     * Hidden constructor. The main method below will run this example.
+     * Construct the random lines example.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
      */
-    private RandomLinesExample() {
+    @Inject
+    protected RandomLinesExample(final WorkflowEngineFactory workflowEngineFactory) {
+        super(workflowEngineFactory);
     }
 
     /**
@@ -78,7 +85,11 @@ public class RandomLinesExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new RandomLinesExample().runExample();
+        // Create a Guice injector and use it to build the RandomLinesExample object.
+        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+        final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+
+        randomLinesExample.runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -91,7 +102,7 @@ public class RandomLinesExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType, configuration);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
         workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
