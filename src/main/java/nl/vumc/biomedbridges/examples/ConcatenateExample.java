@@ -49,12 +49,12 @@ public class ConcatenateExample extends BaseExample {
     /**
      * Line for test file 1.
      */
-    private static final String LINE_TEST_FILE_1 = "Hello workflow engine!!!";
+    protected static final String LINE_TEST_FILE_1 = "Hello workflow engine!!!";
 
     /**
      * Line for test file 2.
      */
-    private static final String LINE_TEST_FILE_2 = "Do you wanna play?";
+    protected static final String LINE_TEST_FILE_2 = "Do you wanna play?";
 
     /**
      * Construct the concatenate example.
@@ -83,11 +83,12 @@ public class ConcatenateExample extends BaseExample {
 
     /**
      * Run this example workflow: combine two input files into one output file.
+     *
+     * @return whether the workflow ran successfully.
      */
-    public void runExample() {
+    public boolean runExample() {
         initializeExample(logger, "ConcatenateExample.runExample");
 
-        //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
@@ -97,23 +98,29 @@ public class ConcatenateExample extends BaseExample {
         workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
         workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
+        boolean result = true;
         try {
-            workflowEngine.runWorkflow(workflow);
-            checkWorkflowOutput(workflow);
+            result = workflowEngine.runWorkflow(workflow);
+            if (!result)
+                logger.error("Error while running workflow {}.", workflow.getName());
+            result &= checkWorkflowOutput(workflow);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_CONCATENATE, e);
+            logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
         finishExample(logger);
+        return result;
     }
 
     /**
      * Check the output after running the workflow.
      *
      * @param workflow the workflow that has been executed.
+     * @return whether the workflow output is correct.
      * @throws IOException if reading an output file fails.
      */
-    private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
+    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
+        boolean result = false;
         final Map<String, Object> outputMap = workflow.getOutputMap();
         final Object output = (outputMap.size() == 1) ? outputMap.values().iterator().next() : null;
         if (output instanceof File) {
@@ -121,6 +128,7 @@ public class ConcatenateExample extends BaseExample {
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
             final String lineSeparator = " | ";
             if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
+                result = true;
                 logger.info("- Concatenated file contains the lines we expected!!!");
                 logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
             } else {
@@ -128,9 +136,12 @@ public class ConcatenateExample extends BaseExample {
                 logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
                 logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
             }
-            if (!outputFile.delete())
+            final boolean deleteResult = outputFile.delete();
+            result &= deleteResult;
+            if (!deleteResult)
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
             logger.error("There is no single output parameter of type File.");
+        return result;
     }
 }

@@ -51,7 +51,7 @@ public class RandomLinesExample extends BaseExample {
     /**
      * The name of the output dataset.
      */
-    private static final String OUTPUT_NAME = "Select random lines on data 2";
+    protected static final String OUTPUT_NAME = "Select random lines on data 2";
 
     /**
      * The name of the line count parameter that can be specified for step 2 and 3.
@@ -66,7 +66,7 @@ public class RandomLinesExample extends BaseExample {
     /**
      * The definitive number of lines the intermediate file gets reduced to.
      */
-    private static final int DEFINITIVE_LINE_COUNT = 3;
+    protected static final int DEFINITIVE_LINE_COUNT = 3;
 
     /**
      * Construct the random lines example.
@@ -95,8 +95,10 @@ public class RandomLinesExample extends BaseExample {
 
     /**
      * Run this example workflow: randomly select a number of lines from an input file twice.
+     *
+     * @return whether the workflow ran successfully.
      */
-    public void runExample() {
+    public boolean runExample() {
         initializeExample(logger, "RandomLinesExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
@@ -111,38 +113,46 @@ public class RandomLinesExample extends BaseExample {
         workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, INITIAL_LINE_COUNT);
         workflow.setParameter(stepIdSecondFilter, LINE_COUNT_PARAMETER_NAME, DEFINITIVE_LINE_COUNT);
 
+        boolean result = true;
         try {
-            if (!workflowEngine.runWorkflow(workflow))
-                logger.error("Error while running workflow {}.", Constants.WORKFLOW_RANDOM_LINES_TWICE);
-            checkWorkflowOutput(workflow);
+            result = workflowEngine.runWorkflow(workflow);
+            if (!result)
+                logger.error("Error while running workflow {}.", workflow.getName());
+            result &= checkWorkflowOutput(workflow);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", Constants.WORKFLOW_RANDOM_LINES_TWICE, e);
+            logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
-
         finishExample(logger);
+        return result;
     }
 
     /**
      * Check the output after running the workflow.
      *
      * @param workflow the workflow that has been executed.
+     * @return whether the workflow output is correct.
      * @throws IOException if reading an output file fails.
      */
-    private static void checkWorkflowOutput(final Workflow workflow) throws IOException {
+    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
+        boolean result = false;
         final Object output = workflow.getOutputMap().get(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             logger.trace("Reading output file {}.", outputFile.getAbsolutePath());
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            if (lines.size() == DEFINITIVE_LINE_COUNT)
+            if (lines.size() == DEFINITIVE_LINE_COUNT) {
+                result = true;
                 logger.trace("The number of lines ({}) is as expected.", lines.size());
-            else
+            } else
                 logger.error("The number of lines ({}) is not as expected ({}).", lines.size(), DEFINITIVE_LINE_COUNT);
             for (final String line : lines)
                 logger.trace(line);
-            if (!outputFile.delete())
+            final boolean deleteResult = outputFile.delete();
+            result &= deleteResult;
+            if (!deleteResult)
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
             logger.error("There is no output parameter {} of type file.", OUTPUT_NAME);
+        return result;
     }
 }

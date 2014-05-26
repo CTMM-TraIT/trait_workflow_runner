@@ -96,9 +96,11 @@ public class HistogramExample extends BaseExample {
         boolean result = true;
         try {
             result = workflowEngine.runWorkflow(workflow);
+            if (!result)
+                logger.error("Error while running workflow {}.", workflow.getName());
             result &= checkWorkflowOutput(workflow);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", Constants.WORKFLOW_HISTOGRAM, e);
+            logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
         finishExample(logger);
         return result;

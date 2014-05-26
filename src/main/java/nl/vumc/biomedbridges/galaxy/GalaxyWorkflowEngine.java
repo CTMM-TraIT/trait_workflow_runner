@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.examples.RemoveTopAndLeftExample;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.apache.http.HttpStatus;
@@ -288,7 +288,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private ClientResponse uploadInputFile(final Workflow workflow, final String historyId, final File inputFile) {
         final ToolsClient.FileUploadRequest fileUploadRequest = new ToolsClient.FileUploadRequest(historyId, inputFile);
         // todo: do this based on what the Galaxy workflow needs.
-        if (workflow.getName().equals(RemoveTopAndLeftExample.WORKFLOW_NAME))
+        if (workflow.getName().equals(Constants.WORKFLOW_REMOVE_TOP_AND_LEFT))
             fileUploadRequest.setFileType("txt");
         else
             fileUploadRequest.setFileType("tabular");

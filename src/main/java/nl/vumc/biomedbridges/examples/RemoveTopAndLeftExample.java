@@ -16,11 +16,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +32,25 @@ import org.slf4j.LoggerFactory;
  * removes a number of lines from the input file and removes a number of characters from the start of the remaining
  * lines.
  *
+ * todo: this example is not working yet.
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class RemoveTopAndLeftExample extends BaseExample {
     /**
-     * The name of the "remove top and left" workflow.
-     */
-    public static final String WORKFLOW_NAME = "TestWorkflowRemoveTopAndLeft";
-//    public static final String WORKFLOW_NAME = "RemoveLeftAndTop";
-
-    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(RemoveTopAndLeftExample.class);
+
+    /**
+     * The name of the Galaxy history.
+     */
+    private static final String HISTORY_NAME = "Remove Top And Left History";
+
+    /**
+     * The name of the input dataset.
+     */
+    private static final String INPUT_NAME = "Input Dataset";
 
     /**
      * Construct the remove top and left example.
@@ -77,12 +85,13 @@ public class RemoveTopAndLeftExample extends BaseExample {
         try {
             initializeExample(logger, "RemoveTopAndLeftExample.main");
 
-            //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType);
-            final Workflow workflow = workflowEngine.getWorkflow(WORKFLOW_NAME);
+            final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
+            final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
+            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+            final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_REMOVE_TOP_AND_LEFT);
 
-            workflow.addInput("input", FileUtils.createTemporaryFile("First line", "Second line", "Third line"));
+            workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("First line", "Second line", "Third line"));
 
             workflowEngine.runWorkflow(workflow);
 
@@ -90,7 +99,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
 
             finishExample(logger);
         } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", WORKFLOW_NAME, e);
+            logger.error("Exception while running workflow {}.", Constants.WORKFLOW_REMOVE_TOP_AND_LEFT, e);
         }
     }
 

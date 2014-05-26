@@ -32,9 +32,9 @@ public class Constants {
     public static final String WORKFLOW_RANDOM_LINES_TWICE = "RandomLinesTwice";
 
     /**
-     * The name of the current workflow.
+     * The name of the "remove top and left" workflow.
      */
-    public static final String TEST_WORKFLOW_NAME = TEST_WORKFLOW_SCATTERPLOT;
+    public static final String WORKFLOW_REMOVE_TOP_AND_LEFT = "RemoveTopAndLeft";
 
     /**
      * Hidden constructor. Only the static fields of this class are meant to be used.
