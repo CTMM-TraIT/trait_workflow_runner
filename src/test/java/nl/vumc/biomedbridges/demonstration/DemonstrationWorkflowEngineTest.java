@@ -48,7 +48,7 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowInvalidParameter() {
-        demonstrationWorkflow.addInput("input1", new BigInteger("123456"));
+        demonstrationWorkflow.addInput("WorkflowInput1", new BigInteger("123456"));
         assertFalse(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
     }
 
@@ -57,8 +57,8 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowNonExistingFiles() {
-        demonstrationWorkflow.addInput("input1", new File("non-existing file 1"));
-        demonstrationWorkflow.addInput("input2", new File("non-existing file 2"));
+        demonstrationWorkflow.addInput("WorkflowInput1", new File("non-existing file 1"));
+        demonstrationWorkflow.addInput("WorkflowInput2", new File("non-existing file 2"));
         assertFalse(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
     }
 
@@ -67,8 +67,8 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowCorrectParameters() {
-        demonstrationWorkflow.addInput("input1", FileUtils.createTemporaryFile("line 1"));
-        demonstrationWorkflow.addInput("input2", FileUtils.createTemporaryFile("line 2"));
+        demonstrationWorkflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile("line 1"));
+        demonstrationWorkflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile("line 2"));
         assertTrue(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
     }
 

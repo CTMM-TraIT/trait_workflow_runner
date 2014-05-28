@@ -77,8 +77,8 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
             if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflow.getName())) {
                 logger.info("Running workflow " + workflow.getName() + "...");
-                final Object input1 = workflow.getInput("input1");
-                final Object input2 = workflow.getInput("input2");
+                final Object input1 = workflow.getInput("WorkflowInput1");
+                final Object input2 = workflow.getInput("WorkflowInput2");
                 if (input1 instanceof File && input2 instanceof File) {
                     final String inputString1 = Joiner.on("").join(Files.readLines((File) input1, Charsets.UTF_8));
                     final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
