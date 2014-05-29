@@ -64,8 +64,24 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
      * Ensure the workflow is present on the Galaxy server. If it is not found, it will be created.
      *
      * @param workflowsClient the workflows client used to interact with the Galaxy workflows on the server.
+     * @return whether the workflow was already present or successfully created on the Galaxy server.
      */
-    public void ensureWorkflowIsOnServer(final WorkflowsClient workflowsClient) {
+    public boolean ensureWorkflowIsOnServer(final WorkflowsClient workflowsClient) {
+        boolean isOnServer = isWorkflowOnServer(workflowsClient);
+        if (!isOnServer) {
+            workflowsClient.importWorkflow(getJsonContent());
+            isOnServer = isWorkflowOnServer(workflowsClient);
+        }
+        return isOnServer;
+    }
+
+    /**
+     * Check whether the workflow is present on the Galaxy server.
+     *
+     * @param workflowsClient the workflows client used to interact with the Galaxy workflows on the server.
+     * @return whether the workflow is present on the Galaxy server.
+     */
+    private boolean isWorkflowOnServer(final WorkflowsClient workflowsClient) {
         boolean found = false;
         // CHECKSTYLE_OFF: IllegalCatchCheck
         try {
@@ -80,8 +96,7 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
             logger.error("Error retrieving the available workflows from the Galaxy server.");
         }
         // CHECKSTYLE_ON: IllegalCatchCheck
-        if (!found)
-            workflowsClient.importWorkflow(getJsonContent());
+        return found;
     }
 
     /**
