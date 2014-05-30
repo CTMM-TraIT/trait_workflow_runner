@@ -43,10 +43,10 @@ public class GalaxyWorkflowTest {
     }
 
     /**
-     * Test the ensureWorkflowIsOnServer method.
+     * Test the ensureWorkflowIsOnServer method when the workflow is already on the Galaxy server.
      */
     @Test
-    public void testEnsureWorkflowIsOnServer() {
+    public void testEnsureWorkflowIsOnServerAlreadyThere() {
         final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
@@ -54,5 +54,31 @@ public class GalaxyWorkflowTest {
         Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(Arrays.asList(blend4jWorkflowMock));
         Mockito.when(blend4jWorkflowMock.getName()).thenReturn(Constants.TEST_WORKFLOW_CONCATENATE);
         assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
+    }
+
+    /**
+     * Test the ensureWorkflowIsOnServer method when the workflow is not on the Galaxy server and is imported.
+     */
+    @Test
+    public void testEnsureWorkflowIsOnServerWithImport() {
+        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
+        final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock1
+                = getBlend4jWorkflowMock("dummy");
+        final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock2
+                = getBlend4jWorkflowMock(Constants.TEST_WORKFLOW_CONCATENATE);
+        final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList1 = new ArrayList<>();
+        final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList2
+                = Arrays.asList(blend4jWorkflowMock1, blend4jWorkflowMock2);
+        //noinspection unchecked
+        Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(workflowList1, workflowList2);
+        assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
+    }
+
+    private com.github.jmchilton.blend4j.galaxy.beans.Workflow getBlend4jWorkflowMock(final String name) {
+        final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
+                = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
+        Mockito.when(blend4jWorkflowMock.getName()).thenReturn(name);
+        return blend4jWorkflowMock;
     }
 }
