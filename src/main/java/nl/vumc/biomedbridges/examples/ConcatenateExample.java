@@ -44,7 +44,7 @@ public class ConcatenateExample extends BaseExample {
     /**
      * The name of the Galaxy history.
      */
-    private static final String HISTORY_NAME = "Concatenate History";
+    protected static final String HISTORY_NAME = "Concatenate History";
 
     /**
      * Line for test file 1.
@@ -78,6 +78,7 @@ public class ConcatenateExample extends BaseExample {
         final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
 
         concatenateExample.runExample();
+        //System.exit(0);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -90,6 +91,7 @@ public class ConcatenateExample extends BaseExample {
         initializeExample(logger, "ConcatenateExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);

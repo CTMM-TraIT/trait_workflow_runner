@@ -1,3 +1,8 @@
+/**
+ * Copyright 2014 VU University Medical Center.
+ * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
+ */
+
 package nl.vumc.biomedbridges.examples.gui;
 
 import java.awt.BorderLayout;
@@ -19,26 +24,65 @@ import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowEngineMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowStep;
 
+/**
+ * This class contains a simple example of the workflow running functionality: the metadata for the histogram workflow
+ * is used to build a simple read-only Swing GUI that looks a bit like the web interface of this workflow in Galaxy.
+ *
+ * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
+ */
 public class HistogramGuiExample {
-    private static final Font TITLE_FONT = new Font("sans-serif", Font.BOLD, 18);
-    private static final Font HEADER_2_FONT = new Font("sans-serif", Font.BOLD, 12);
-    private static final Font DEFAULT_FONT = new Font("sans-serif", Font.PLAIN, 11);
-    
+    /**
+     * The font name.
+     */
+    private static final String FONT_NAME = "sans-serif";
+
+    /**
+     * The title font.
+     */
+    private static final Font TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 18);
+
+    /**
+     * The header level 2 font.
+     */
+    private static final Font HEADER_2_FONT = new Font(FONT_NAME, Font.BOLD, 12);
+
+    /**
+     * The default font.
+     */
+    private static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.PLAIN, 11);
+
+    /**
+     * Main method.
+     *
+     * @param arguments unused command-line arguments.
+     */
+    // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         // Schedule a job for the event-dispatching thread: creating and showing this application's GUI.
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 new HistogramGuiExample().runGuiExample();
-                //new HistogramGuiExample().springLayoutTest();
             }
         });
     }
+    // CHECKSTYLE_ON: UncommentedMain
 
+    /**
+     * Run the GUI example with a visible frame.
+     *
+     * @return the new frame.
+     */
     protected JFrame runGuiExample() {
         return runGuiExample(true);
     }
 
+    /**
+     * Run the GUI example with a visible or invisible frame.
+     *
+     * @param makeVisible whether the frame should be visible or invisible.
+     * @return the new frame.
+     */
     protected JFrame runGuiExample(final boolean makeVisible) {
         final String workflowName = "Histogram";
         final JFrame frame = new JFrame(workflowName + " gui example");
@@ -65,6 +109,16 @@ public class HistogramGuiExample {
         return frame;
     }
 
+    /**
+     * Add a new panel for a workflow step.
+     *
+     * @param workflowMetadata the workflow metadata.
+     * @param stepIndex the step index.
+     * @param guiPanel the GUI panel to add the new panel to.
+     * @param guiLayout the GUI layout to add GUI constrains to.
+     * @param previousComponent the previous component that was added to the GUI panel (used for layout).
+     * @return the new panel.
+     */
     private JPanel addStepPanel(final GalaxyWorkflowMetadata workflowMetadata, int stepIndex, final JPanel guiPanel, 
             final SpringLayout guiLayout, Component previousComponent) {
         final JPanel stepPanel = new JPanel();
@@ -76,14 +130,14 @@ public class HistogramGuiExample {
         //final SpringLayout stepLayout = new SpringLayout();
         stepPanel.setLayout(stepLayout);
         stepPanel.setBorder(new TitledBorder(stepText));
-        Component previousStepComponent = null;
+        //Component previousStepComponent = null;
         for (final GalaxyStepInput stepInput : step.getInputs())
-            previousStepComponent = addStepRow(stepPanel, stepInput.getName(), stepInput.getDescription(), stepLayout, 
-                    previousStepComponent);
+            /*previousStepComponent =*/ addStepRow(stepPanel, stepInput.getName(), stepInput.getDescription());
+            //, stepLayout, previousStepComponent);
         if (step.getToolMetadata() != null)
             for (final GalaxyToolParameterMetadata parameter : step.getToolMetadata().getParameters())
-                previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), parameter.getValue(), stepLayout, 
-                    previousStepComponent);
+                /*previousStepComponent =*/ addStepRow(stepPanel, parameter.getLabel(), parameter.getValue());
+                //, stepLayout, previousStepComponent);
         guiPanel.add(stepPanel);
         guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, 5, SpringLayout.SOUTH, previousComponent);
         guiLayout.putConstraint(SpringLayout.WEST, stepPanel, 5, SpringLayout.WEST, guiPanel);
@@ -91,15 +145,23 @@ public class HistogramGuiExample {
         return stepPanel;
     }
 
-    private JLabel addStepRow(final JPanel stepPanel, final String header, final String value,
-            final BoxLayout/*SpringLayout*/ stepLayout, final Component previousStepComponent) {
-        final JLabel nameLabel = new JLabel(header);
+    /**
+     * Add a new row to a Galaxy step panel for an input or a parameter.
+     *
+     * @param stepPanel the step panel to add the new row to.
+     * @param name the name of the input or the parameter.
+     * @param description the description of the input or the parameter.
+     * @return the new row.
+     */
+    private JLabel addStepRow(final JPanel stepPanel, final String name, final String description) {
+            //, final BoxLayout/*SpringLayout*/ stepLayout, final Component previousStepComponent) {
+        final JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(HEADER_2_FONT);
         stepPanel.add(nameLabel);
 //        stepLayout.putConstraint(SpringLayout.NORTH, nameLabel, 5, SpringLayout.SOUTH, previousStepComponent);
 //        stepLayout.putConstraint(SpringLayout.WEST, nameLabel, 5, SpringLayout.WEST, stepPanel);
 //        stepLayout.putConstraint(SpringLayout.EAST, nameLabel, 5, SpringLayout.EAST, stepPanel);
-        final JLabel descriptionLabel = new JLabel(value);
+        final JLabel descriptionLabel = new JLabel(description);
         descriptionLabel.setFont(DEFAULT_FONT);
         stepPanel.add(descriptionLabel);
 //        stepLayout.putConstraint(SpringLayout.NORTH, descriptionLabel, 5, SpringLayout.SOUTH, nameLabel);
