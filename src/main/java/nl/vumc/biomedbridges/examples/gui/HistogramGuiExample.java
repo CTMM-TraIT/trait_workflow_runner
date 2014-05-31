@@ -35,52 +35,17 @@ public class HistogramGuiExample {
         });
     }
 
-//    /**
-//     * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
-//     */
-//    private void springLayoutTest() {
-//        // Create and set up the window.
-//        final JFrame frame = new JFrame("SpringDemo3");
-//        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-// 
-//        // Set up the content pane.
-//        final Container contentPane = frame.getContentPane();
-//        final SpringLayout layout = new SpringLayout();
-//        contentPane.setLayout(layout);
-// 
-//        // Create and add the components.
-//        final JLabel label = new JLabel("Label: ");
-//        final JTextField textField = new JTextField("Text field", 15);
-//        contentPane.add(label);
-//        contentPane.add(textField);
-// 
-//        // Adjust constraints for the label so it's at (5, 5).
-//        layout.putConstraint(SpringLayout.WEST, label, 5, SpringLayout.WEST, contentPane);
-//        layout.putConstraint(SpringLayout.NORTH, label, 5, SpringLayout.NORTH, contentPane);
-// 
-//        // Adjust constraints for the text field so it's at (<label's right edge> + 5, 5).
-//        layout.putConstraint(SpringLayout.WEST, textField, 5, SpringLayout.EAST, label);
-//        layout.putConstraint(SpringLayout.NORTH, textField, 5, SpringLayout.NORTH, contentPane);
-// 
-////        // Adjust constraints for the content pane: its right edge should be 5 pixels beyond the text field's right edge,
-////        // and its bottom edge should be 5 pixels beyond the bottom edge of the tallest component (which we'll assume is 
-////        // textField).
-////        layout.putConstraint(SpringLayout.EAST, contentPane, 5, SpringLayout.EAST, textField);
-////        layout.putConstraint(SpringLayout.SOUTH, contentPane, 5, SpringLayout.SOUTH, textField);
-// 
-//        // Display the window.
-//        frame.pack();
-//        frame.setLocationRelativeTo(null);
-//        frame.setVisible(true);
-//    }
-    
-    private void runGuiExample() {
+    protected JFrame runGuiExample() {
+        return runGuiExample(true);
+    }
+
+    protected JFrame runGuiExample(final boolean makeVisible) {
         final String workflowName = "Histogram";
         final JFrame frame = new JFrame(workflowName + " gui example");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
         final SpringLayout guiLayout = new SpringLayout();
         final JPanel guiPanel = new JPanel(guiLayout);
+        frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(guiPanel, BorderLayout.CENTER);
         final JLabel titleLabel = new JLabel("Running workflow \"" + workflowName + "\"");
         titleLabel.setFont(TITLE_FONT);
@@ -96,21 +61,20 @@ public class HistogramGuiExample {
         //frame.pack();
         frame.setSize(600, 480);
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        frame.setVisible(makeVisible);
+        return frame;
     }
 
     private JPanel addStepPanel(final GalaxyWorkflowMetadata workflowMetadata, int stepIndex, final JPanel guiPanel, 
             final SpringLayout guiLayout, Component previousComponent) {
         final JPanel stepPanel = new JPanel();
-        //stepPanel.setMinimumSize(new Dimension(600, 100));
+        final GalaxyWorkflowStep step = workflowMetadata.getSteps().get(stepIndex);
+        final String toolVersion = step.getToolVersion();
+        final String stepText = "Step " + (stepIndex + 1) + ": " + step.getName()
+                                + (toolVersion != null ? " (version " + toolVersion + ")" : "");
         final BoxLayout stepLayout = new BoxLayout(stepPanel, BoxLayout.PAGE_AXIS);
         //final SpringLayout stepLayout = new SpringLayout();
         stepPanel.setLayout(stepLayout);
-        final GalaxyWorkflowStep step = workflowMetadata.getSteps().get(stepIndex);
-        final String toolVersion = step.getToolVersion();
-        final String stepText = "Step " + (stepIndex + 1) + ": " + step.getName() 
-                + (toolVersion != null ? " (version " + toolVersion + ")" : "");
-        //stepPanel.add(new JLabel(stepText));
         stepPanel.setBorder(new TitledBorder(stepText));
         Component previousStepComponent = null;
         for (final GalaxyStepInput stepInput : step.getInputs())
@@ -143,43 +107,4 @@ public class HistogramGuiExample {
 //        stepLayout.putConstraint(SpringLayout.EAST, descriptionLabel, 5, SpringLayout.EAST, stepPanel);
         return descriptionLabel;
     }
-
-//    /**
-//     * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
-//     */
-//    private void createAndShowGUI() {
-//        // Create and set up the window.
-//        final JFrame frame = new JFrame("SpringDemo3");
-//        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-// 
-//        // Set up the content pane.
-//        final Container contentPane = frame.getContentPane();
-//        final SpringLayout layout = new SpringLayout();
-//        contentPane.setLayout(layout);
-// 
-//        // Create and add the components.
-//        final JLabel label = new JLabel("Label: ");
-//        final JTextField textField = new JTextField("Text field", 15);
-//        contentPane.add(label);
-//        contentPane.add(textField);
-// 
-//        // Adjust constraints for the label so it's at (5, 5).
-//        layout.putConstraint(SpringLayout.WEST, label, 5, SpringLayout.WEST, contentPane);
-//        layout.putConstraint(SpringLayout.NORTH, label, 5, SpringLayout.NORTH, contentPane);
-// 
-//        // Adjust constraints for the text field so it's at (<label's right edge> + 5, 5).
-//        layout.putConstraint(SpringLayout.WEST, textField, 5, SpringLayout.EAST, label);
-//        layout.putConstraint(SpringLayout.NORTH, textField, 5, SpringLayout.NORTH, contentPane);
-// 
-//        // Adjust constraints for the content pane: its right edge should be 5 pixels beyond the text field's right edge,
-//        // and its bottom edge should be 5 pixels beyond the bottom edge of the tallest component (which we'll assume is 
-//        // textField).
-//        layout.putConstraint(SpringLayout.EAST, contentPane, 5, SpringLayout.EAST, textField);
-//        layout.putConstraint(SpringLayout.SOUTH, contentPane, 5, SpringLayout.SOUTH, textField);
-// 
-//        // Display the window.
-//        frame.pack();
-//        frame.setLocationRelativeTo(null);
-//        frame.setVisible(true);
-//    }
 }
