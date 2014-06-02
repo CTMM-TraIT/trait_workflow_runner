@@ -182,8 +182,10 @@ public class GalaxyWorkflowStep {
         final String trueString = "True";
         if (initialString.startsWith(doubleQuote) && initialString.endsWith(doubleQuote))
             result = getToolStateValue(initialString.substring(1, initialString.length() - 1));
-        else  if (trueString.equals(initialString) || "False".equals(initialString))
-            result = trueString.equals(initialString);
+        else if (initialString.startsWith("{\"") && initialString.endsWith("\"}"))
+            result = readToolStateMap(initialString.substring(2, initialString.length() - 2));
+        else if (trueString.equalsIgnoreCase(initialString) || "False".equalsIgnoreCase(initialString))
+            result = trueString.equalsIgnoreCase(initialString);
         else if (initialString.matches("[-+]?\\d+\\.\\d+"))
             result = Double.parseDouble(initialString);
         else if (initialString.matches("[-+]?\\d+"))
@@ -191,6 +193,28 @@ public class GalaxyWorkflowStep {
         else if (!"null".equals(initialString))
             result = initialString;
         return result;
+    }
+
+    /**
+     * Read the key value pairs from the string representation of a map in the tool state.
+     *
+     * @param mapString the string representation of a map in the tool state.
+     * @return the map representation of a map in the tool state.
+     */
+    private Map<String, Object> readToolStateMap(final String mapString) {
+        final Map<String, Object> toolStateMap = new HashMap<>();
+        final String entrySeparator = ", \"";
+        final String keyValueSeparator = "\": ";
+        for (final String mapEntryString : mapString.split(entrySeparator)) {
+            final int separatorIndex = mapEntryString.indexOf(keyValueSeparator);
+            final String key = mapEntryString.substring(mapEntryString.startsWith("\"") ? 1 : 0, separatorIndex);
+            final int beginValueIndex = separatorIndex + keyValueSeparator.length();
+            final int quoteOffset = mapEntryString.charAt(beginValueIndex) == '"' ? 1 : 0;
+            final int endValueIndex = mapEntryString.length() - (mapEntryString.endsWith("\"") ? 1 : 0);
+            final Object value = getToolStateValue(mapEntryString.substring(beginValueIndex + quoteOffset, endValueIndex));
+            toolStateMap.put(key, value);
+        }
+        return toolStateMap;
     }
 
     /**

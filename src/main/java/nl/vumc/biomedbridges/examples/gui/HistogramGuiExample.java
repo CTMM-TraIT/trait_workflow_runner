@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,17 +52,17 @@ public class HistogramGuiExample {
     /**
      * The title font.
      */
-    private static final Font TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 18);
+    private static final Font TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 22);
 
     /**
      * The header level 2 font.
      */
-    private static final Font HEADER_2_FONT = new Font(FONT_NAME, Font.BOLD, 12);
+    private static final Font HEADER_2_FONT = new Font(FONT_NAME, Font.BOLD, 14);
 
     /**
      * The default font.
      */
-    private static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.PLAIN, 12);
+    private static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.PLAIN, 14);
 
     /**
      * Main method.
@@ -186,10 +187,31 @@ public class HistogramGuiExample {
         stepLayout.putConstraint(SpringLayout.WEST, titleLabel, 5, SpringLayout.WEST, stepPanel);
         stepLayout.putConstraint(SpringLayout.EAST, titleLabel, 5, SpringLayout.EAST, stepPanel);
         final String finalText;
-        if (parameter != null && step.getInputConnections().containsKey(parameter.getName())) {
-            final GalaxyStepInputConnection inputConnection = step.getInputConnections().get(parameter.getName());
-            finalText = String.format("Output dataset '%s' from step %d", inputConnection.getOutputName(),
-                                 inputConnection.getId() + 1);
+        if (parameter != null) {
+            final String parameterName = parameter.getName();
+            final Map<String, Object> toolState = step.getToolState();
+            if (step.getInputConnections().containsKey(parameterName)) {
+                final GalaxyStepInputConnection inputConnection = step.getInputConnections().get(parameterName);
+                finalText = String.format("Output dataset '%s' from step %d", inputConnection.getOutputName(),
+                                          inputConnection.getId() + 1);
+            } else if (toolState.containsKey(parameterName) && toolState.get(parameterName) != null) {
+                final Object value = toolState.get(parameterName);
+                if (value instanceof Map) {
+                    final Map valueMap = (Map) value;
+                    final String valueKey = "value";
+                    if (valueMap.containsKey(valueKey)) {
+                        final boolean unvalidated = "UnvalidatedValue".equals(valueMap.get("__class__"));
+                        finalText = valueMap.get(valueKey) + (unvalidated ? " (value not yet validated)" : "");
+                    } else
+                        finalText = !"".equals(value) ? value.toString() : "------";
+                } else {
+                    final String valueString = value != null  && !"".equals(value) ? value.toString() : "------";
+                    finalText = "true".equalsIgnoreCase(valueString) || "false".equalsIgnoreCase(valueString)
+                                ? Character.toUpperCase(valueString.charAt(0)) + valueString.substring(1)
+                                : valueString;
+                }
+            } else
+                finalText = text != null && !"".equals(text) ? text : "------";
         } else
             finalText = text != null && !"".equals(text) ? text : "------";
         final JLabel textLabel = new JLabel(finalText);
