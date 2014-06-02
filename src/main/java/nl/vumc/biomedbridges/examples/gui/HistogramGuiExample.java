@@ -7,7 +7,6 @@ package nl.vumc.biomedbridges.examples.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Map;
@@ -65,6 +64,26 @@ public class HistogramGuiExample {
     private static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.PLAIN, 14);
 
     /**
+     * Small distance between components.
+     */
+    private static final int SMALL_PAD = 5;
+
+    /**
+     * Two unit distance between components.
+     */
+    private static final int DOUBLE_PAD = 2 * SMALL_PAD;
+
+    /**
+     * Four unit distance between components.
+     */
+    private static final int QUAD_PAD = 4 * SMALL_PAD;
+
+    /**
+     * The text shown for null or empty values.
+     */
+    private static final String EMPTY_VALUE = "------";
+
+    /**
      * Main method.
      *
      * @param arguments unused command-line arguments.
@@ -102,15 +121,15 @@ public class HistogramGuiExample {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final SpringLayout guiLayout = new SpringLayout();
         final JPanel guiPanel = new JPanel(guiLayout);
-        guiPanel.setName("guiPanel");
+        //guiPanel.setName("guiPanel");
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(guiPanel, BorderLayout.CENTER);
         final JLabel titleLabel = new JLabel("Running workflow \"" + workflowName + "\"");
-        titleLabel.setName("titleLabel(" + titleLabel.getText() + ")");
+        //titleLabel.setName("titleLabel(" + titleLabel.getText() + ")");
         titleLabel.setFont(TITLE_FONT);
         guiPanel.add(titleLabel);
-        guiLayout.putConstraint(SpringLayout.WEST, titleLabel, 5, SpringLayout.WEST, guiPanel);
-        guiLayout.putConstraint(SpringLayout.NORTH, titleLabel, 5, SpringLayout.NORTH, guiPanel);
+        guiLayout.putConstraint(SpringLayout.WEST, titleLabel, SMALL_PAD, SpringLayout.WEST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.NORTH, titleLabel, SMALL_PAD, SpringLayout.NORTH, guiPanel);
         Component previousComponent = titleLabel;
         final GalaxyWorkflowMetadata workflowMetadata = new GalaxyWorkflowEngineMetadata().getWorkflow(workflowName);
         for (int stepIndex = 0; stepIndex < workflowMetadata.getSteps().size(); stepIndex++)
@@ -122,8 +141,8 @@ public class HistogramGuiExample {
         frame.setVisible(makeVisible);
         adjustStepPanelSizes(guiPanel);
 
-        System.out.println();
-        printComponentSizes(guiPanel);
+        //System.out.println();
+        //printComponentSizes(guiPanel);
 
         return frame;
     }
@@ -138,10 +157,10 @@ public class HistogramGuiExample {
      * @param previousComponent the previous component that was added to the GUI panel (used for layout).
      * @return the new panel.
      */
-    private JPanel addStepPanel(final GalaxyWorkflowMetadata workflowMetadata, int stepIndex, final JPanel guiPanel,
-            final SpringLayout guiLayout, Component previousComponent) {
+    private JPanel addStepPanel(final GalaxyWorkflowMetadata workflowMetadata, final int stepIndex,
+                                final JPanel guiPanel, final SpringLayout guiLayout, final Component previousComponent) {
         final JPanel stepPanel = new JPanel();
-        stepPanel.setName("stepPanel(" + (stepIndex + 1) + ")");
+        //stepPanel.setName("stepPanel(" + (stepIndex + 1) + ")");
         final GalaxyWorkflowStep step = workflowMetadata.getSteps().get(stepIndex);
         final String toolVersion = step.getToolVersion();
         final String stepText = "Step " + (stepIndex + 1) + ": " + step.getName()
@@ -158,34 +177,56 @@ public class HistogramGuiExample {
                 previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), parameter.getValue(), step,
                                                    parameter, stepLayout, previousStepComponent);
         guiPanel.add(stepPanel);
-        guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, 5, SpringLayout.SOUTH, previousComponent);
-        guiLayout.putConstraint(SpringLayout.WEST, stepPanel, 5, SpringLayout.WEST, guiPanel);
-        guiLayout.putConstraint(SpringLayout.EAST, stepPanel, 20, SpringLayout.EAST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, SMALL_PAD, SpringLayout.SOUTH, previousComponent);
+        guiLayout.putConstraint(SpringLayout.WEST, stepPanel, SMALL_PAD, SpringLayout.WEST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.EAST, stepPanel, QUAD_PAD, SpringLayout.EAST, guiPanel);
         return stepPanel;
     }
 
     /**
-     * Add a new row to a Galaxy step panel for an input or a parameter.
+     * Add a new row with a title and text to a Galaxy step panel for an input or a parameter.
      *
      * @param stepPanel the step panel to add the new row to.
      * @param title the title of the input or the parameter.
      * @param text the text of the input or the parameter.
      * @param step the Galaxy step.
      * @param parameter the parameter metadata.
+     * @param stepLayout the step layout to add GUI constrains to.
+     * @param previousStepComponent the previous step component that was added to the GUI panel (used for layout).
      * @return the last component that was added to the step panel.
      */
     private Component addStepRow(final JPanel stepPanel, final String title, final String text,
                                  final GalaxyWorkflowStep step, final GalaxyToolParameterMetadata parameter,
                                  final SpringLayout stepLayout, final Component previousStepComponent) {
         final JLabel titleLabel = new JLabel(title);
-        titleLabel.setName("titleLabel(" + titleLabel.getText() + ")");
+        //titleLabel.setName("titleLabel(" + titleLabel.getText() + ")");
         titleLabel.setFont(HEADER_2_FONT);
         stepPanel.add(titleLabel);
         final Component anchorComponent = previousStepComponent == null ? stepPanel : previousStepComponent;
         final String anchorEdge = previousStepComponent == null ? SpringLayout.NORTH : SpringLayout.SOUTH;
-        stepLayout.putConstraint(SpringLayout.NORTH, titleLabel, 10, anchorEdge, anchorComponent);
-        stepLayout.putConstraint(SpringLayout.WEST, titleLabel, 5, SpringLayout.WEST, stepPanel);
-        stepLayout.putConstraint(SpringLayout.EAST, titleLabel, 5, SpringLayout.EAST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.NORTH, titleLabel, DOUBLE_PAD, anchorEdge, anchorComponent);
+        stepLayout.putConstraint(SpringLayout.WEST, titleLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.EAST, titleLabel, SMALL_PAD, SpringLayout.EAST, stepPanel);
+        final JLabel textLabel = new JLabel(getFinalText(text, step, parameter));
+        //textLabel.setName("textLabel(" + textLabel.getText() + ")");
+        textLabel.setFont(DEFAULT_FONT);
+        stepPanel.add(textLabel);
+        stepLayout.putConstraint(SpringLayout.NORTH, textLabel, SMALL_PAD, SpringLayout.SOUTH, titleLabel);
+        stepLayout.putConstraint(SpringLayout.WEST, textLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.EAST, textLabel, SMALL_PAD, SpringLayout.EAST, stepPanel);
+        return textLabel;
+    }
+
+    /**
+     * Determine the text to show for an input or parameter.
+     *
+     * @param text the text of the input or the parameter.
+     * @param step the Galaxy step.
+     * @param parameter the parameter metadata.
+     * @return the text to show for an input or parameter.
+     */
+    private String getFinalText(final String text, final GalaxyWorkflowStep step,
+                                final GalaxyToolParameterMetadata parameter) {
         final String finalText;
         if (parameter != null) {
             final String parameterName = parameter.getName();
@@ -203,25 +244,18 @@ public class HistogramGuiExample {
                         final boolean unvalidated = "UnvalidatedValue".equals(valueMap.get("__class__"));
                         finalText = valueMap.get(valueKey) + (unvalidated ? " (value not yet validated)" : "");
                     } else
-                        finalText = !"".equals(value) ? value.toString() : "------";
+                        finalText = !"".equals(value) ? value.toString() : EMPTY_VALUE;
                 } else {
-                    final String valueString = value != null  && !"".equals(value) ? value.toString() : "------";
+                    final String valueString = value != null  && !"".equals(value) ? value.toString() : EMPTY_VALUE;
                     finalText = "true".equalsIgnoreCase(valueString) || "false".equalsIgnoreCase(valueString)
                                 ? Character.toUpperCase(valueString.charAt(0)) + valueString.substring(1)
                                 : valueString;
                 }
             } else
-                finalText = text != null && !"".equals(text) ? text : "------";
+                finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
         } else
-            finalText = text != null && !"".equals(text) ? text : "------";
-        final JLabel textLabel = new JLabel(finalText);
-        textLabel.setName("textLabel(" + textLabel.getText() + ")");
-        textLabel.setFont(DEFAULT_FONT);
-        stepPanel.add(textLabel);
-        stepLayout.putConstraint(SpringLayout.NORTH, textLabel, 5, SpringLayout.SOUTH, titleLabel);
-        stepLayout.putConstraint(SpringLayout.WEST, textLabel, 5, SpringLayout.WEST, stepPanel);
-        stepLayout.putConstraint(SpringLayout.EAST, textLabel, 5, SpringLayout.EAST, stepPanel);
-        return textLabel;
+            finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
+        return finalText;
     }
 
     /**
@@ -230,28 +264,31 @@ public class HistogramGuiExample {
      * @param guiPanel the GUI panel that contains the step panels.
      */
     private void adjustStepPanelSizes(final JPanel guiPanel) {
-        System.out.println();
+        //System.out.println();
+        final int minimumBottomY = 30;
+        final int widthDecrement = 40;
+        final int bottomIncrement = 10;
         for (final Component component : guiPanel.getComponents())
             if (component instanceof JPanel) {
                 final JPanel stepPanel = (JPanel) component;
-                int bottomY = 30;
+                int bottomY = minimumBottomY;
                 for (final Component stepComponent : stepPanel.getComponents())
                     bottomY = Math.max(bottomY, stepComponent.getY() + stepComponent.getHeight());
                 System.out.println("bottomY: " + bottomY);
-                stepPanel.setPreferredSize(new Dimension(FRAME_WIDTH - 40, bottomY + 10));
+                stepPanel.setPreferredSize(new Dimension(FRAME_WIDTH - widthDecrement, bottomY + bottomIncrement));
                 stepPanel.revalidate();
             }
     }
 
-    /**
-     * Print component sizes recursively for debugging.
-     *
-     * @param component the current component.
-     */
-    private void printComponentSizes(final Component component) {
-        System.out.println("component " + component.getName() + " - bounds: " + component.getBounds());
-        if (component instanceof Container)
-            for (final Component subComponent : ((Container) component).getComponents())
-                printComponentSizes(subComponent);
-    }
+//    /**
+//     * Print component sizes recursively for debugging.
+//     *
+//     * @param component the current component.
+//     */
+//    private void printComponentSizes(final Component component) {
+//        System.out.println("component " + component.getName() + " - bounds: " + component.getBounds());
+//        if (component instanceof Container)
+//            for (final Component subComponent : ((Container) component).getComponents())
+//                printComponentSizes(subComponent);
+//    }
 }
