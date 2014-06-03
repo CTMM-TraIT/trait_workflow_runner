@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <toolbox>
   <section id="textutil" name="Text Manipulation">
+    <tool file="filters/catWrapper.xml" />
     <tool file="filters/remove_beginning.xml" />
     <tool file="filters/randomlines.xml" />
   </section>

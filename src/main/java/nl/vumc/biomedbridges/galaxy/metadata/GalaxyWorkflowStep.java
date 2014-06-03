@@ -1,6 +1,6 @@
 /**
  * Copyright 2014 VU University Medical Center.
- * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
+ * Licensed under the Apache License version 2.0 (see http://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
 package nl.vumc.biomedbridges.galaxy.metadata;
@@ -340,12 +340,15 @@ public class GalaxyWorkflowStep {
      * @param toolsMetadata the tool metadata objects.
      */
     public void addToolsMetadata(final List<GalaxyToolMetadata> toolsMetadata) {
-        for (final GalaxyToolMetadata availableToolMetadata : toolsMetadata)
+        for (final GalaxyToolMetadata availableToolMetadata : toolsMetadata) {
+            final String availableToolVersion = availableToolMetadata.getVersion();
+            final boolean availableToolVersionEmpty = "".equals(availableToolVersion);
             if (toolId != null && toolId.equals(availableToolMetadata.getId())
-                && toolVersion != null && toolVersion.equals(availableToolMetadata.getVersion())) {
+                && (availableToolVersionEmpty || (toolVersion != null && toolVersion.equals(availableToolVersion)))) {
                 toolMetadata = availableToolMetadata;
                 break;
             }
+        }
     }
 
     /**

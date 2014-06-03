@@ -1,6 +1,6 @@
 /**
  * Copyright 2014 VU University Medical Center.
- * Licensed under the Apache License version 2.0 (see http://opensource.org/licenses/Apache-2.0).
+ * Licensed under the Apache License version 2.0 (see http://www.apache.org/licenses/LICENSE-2.0.html).
  */
 
 package nl.vumc.biomedbridges.galaxy.metadata.parsers;
@@ -129,8 +129,9 @@ public class GalaxyToolMetadataParser {
         boolean toBeParsed = false;
         final String toolId = toolElement.getAttribute("id");
         final String toolVersion = toolElement.getAttribute("version");
+        final boolean versionEmpty = "".equals(toolVersion);
         for (final GalaxyToolReference toolReference : toolReferences)
-            if (toolReference.getId().equals(toolId) && toolReference.getVersion().equals(toolVersion)) {
+            if (toolReference.getId().equals(toolId) && (versionEmpty || toolReference.getVersion().equals(toolVersion))) {
                 toBeParsed = true;
                 break;
             }

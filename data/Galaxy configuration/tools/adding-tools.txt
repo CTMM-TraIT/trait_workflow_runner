@@ -1,0 +1,13 @@
+You can easily add more tools here by copying the tool xml configuration (and optionally the source code) from the
+[galaxy-central-repository]/tools directory.
+
+For example, search for the concatenate tool could look like this:
+
+cd tools
+grep cat1 */*.*
+cp filters/catWrapper.* [WorkflowRunner]/data/Galaxy configuration/tools/filters
+
+
+Finally, add the tool to the [WorkflowRunner]/data/Galaxy configuration/tools/tool_conf.xml file:
+
+    <tool file="filters/catWrapper.xml" />
