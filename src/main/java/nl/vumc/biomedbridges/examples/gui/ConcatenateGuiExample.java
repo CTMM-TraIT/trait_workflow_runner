@@ -8,13 +8,13 @@ package nl.vumc.biomedbridges.examples.gui;
 import nl.vumc.biomedbridges.core.Constants;
 
 /**
- * This class contains a simple example of the workflow running functionality: the metadata for the histogram workflow
+ * This class contains a simple example of the workflow running functionality: the metadata for the concatenate workflow
  * is used to build a simple read-only Swing GUI that looks a bit like the web interface of this workflow in Galaxy.
  * All the interesting code is in the BaseGuiExample class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class HistogramGuiExample extends BaseGuiExample {
+public class ConcatenateGuiExample extends BaseGuiExample {
     /**
      * Main method.
      *
@@ -22,7 +22,7 @@ public class HistogramGuiExample extends BaseGuiExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new HistogramGuiExample().createGuiExample(Constants.WORKFLOW_HISTOGRAM);
+        new ConcatenateGuiExample().createGuiExample(Constants.TEST_WORKFLOW_CONCATENATE);
     }
     // CHECKSTYLE_ON: UncommentedMain
 }

@@ -11,8 +11,9 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+
+import nl.vumc.biomedbridges.core.Constants;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,22 +29,12 @@ import static org.junit.Assert.assertTrue;
  */
 public class HistogramGuiExampleTest {
     /**
-     * The frame created by the HistogramGuiExample class.
-     */
-    private JFrame frame;
-
-    /**
      * Test the runGuiExample method.
      */
     @Test
     public void testRunGuiExample() throws InvocationTargetException, InterruptedException {
-        // Schedule a job for the event-dispatching thread: creating and showing this application's GUI.
-        SwingUtilities.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                frame = new HistogramGuiExample().runGuiExample(false);
-            }
-        });
+        final JFrame frame = new HistogramGuiExample().createGuiExample(Constants.WORKFLOW_HISTOGRAM, false);
+
         // Check some high level properties of the created GUI.
         Assert.assertNotNull(frame);
         assertFalse(frame.isVisible());
@@ -62,6 +53,7 @@ public class HistogramGuiExampleTest {
         final JPanel step2Panel = (JPanel) level2components[2];
         assertTrue(step2Panel.getBorder() instanceof TitledBorder);
         assertEquals("Step 2: Histogram (version 1.0.3)", ((TitledBorder) step2Panel.getBorder()).getTitle());
+
         // Clean up by disposing the frame.
         frame.dispose();
     }
