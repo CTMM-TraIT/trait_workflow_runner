@@ -264,10 +264,10 @@ public class BaseGuiExample {
                                 final GalaxyToolParameterMetadata parameter) {
         final String finalText;
         if (parameter != null) {
-            final String parameterName = parameter.getName();
             final Map<String, Object> toolState = step.getToolState();
-            if (step.getInputConnections().containsKey(parameterName)) {
-                final GalaxyStepInputConnection inputConnection = step.getInputConnections().get(parameterName);
+            final String parameterName = parameter.getName();
+            final GalaxyStepInputConnection inputConnection = inputConnectionForParameter(parameterName, step);
+            if (inputConnection != null) {
                 finalText = String.format("Output dataset '%s' from step %d", inputConnection.getOutputName(),
                                           inputConnection.getId() + 1);
             } else if (toolState.containsKey(parameterName) && toolState.get(parameterName) != null) {
@@ -291,6 +291,25 @@ public class BaseGuiExample {
         } else
             finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
         return finalText;
+    }
+
+    /**
+     * Determine whether a parameter is connected to an input connection. The end of the input connection name is
+     * matched with the parameter name, since these input connection names can have a "queries_[0-9]+\|" prefix.
+     *
+     * @param parameterName the parameter name.
+     * @param step the Galaxy step.
+     * @return the related input connection or null.
+     */
+    private GalaxyStepInputConnection inputConnectionForParameter(final String parameterName,
+                                                                  final GalaxyWorkflowStep step) {
+        GalaxyStepInputConnection inputConnection = null;
+        for (final Map.Entry<String, GalaxyStepInputConnection> inputConnectionEntry : step.getInputConnections().entrySet())
+            if (inputConnectionEntry.getKey().endsWith(parameterName)) {
+                inputConnection = inputConnectionEntry.getValue();
+                break;
+            }
+        return inputConnection;
     }
 
     /**
