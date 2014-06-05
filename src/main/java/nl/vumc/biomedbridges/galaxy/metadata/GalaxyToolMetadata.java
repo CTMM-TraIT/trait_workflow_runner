@@ -54,6 +54,11 @@ public class GalaxyToolMetadata {
     private final List<GalaxyToolParameterMetadata> parameters;
 
     /**
+     * The conditionals.
+     */
+    private final List<GalaxyToolConditional> conditionals;
+
+    /**
      * Create a Galaxy tool metadata object.
      *
      * @param toolElement the tool element.
@@ -71,12 +76,20 @@ public class GalaxyToolMetadata {
         logger.trace("tool version: " + version);
         logger.trace("description: " + description);
 
-        this.parameters = new ArrayList<>();
         final NodeList inputsElements = toolElement.getElementsByTagName("inputs");
         if (inputsElements.getLength() >= 1) {
-            final NodeList parameterElements = ((Element) inputsElements.item(0)).getElementsByTagName("param");
+            final Element inputsElement = (Element) inputsElements.item(0);
+            final NodeList parameterElements = inputsElement.getElementsByTagName("param");
+            this.parameters = new ArrayList<>();
             for (int parameterIndex = 0; parameterIndex < parameterElements.getLength(); parameterIndex++)
                 this.parameters.add(new GalaxyToolParameterMetadata((Element) parameterElements.item(parameterIndex)));
+            final NodeList conditionalElements = inputsElement.getElementsByTagName("conditional");
+            this.conditionals = new ArrayList<>();
+            for (int conditionalIndex = 0; conditionalIndex < conditionalElements.getLength(); conditionalIndex++)
+                this.conditionals.add(new GalaxyToolConditional((Element) conditionalElements.item(conditionalIndex)));
+        } else {
+            this.parameters = null;
+            this.conditionals = null;
         }
     }
 
@@ -123,5 +136,14 @@ public class GalaxyToolMetadata {
      */
     public List<GalaxyToolParameterMetadata> getParameters() {
         return parameters;
+    }
+
+    /**
+     * Get the conditionals.
+     *
+     * @return the conditionals.
+     */
+    public List<GalaxyToolConditional> getConditionals() {
+        return conditionals;
     }
 }
