@@ -81,8 +81,11 @@ public class GalaxyToolMetadata {
             final Element inputsElement = (Element) inputsElements.item(0);
             final NodeList parameterElements = inputsElement.getElementsByTagName("param");
             this.parameters = new ArrayList<>();
-            for (int parameterIndex = 0; parameterIndex < parameterElements.getLength(); parameterIndex++)
-                this.parameters.add(new GalaxyToolParameterMetadata((Element) parameterElements.item(parameterIndex)));
+            for (int parameterIndex = 0; parameterIndex < parameterElements.getLength(); parameterIndex++) {
+                final Element parameterElement = (Element) parameterElements.item(parameterIndex);
+                if (parameterElement.getParentNode().equals(inputsElement))
+                    this.parameters.add(new GalaxyToolParameterMetadata(parameterElement));
+            }
             final NodeList conditionalElements = inputsElement.getElementsByTagName("conditional");
             this.conditionals = new ArrayList<>();
             for (int conditionalIndex = 0; conditionalIndex < conditionalElements.getLength(); conditionalIndex++)

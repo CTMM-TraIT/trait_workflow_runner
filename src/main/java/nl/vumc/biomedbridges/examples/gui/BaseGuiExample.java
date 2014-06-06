@@ -24,7 +24,10 @@ import javax.swing.border.TitledBorder;
 
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInput;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInputConnection;
+import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolConditional;
+import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolOption;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolParameterMetadata;
+import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolWhen;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowEngineMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowStep;
@@ -144,6 +147,9 @@ public class BaseGuiExample {
         final JLabel annotationLabel = annotation != null
                                        ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_FONT, titleLabel)
                                        : null;
+        // todo: Fix this cosmetic change of the annotation label constraint.
+        if (annotationLabel != null)
+            guiLayout.getConstraint(SpringLayout.WEST, annotationLabel).setValue(SMALL_PAD + 1);
         final JLabel previousLabel = annotationLabel != null ? annotationLabel : titleLabel;
         final JSeparator separatorLine = new JSeparator(SwingConstants.HORIZONTAL);
         guiPanel.add(separatorLine);
@@ -209,10 +215,30 @@ public class BaseGuiExample {
         for (final GalaxyStepInput stepInput : step.getInputs())
             previousStepComponent = addStepRow(stepPanel, stepInput.getName(), stepInput.getDescription(), step, null,
                                                stepLayout, previousStepComponent);
-        if (step.getToolMetadata() != null)
+        if (step.getToolMetadata() != null) {
             for (final GalaxyToolParameterMetadata parameter : step.getToolMetadata().getParameters())
                 previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), parameter.getValue(), step,
                                                    parameter, stepLayout, previousStepComponent);
+            for (final GalaxyToolConditional conditional : step.getToolMetadata().getConditionals()) {
+                final GalaxyToolParameterMetadata parameter = conditional.getSelectorParameter();
+                String text = EMPTY_VALUE;
+                String selectedOptionValue = null;
+                for (final GalaxyToolOption option : conditional.getOptions())
+                    if (option.isSelected()) {
+                        text = option.getText();
+                        selectedOptionValue = option.getValue();
+                        break;
+                    }
+                previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), text, step, parameter, stepLayout,
+                                                   previousStepComponent);
+                for (final GalaxyToolWhen when : conditional.getWhens())
+                    if ((when.getValue().equals(selectedOptionValue)))
+                        for (final GalaxyToolParameterMetadata whenParameter : when.getParameters())
+                            previousStepComponent = addStepRow(stepPanel, whenParameter.getLabel(),
+                                                               whenParameter.getValue(), step, whenParameter,
+                                                               stepLayout, previousStepComponent);
+            }
+        }
         guiPanel.add(stepPanel);
         guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, SMALL_PAD, SpringLayout.SOUTH, previousComponent);
         guiLayout.putConstraint(SpringLayout.WEST, stepPanel, SMALL_PAD, SpringLayout.WEST, guiPanel);
