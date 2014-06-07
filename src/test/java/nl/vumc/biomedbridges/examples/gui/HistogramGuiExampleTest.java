@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
 import nl.vumc.biomedbridges.core.Constants;
@@ -43,14 +44,18 @@ public class HistogramGuiExampleTest {
         assertTrue(level1components[0] instanceof JPanel);
         final JPanel guiPanel = (JPanel) level1components[0];
         final Component[] level2components = guiPanel.getComponents();
+        assertEquals(5, level2components.length);
         assertTrue(level2components[0] instanceof JLabel);
         assertEquals("Running workflow \"Histogram\"", ((JLabel) level2components[0]).getText());
-        assertTrue(level2components[1] instanceof JPanel);
-        final JPanel step1Panel = (JPanel) level2components[1];
+        assertTrue(level2components[1] instanceof JLabel);
+        assertEquals("", ((JLabel) level2components[1]).getText());
+        assertTrue(level2components[2] instanceof JSeparator);
+        assertTrue(level2components[3] instanceof JPanel);
+        final JPanel step1Panel = (JPanel) level2components[3];
         assertTrue(step1Panel.getBorder() instanceof TitledBorder);
         assertEquals("Step 1: Input dataset", ((TitledBorder) step1Panel.getBorder()).getTitle());
-        assertTrue(level2components[2] instanceof JPanel);
-        final JPanel step2Panel = (JPanel) level2components[2];
+        assertTrue(level2components[4] instanceof JPanel);
+        final JPanel step2Panel = (JPanel) level2components[4];
         assertTrue(step2Panel.getBorder() instanceof TitledBorder);
         assertEquals("Step 2: Histogram (version 1.0.3)", ((TitledBorder) step2Panel.getBorder()).getTitle());
 

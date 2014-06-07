@@ -5,6 +5,9 @@
 
 package nl.vumc.biomedbridges.galaxy.metadata;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +25,7 @@ public class GalaxyWorkflowEngineMetadataTest {
     @Test
     public void testGetWorkflows() {
         final GalaxyWorkflowEngineMetadata metadata = new GalaxyWorkflowEngineMetadata();
-        assertEquals(4, metadata.getWorkflows().size());
+        assertEquals(5, metadata.getWorkflows().size());
     }
 
     /**
@@ -34,18 +37,27 @@ public class GalaxyWorkflowEngineMetadataTest {
         final GalaxyWorkflowMetadata histogramWorkflowMetadata = metadata.getWorkflow("Histogram");
         assertEquals(2, histogramWorkflowMetadata.getSteps().size());
         assertEquals("histogram_rpy", histogramWorkflowMetadata.getSteps().get(1).getToolId());
-        printParameters(histogramWorkflowMetadata);
+        checkParameters(histogramWorkflowMetadata, Arrays.asList("input", "data", "numerical_column", "data_column",
+                                                                 "breaks", "integer", "title", "text", "xlab", "text",
+                                                                 "density", "boolean", "frequency", "boolean"));
         final GalaxyWorkflowMetadata randomLinesTwiceWorkflowMetadata = metadata.getWorkflow("RandomLinesTwice");
         assertEquals(3, randomLinesTwiceWorkflowMetadata.getSteps().size());
         assertEquals("random_lines1", randomLinesTwiceWorkflowMetadata.getSteps().get(1).getToolId());
-        printParameters(randomLinesTwiceWorkflowMetadata);
+        checkParameters(randomLinesTwiceWorkflowMetadata, Arrays.asList("num_lines", "integer", "input", "data",
+                                                                        "num_lines", "integer", "input", "data"));
     }
 
-    // todo: Add asserts for these parameter properties instead of println statements.
-    private void printParameters(final GalaxyWorkflowMetadata workflowMetadata) {
-        System.out.println("workflowMetadata.getName(): " + workflowMetadata.getName());
-        for (final GalaxyToolParameterMetadata parameterMetadata : workflowMetadata.getParameters())
-            System.out.println(" - " + parameterMetadata.getName() + " [" + parameterMetadata.getType() + "]");
-        System.out.println();
+    /**
+     * Check the metadata of the workflow parameters.
+     *
+     * @param workflowMetadata the workflow metadata.
+     * @param expectedMetadata the expected metadata as a list of strings, with name and type for each parameter.
+     */
+    private void checkParameters(final GalaxyWorkflowMetadata workflowMetadata, final List<String> expectedMetadata) {
+        for (int parameterIndex = 0; parameterIndex < workflowMetadata.getParameters().size(); parameterIndex++) {
+            final GalaxyToolParameterMetadata parameterMetadata = workflowMetadata.getParameters().get(parameterIndex);
+            assertEquals(expectedMetadata.get(2 * parameterIndex), parameterMetadata.getName());
+            assertEquals(expectedMetadata.get(2 * parameterIndex + 1), parameterMetadata.getType());
+        }
     }
 }

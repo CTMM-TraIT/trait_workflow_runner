@@ -14,6 +14,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Galaxy workflow metadata (which is read from a .ga file in json format).
@@ -22,6 +24,11 @@ import org.json.simple.JSONObject;
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
 public class GalaxyWorkflowMetadata {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowMetadata.class);
+
     /**
      * Whether this is a Galaxy workflow: should always be true.
      */
@@ -162,9 +169,9 @@ public class GalaxyWorkflowMetadata {
                 parameters.addAll(toolParameters);
             }
         if (duplicateParameterName)
-            System.out.println("At least one parameter name is used more than once...");
+            logger.trace("At least one parameter name is used more than once...");
         else
-            System.out.println("No duplicate parameter names were found.");
+            logger.trace("No duplicate parameter names were found.");
         // (If there is at least one duplicate, we need to make some names more specific...)
         // todo: To make the user interface clear, it's probably best to support groups of parameters (steps).
         return parameters;
