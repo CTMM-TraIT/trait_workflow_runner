@@ -24,7 +24,7 @@
     <properties>
 
         <!-- Dependency versions. -->
-        <blend4j.version>0.1-alpha-8</blend4j.version>
+        <blend4j.version>0.1.0</blend4j.version>
         <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
         <guava.version>15.0</guava.version>
         <guice.version>3.0</guice.version>
