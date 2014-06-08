@@ -8,6 +8,7 @@ package nl.vumc.biomedbridges.galaxy.metadata;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,31 @@ public class GalaxyWorkflowStep {
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowStep.class);
+
+    /**
+     * The tool state type string (enclosed in double quotes).
+     */
+    private static final int TOOL_STATE_TYPE_STRING = 1;
+
+    /**
+     * The tool state type map (enclosed in accolades).
+     */
+    private static final int TOOL_STATE_TYPE_MAP = 2;
+
+    /**
+     * The tool state type boolean (either "true" or "false", ignoring case).
+     */
+    private static final int TOOL_STATE_TYPE_BOOLEAN = 3;
+
+    /**
+     * The tool state type other.
+     */
+    private static final int TOOL_STATE_TYPE_OTHER = 4;
+
+    /**
+     * The double quote (").
+     */
+    private static final String DOUBLE_QUOTE = "\"";
 
     /**
      * The id.
@@ -178,13 +204,13 @@ public class GalaxyWorkflowStep {
         Preconditions.checkNotNull(initialValue);
         Object result = null;
         final String initialString = initialValue.toString();
-        final String doubleQuote = "\"";
         final String trueString = "True";
-        if (initialString.startsWith(doubleQuote) && initialString.endsWith(doubleQuote))
+        final int toolStateType = getToolStateType(initialString);
+        if (toolStateType == TOOL_STATE_TYPE_STRING)
             result = getToolStateValue(initialString.substring(1, initialString.length() - 1));
-        else if (initialString.startsWith("{\"") && initialString.endsWith("\"}"))
+        else if (toolStateType == TOOL_STATE_TYPE_MAP)
             result = readToolStateMap(initialString.substring(2, initialString.length() - 2));
-        else if (trueString.equalsIgnoreCase(initialString) || "False".equalsIgnoreCase(initialString))
+        else if (toolStateType == TOOL_STATE_TYPE_BOOLEAN)
             result = trueString.equalsIgnoreCase(initialString);
         else if (initialString.matches("[-+]?\\d+\\.\\d+"))
             result = Double.parseDouble(initialString);
@@ -193,6 +219,27 @@ public class GalaxyWorkflowStep {
         else if (!"null".equals(initialString))
             result = initialString;
         return result;
+    }
+
+    /**
+     * Determine the tool state type for a json value.
+     *
+     * @param jsonValue the json value.
+     * @return the tool state type.
+     */
+    private int getToolStateType(final String jsonValue) {
+        final int toolStateType;
+        final String doubleQuote = DOUBLE_QUOTE;
+        final List<String> booleanStrings = Arrays.asList("true", "false");
+        if (jsonValue.startsWith(doubleQuote) && jsonValue.endsWith(doubleQuote))
+            toolStateType = TOOL_STATE_TYPE_STRING;
+        else if (jsonValue.startsWith("{\"") && jsonValue.endsWith("\"}"))
+            toolStateType = TOOL_STATE_TYPE_MAP;
+        else if (booleanStrings.contains(jsonValue.toLowerCase()))
+            toolStateType = TOOL_STATE_TYPE_BOOLEAN;
+        else
+            toolStateType = TOOL_STATE_TYPE_OTHER;
+        return toolStateType;
     }
 
     /**
@@ -207,10 +254,10 @@ public class GalaxyWorkflowStep {
         final String keyValueSeparator = "\": ";
         for (final String mapEntryString : mapString.split(entrySeparator)) {
             final int separatorIndex = mapEntryString.indexOf(keyValueSeparator);
-            final String key = mapEntryString.substring(mapEntryString.startsWith("\"") ? 1 : 0, separatorIndex);
+            final String key = mapEntryString.substring(mapEntryString.startsWith(DOUBLE_QUOTE) ? 1 : 0, separatorIndex);
             final int beginValueIndex = separatorIndex + keyValueSeparator.length();
             final int quoteOffset = mapEntryString.charAt(beginValueIndex) == '"' ? 1 : 0;
-            final int endValueIndex = mapEntryString.length() - (mapEntryString.endsWith("\"") ? 1 : 0);
+            final int endValueIndex = mapEntryString.length() - (mapEntryString.endsWith(DOUBLE_QUOTE) ? 1 : 0);
             final Object value = getToolStateValue(mapEntryString.substring(beginValueIndex + quoteOffset, endValueIndex));
             toolStateMap.put(key, value);
         }

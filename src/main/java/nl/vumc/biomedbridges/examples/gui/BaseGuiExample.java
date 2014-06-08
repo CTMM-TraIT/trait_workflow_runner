@@ -10,6 +10,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -119,7 +121,7 @@ public class BaseGuiExample {
                     constructGuiExample(workflowName, makeVisible);
                 }
             });
-        } catch (InvocationTargetException | InterruptedException e) {
+        } catch (final InvocationTargetException | InterruptedException e) {
             e.printStackTrace();
         }
         return frame;
@@ -219,25 +221,7 @@ public class BaseGuiExample {
             for (final GalaxyToolParameterMetadata parameter : step.getToolMetadata().getParameters())
                 previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), parameter.getValue(), step,
                                                    parameter, stepLayout, previousStepComponent);
-            for (final GalaxyToolConditional conditional : step.getToolMetadata().getConditionals()) {
-                final GalaxyToolParameterMetadata parameter = conditional.getSelectorParameter();
-                String text = EMPTY_VALUE;
-                String selectedOptionValue = null;
-                for (final GalaxyToolOption option : conditional.getOptions())
-                    if (option.isSelected()) {
-                        text = option.getText();
-                        selectedOptionValue = option.getValue();
-                        break;
-                    }
-                previousStepComponent = addStepRow(stepPanel, parameter.getLabel(), text, step, parameter, stepLayout,
-                                                   previousStepComponent);
-                for (final GalaxyToolWhen when : conditional.getWhens())
-                    if ((when.getValue().equals(selectedOptionValue)))
-                        for (final GalaxyToolParameterMetadata whenParameter : when.getParameters())
-                            previousStepComponent = addStepRow(stepPanel, whenParameter.getLabel(),
-                                                               whenParameter.getValue(), step, whenParameter,
-                                                               stepLayout, previousStepComponent);
-            }
+            addConditionalParameters(stepPanel, step, stepLayout, previousStepComponent);
         }
         guiPanel.add(stepPanel);
         guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, SMALL_PAD, SpringLayout.SOUTH, previousComponent);
@@ -288,34 +272,42 @@ public class BaseGuiExample {
      */
     private String getFinalText(final String text, final GalaxyWorkflowStep step,
                                 final GalaxyToolParameterMetadata parameter) {
-        final String finalText;
+        String finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
         if (parameter != null) {
             final Map<String, Object> toolState = step.getToolState();
             final String parameterName = parameter.getName();
             final GalaxyStepInputConnection inputConnection = inputConnectionForParameter(parameterName, step);
-            if (inputConnection != null) {
+            if (inputConnection != null)
                 finalText = String.format("Output dataset '%s' from step %d", inputConnection.getOutputName(),
                                           inputConnection.getId() + 1);
-            } else if (toolState.containsKey(parameterName) && toolState.get(parameterName) != null) {
-                final Object value = toolState.get(parameterName);
-                if (value instanceof Map) {
-                    final Map valueMap = (Map) value;
-                    final String valueKey = "value";
-                    if (valueMap.containsKey(valueKey)) {
-                        final boolean unvalidated = "UnvalidatedValue".equals(valueMap.get("__class__"));
-                        finalText = valueMap.get(valueKey) + (unvalidated ? " (value not yet validated)" : "");
-                    } else
-                        finalText = !"".equals(value) ? value.toString() : EMPTY_VALUE;
-                } else {
-                    final String valueString = value != null  && !"".equals(value) ? value.toString() : EMPTY_VALUE;
-                    finalText = "true".equalsIgnoreCase(valueString) || "false".equalsIgnoreCase(valueString)
-                                ? Character.toUpperCase(valueString.charAt(0)) + valueString.substring(1)
-                                : valueString;
-                }
-            } else
-                finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
+            else if (toolState.containsKey(parameterName) && toolState.get(parameterName) != null)
+                finalText = getFinalTextFromParameter(toolState, parameterName);
+        }
+        return finalText;
+    }
+
+    /**
+     * Determine the text to show for a parameter.
+     *
+     * @param toolState the tool state from a Galaxy step.
+     * @param parameterName the name of the parameter.
+     * @return the text to show for a parameter.
+     */
+    private String getFinalTextFromParameter(final Map<String, Object> toolState, final String parameterName) {
+        final Object value = toolState.get(parameterName);
+        String finalText = value != null && !"".equals(value) ? value.toString() : EMPTY_VALUE;
+        final List<String> booleanStrings = Arrays.asList("true", "false");
+        if (value instanceof Map) {
+            final Map valueMap = (Map) value;
+            final String valueKey = "value";
+            if (valueMap.containsKey(valueKey)) {
+                final boolean unvalidated = "UnvalidatedValue".equals(valueMap.get("__class__"));
+                finalText = valueMap.get(valueKey) + (unvalidated ? " (value not yet validated)" : "");
+            }
         } else
-            finalText = text != null && !"".equals(text) ? text : EMPTY_VALUE;
+            finalText = booleanStrings.contains(finalText.toLowerCase())
+                        ? Character.toUpperCase(finalText.charAt(0)) + finalText.substring(1)
+                        : finalText;
         return finalText;
     }
 
@@ -336,6 +328,38 @@ public class BaseGuiExample {
                 break;
             }
         return inputConnection;
+    }
+
+    /**
+     * Add conditional parameters (if there are any).
+     *
+     * @param stepPanel the step panel to add the new row to.
+     * @param step the Galaxy step.
+     * @param stepLayout the step layout to add GUI constrains to.
+     * @param previousStepComponent the previous step component that was added to the GUI panel (used for layout).
+     */
+    private void addConditionalParameters(final JPanel stepPanel, final GalaxyWorkflowStep step,
+                                          final SpringLayout stepLayout, final Component previousStepComponent) {
+        Component previousComponent = previousStepComponent;
+        for (final GalaxyToolConditional conditional : step.getToolMetadata().getConditionals()) {
+            final GalaxyToolParameterMetadata parameter = conditional.getSelectorParameter();
+            String text = EMPTY_VALUE;
+            String selectedOptionValue = null;
+            for (final GalaxyToolOption option : conditional.getOptions())
+                if (option.isSelected()) {
+                    text = option.getText();
+                    selectedOptionValue = option.getValue();
+                    break;
+                }
+            previousComponent = addStepRow(stepPanel, parameter.getLabel(), text, step, parameter, stepLayout,
+                                           previousComponent);
+            for (final GalaxyToolWhen when : conditional.getWhens())
+                if (when.getValue().equals(selectedOptionValue))
+                    for (final GalaxyToolParameterMetadata whenParameter : when.getParameters())
+                        previousComponent = addStepRow(stepPanel, whenParameter.getLabel(),
+                                                       whenParameter.getValue(), step, whenParameter,
+                                                       stepLayout, previousComponent);
+        }
     }
 
     /**

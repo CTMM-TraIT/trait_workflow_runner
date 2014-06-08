@@ -37,11 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcatenateExample extends BaseExample {
     /**
-     * The logger for this class.
-     */
-    private static final Logger logger = LoggerFactory.getLogger(ConcatenateExample.class);
-
-    /**
      * The name of the Galaxy history.
      */
     protected static final String HISTORY_NAME = "Concatenate History";
@@ -55,6 +50,11 @@ public class ConcatenateExample extends BaseExample {
      * Line for test file 2.
      */
     protected static final String LINE_TEST_FILE_2 = "Do you wanna play?";
+
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(ConcatenateExample.class);
 
     /**
      * Construct the concatenate example.

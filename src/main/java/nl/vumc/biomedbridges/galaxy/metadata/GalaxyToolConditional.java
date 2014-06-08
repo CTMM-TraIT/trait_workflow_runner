@@ -17,8 +17,19 @@ import org.w3c.dom.NodeList;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyToolConditional {
+    /**
+     * The selector parameter (which contains the available options).
+     */
     private final GalaxyToolParameterMetadata selectorParameter;
+
+    /**
+     * The options (related to the selector parameter).
+     */
     private final List<GalaxyToolOption> options;
+
+    /**
+     * The whens: the option values and zero or more parameters for each option value.
+     */
     private final List<GalaxyToolWhen> whens;
 
     /**
@@ -49,14 +60,29 @@ public class GalaxyToolConditional {
         }
     }
 
+    /**
+     * Get the selector parameter (which contains the available options).
+     *
+     * @return the selector parameter.
+     */
     public GalaxyToolParameterMetadata getSelectorParameter() {
         return selectorParameter;
     }
 
+    /**
+     * Get the options (which are related to the selector parameter).
+     *
+     * @return the options.
+     */
     public List<GalaxyToolOption> getOptions() {
         return options;
     }
 
+    /**
+     * Get the whens: the option values and zero or more parameters for each option value.
+     *
+     * @return the whens.
+     */
     public List<GalaxyToolWhen> getWhens() {
         return whens;
     }

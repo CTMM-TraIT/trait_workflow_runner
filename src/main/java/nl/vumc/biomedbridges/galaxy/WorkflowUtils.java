@@ -20,7 +20,7 @@ import static java.util.Map.Entry;
  */
 public class WorkflowUtils {
     /**
-     * Hidden constructor. Only the static method of this class are meant to be used.
+     * Hidden constructor. Only the static method of this class is meant to be used.
      */
     private WorkflowUtils() {
     }

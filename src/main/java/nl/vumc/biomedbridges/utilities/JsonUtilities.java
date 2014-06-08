@@ -15,6 +15,12 @@ import org.json.simple.JSONObject;
  */
 public class JsonUtilities {
     /**
+     * Hidden constructor. Only the static methods of this class are meant to be used.
+     */
+    private JsonUtilities() {
+    }
+
+    /**
      * Utility method for retrieving a json string.
      *
      * @param jsonObject the json object that has the value.

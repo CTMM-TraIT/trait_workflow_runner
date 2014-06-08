@@ -34,6 +34,16 @@ import org.slf4j.LoggerFactory;
  */
 public class RandomLinesExample extends BaseExample {
     /**
+     * The name of the output dataset.
+     */
+    protected static final String OUTPUT_NAME = "Select random lines on data 2";
+
+    /**
+     * The definitive number of lines the intermediate file gets reduced to.
+     */
+    protected static final int DEFINITIVE_LINE_COUNT = 3;
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(RandomLinesExample.class);
@@ -49,11 +59,6 @@ public class RandomLinesExample extends BaseExample {
     private static final String INPUT_NAME = "Input Dataset";
 
     /**
-     * The name of the output dataset.
-     */
-    protected static final String OUTPUT_NAME = "Select random lines on data 2";
-
-    /**
      * The name of the line count parameter that can be specified for step 2 and 3.
      */
     private static final String LINE_COUNT_PARAMETER_NAME = "num_lines";
@@ -62,11 +67,6 @@ public class RandomLinesExample extends BaseExample {
      * The initial number of lines the input file gets reduced to.
      */
     private static final int INITIAL_LINE_COUNT = 6;
-
-    /**
-     * The definitive number of lines the intermediate file gets reduced to.
-     */
-    protected static final int DEFINITIVE_LINE_COUNT = 3;
 
     /**
      * Construct the random lines example.
