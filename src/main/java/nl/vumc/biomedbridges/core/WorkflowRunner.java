@@ -50,7 +50,7 @@ public class WorkflowRunner {
     /**
      * The workflow engine factory (dependency injection via Guice).
      */
-    private static WorkflowEngineFactory workflowEngineFactory;
+    private WorkflowEngineFactory workflowEngineFactory;
 
     /**
      * Hidden constructor. The main method below will create a workflow runner.
@@ -59,7 +59,7 @@ public class WorkflowRunner {
      */
     @Inject
     protected WorkflowRunner(final WorkflowEngineFactory workflowEngineFactory) {
-        WorkflowRunner.workflowEngineFactory = workflowEngineFactory;
+        this.workflowEngineFactory = workflowEngineFactory;
     }
 
     /**

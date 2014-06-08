@@ -388,10 +388,9 @@ public class GalaxyWorkflowStep {
      */
     public void addToolsMetadata(final List<GalaxyToolMetadata> toolsMetadata) {
         for (final GalaxyToolMetadata availableToolMetadata : toolsMetadata) {
-            final String availableToolVersion = availableToolMetadata.getVersion();
-            final boolean availableToolVersionEmpty = "".equals(availableToolVersion);
-            if (toolId != null && toolId.equals(availableToolMetadata.getId())
-                && (availableToolVersionEmpty || (toolVersion != null && toolVersion.equals(availableToolVersion)))) {
+            final boolean toolIdMatches = toolId != null && toolId.equals(availableToolMetadata.getId());
+            final boolean versionMatches = toolVersion != null && toolVersion.equals(availableToolMetadata.getVersion());
+            if (toolIdMatches && (versionMatches || "".equals(availableToolMetadata.getVersion()))) {
                 toolMetadata = availableToolMetadata;
                 break;
             }
