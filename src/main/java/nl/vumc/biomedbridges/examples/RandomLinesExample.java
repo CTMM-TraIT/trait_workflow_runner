@@ -39,6 +39,11 @@ public class RandomLinesExample extends BaseExample {
     protected static final String OUTPUT_NAME = "Select random lines on data 2";
 
     /**
+     * The initial number of lines the input file gets reduced to.
+     */
+    protected static final int INITIAL_LINE_COUNT = 6;
+
+    /**
      * The definitive number of lines the intermediate file gets reduced to.
      */
     protected static final int DEFINITIVE_LINE_COUNT = 3;
@@ -64,11 +69,6 @@ public class RandomLinesExample extends BaseExample {
     private static final String LINE_COUNT_PARAMETER_NAME = "num_lines";
 
     /**
-     * The initial number of lines the input file gets reduced to.
-     */
-    private static final int INITIAL_LINE_COUNT = 6;
-
-    /**
      * Construct the random lines example.
      *
      * @param workflowEngineFactory the workflow engine factory to use.
@@ -89,16 +89,18 @@ public class RandomLinesExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
-        randomLinesExample.runExample();
+        randomLinesExample.runExample(INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: randomly select a number of lines from an input file twice.
      *
+     * @param initialLineCount the initial line count the input file is limited to.
+     * @param definitiveLineCount the definitive line count the input file is limited to.
      * @return whether the workflow ran successfully.
      */
-    public boolean runExample() {
+    public boolean runExample(final int initialLineCount, final int definitiveLineCount) {
         initializeExample(logger, "RandomLinesExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
@@ -110,8 +112,8 @@ public class RandomLinesExample extends BaseExample {
         workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
         final int stepIdFirstFilter = 2;
         final int stepIdSecondFilter = 3;
-        workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, INITIAL_LINE_COUNT);
-        workflow.setParameter(stepIdSecondFilter, LINE_COUNT_PARAMETER_NAME, DEFINITIVE_LINE_COUNT);
+        workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, initialLineCount);
+        workflow.setParameter(stepIdSecondFilter, LINE_COUNT_PARAMETER_NAME, definitiveLineCount);
 
         boolean result = true;
         try {

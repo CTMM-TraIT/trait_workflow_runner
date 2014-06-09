@@ -37,7 +37,8 @@ public class RandomLinesExampleTest {
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
         addOutputFileToOutputMap(randomLinesExample.workflowEngineFactory);
-        assertTrue(randomLinesExample.runExample());
+        assertTrue(randomLinesExample.runExample(RandomLinesExample.INITIAL_LINE_COUNT,
+                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }
 
     /**

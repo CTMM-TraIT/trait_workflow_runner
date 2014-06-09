@@ -5,25 +5,35 @@
 
 package nl.vumc.biomedbridges.examples.gui;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
+import nl.vumc.biomedbridges.core.DefaultGuiceModule;
+import nl.vumc.biomedbridges.examples.RandomLinesExample;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInput;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInputConnection;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyToolConditional;
@@ -49,7 +59,7 @@ public class BaseGuiExample {
     /**
      * The frame height.
      */
-    private static final int FRAME_HEIGHT = 600;
+    private static final int FRAME_HEIGHT = 660;
 
     /**
      * The font name.
@@ -95,6 +105,11 @@ public class BaseGuiExample {
      * The frame of the Swing GUI.
      */
     private JFrame frame;
+
+    /**
+     * The map of parameter names to text fields.
+     */
+    private Map<String, JTextField> parameterTextFieldsMap;
 
     /**
      * Schedule a job for the event-dispatching thread: creating and showing this application's GUI.
@@ -158,9 +173,25 @@ public class BaseGuiExample {
         guiLayout.putConstraint(SpringLayout.NORTH, separatorLine, QUAD_PAD, SpringLayout.SOUTH, previousLabel);
         guiLayout.putConstraint(SpringLayout.WEST, separatorLine, SMALL_PAD, SpringLayout.WEST, guiPanel);
         guiLayout.putConstraint(SpringLayout.EAST, separatorLine, SMALL_PAD, SpringLayout.EAST, guiPanel);
+
+        parameterTextFieldsMap = new HashMap<>();
         Component previousComponent = separatorLine;
         for (int stepIndex = 0; stepIndex < workflowMetadata.getSteps().size(); stepIndex++)
             previousComponent = addStepPanel(workflowMetadata, stepIndex, guiPanel, guiLayout, previousComponent);
+
+        if (workflowName.equals("RandomLinesTwice")) {
+            final JButton runWorkflowButton = new JButton("Run workflow");
+            runWorkflowButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    runWorkflow();
+                }
+            });
+            guiPanel.add(runWorkflowButton);
+            guiLayout.putConstraint(SpringLayout.NORTH, runWorkflowButton, QUAD_PAD, SpringLayout.SOUTH, previousComponent);
+            guiLayout.putConstraint(SpringLayout.WEST, runWorkflowButton, SMALL_PAD, SpringLayout.WEST, guiPanel);
+            guiLayout.putConstraint(SpringLayout.EAST, runWorkflowButton, SMALL_PAD, SpringLayout.EAST, guiPanel);
+        }
 
         // Center the frame and show it.
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -169,6 +200,26 @@ public class BaseGuiExample {
         adjustStepPanelSizes(guiPanel);
 
         return frame;
+    }
+
+    /**
+     * Run the workflow.
+     */
+    // todo: currently only works for the RandomLinesTwice workflow.
+    private void runWorkflow() {
+        final Thread runWorkflowThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Create a Guice injector and use it to build the RandomLinesExample object.
+                final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+                final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+
+                final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
+                final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
+                randomLinesExample.runExample(initialLineCount, definitiveLineCount);
+            }
+        });
+        runWorkflowThread.start();
     }
 
     /**
@@ -253,13 +304,22 @@ public class BaseGuiExample {
         stepLayout.putConstraint(SpringLayout.NORTH, titleLabel, DOUBLE_PAD, anchorEdge, anchorComponent);
         stepLayout.putConstraint(SpringLayout.WEST, titleLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
         stepLayout.putConstraint(SpringLayout.EAST, titleLabel, SMALL_PAD, SpringLayout.EAST, stepPanel);
-        final JLabel textLabel = new JLabel(getFinalText(text, step, parameter));
-        textLabel.setFont(DEFAULT_FONT);
-        stepPanel.add(textLabel);
-        stepLayout.putConstraint(SpringLayout.NORTH, textLabel, SMALL_PAD, SpringLayout.SOUTH, titleLabel);
-        stepLayout.putConstraint(SpringLayout.WEST, textLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
-        stepLayout.putConstraint(SpringLayout.EAST, textLabel, SMALL_PAD, SpringLayout.EAST, stepPanel);
-        return textLabel;
+        final Component component;
+        // todo: Quick test to attempt editing some parameters (of the random lines twice workflow).
+        if (title.equals("Randomly select")) {
+            final String parameterKey = step.getId() + "-" + parameter.getName();
+            final JTextField textField = new JTextField(getFinalText(text, step, parameter));
+            parameterTextFieldsMap.put(parameterKey, textField);
+            component = textField;
+        }
+        else
+            component = new JLabel(getFinalText(text, step, parameter));
+        component.setFont(DEFAULT_FONT);
+        stepPanel.add(component);
+        stepLayout.putConstraint(SpringLayout.NORTH, component, SMALL_PAD, SpringLayout.SOUTH, titleLabel);
+        stepLayout.putConstraint(SpringLayout.WEST, component, SMALL_PAD, SpringLayout.WEST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.EAST, component, SMALL_PAD, SpringLayout.EAST, stepPanel);
+        return component;
     }
 
     /**
