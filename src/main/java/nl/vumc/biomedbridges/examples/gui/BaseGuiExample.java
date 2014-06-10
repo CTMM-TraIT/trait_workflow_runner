@@ -33,6 +33,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
+import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.examples.RandomLinesExample;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInput;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInputConnection;
@@ -216,7 +217,9 @@ public class BaseGuiExample {
 
                 final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
                 final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
-                randomLinesExample.runExample(initialLineCount, definitiveLineCount);
+//                final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+                final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+                randomLinesExample.runExample(workflowType, initialLineCount, definitiveLineCount);
             }
         });
         runWorkflowThread.start();

@@ -36,7 +36,7 @@ public class RandomLinesExample extends BaseExample {
     /**
      * The name of the output dataset.
      */
-    protected static final String OUTPUT_NAME = "Select random lines on data 2";
+    public static final String OUTPUT_NAME = "Select random lines on data 2";
 
     /**
      * The initial number of lines the input file gets reduced to.
@@ -69,6 +69,11 @@ public class RandomLinesExample extends BaseExample {
     private static final String LINE_COUNT_PARAMETER_NAME = "num_lines";
 
     /**
+     * The definitive line count the input file is limited to.
+     */
+    private int definitiveLineCount;
+
+    /**
      * Construct the random lines example.
      *
      * @param workflowEngineFactory the workflow engine factory to use.
@@ -89,21 +94,22 @@ public class RandomLinesExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
-        randomLinesExample.runExample(INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
+        randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: randomly select a number of lines from an input file twice.
      *
+     * @param workflowType the workflow (engine) type to use.
      * @param initialLineCount the initial line count the input file is limited to.
      * @param definitiveLineCount the definitive line count the input file is limited to.
      * @return whether the workflow ran successfully.
      */
-    public boolean runExample(final int initialLineCount, final int definitiveLineCount) {
+    public boolean runExample(final String workflowType, final int initialLineCount, final int definitiveLineCount) {
         initializeExample(logger, "RandomLinesExample.runExample");
 
-        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        this.definitiveLineCount = definitiveLineCount;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
@@ -135,14 +141,14 @@ public class RandomLinesExample extends BaseExample {
      * @return whether the workflow output is correct.
      * @throws IOException if reading an output file fails.
      */
-    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
+    private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
         final Object output = workflow.getOutputMap().get(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             logger.trace("Reading output file {}.", outputFile.getAbsolutePath());
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            if (lines.size() == DEFINITIVE_LINE_COUNT) {
+            if (lines.size() == definitiveLineCount) {
                 result = true;
                 logger.trace("The number of lines ({}) is as expected.", lines.size());
             } else

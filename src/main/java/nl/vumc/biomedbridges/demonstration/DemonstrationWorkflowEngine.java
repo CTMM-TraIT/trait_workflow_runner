@@ -15,12 +15,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
+import nl.vumc.biomedbridges.examples.RandomLinesExample;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +76,11 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     @Override
     public boolean runWorkflow(final Workflow workflow) {
         boolean result = true;
+        final String workflowName = workflow.getName();
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
-            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflow.getName())) {
-                logger.info("Running workflow " + workflow.getName() + "...");
+            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflowName)) {
+                logger.info("Running workflow " + workflowName + "...");
                 final Object input1 = workflow.getInput("WorkflowInput1");
                 final Object input2 = workflow.getInput("WorkflowInput2");
                 if (input1 instanceof File && input2 instanceof File) {
@@ -90,12 +94,49 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
                     result = false;
                     logger.error("Input parameters are not of the expected type (two input files where expected).");
                 }
+            } else if (Constants.WORKFLOW_RANDOM_LINES_TWICE.equals(workflowName)) {
+                logger.info("Running workflow " + workflowName + "...");
+                final Object input = workflow.getInput("Input Dataset");
+                final int initialLineCount = (int) workflow.getParameters().get(2).get("num_lines");
+                final int definitiveLineCount = (int) workflow.getParameters().get(3).get("num_lines");
+                final Random randomGenerator = new Random(123456);
+                if (input instanceof File) {
+                    final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
+                    final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
+                    final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);
+                    workflow.addOutput(RandomLinesExample.OUTPUT_NAME, createOutputFile(workflow, selectedLines2));
+                    logger.info("output: " + selectedLines2);
+                } else {
+                    result = false;
+                    logger.error("Expected input file was not found.");
+                }
             }
         } catch (final IOException e) {
             result = false;
-            logger.error("Exception while running workflow {}.", workflow.getName(), e);
+            logger.error("Exception while running workflow {}.", workflowName, e);
         }
         return result;
+    }
+
+    /**
+     * Select a number of random lines from the list of lines.
+     *
+     * @param lines the list of lines.
+     * @param lineCount the number of lines to select.
+     * @param randomGenerator the random generator to use.
+     * @return the randomly selected lines.
+     */
+    private List<String> selectRandomLines(final List<String> lines, final int lineCount, final Random randomGenerator) {
+        final List<String> selectedLines = new ArrayList<>();
+        final List<Integer> selectedIndices = new ArrayList<>();
+        while (selectedIndices.size() < lineCount) {
+            final int selectedIndex = randomGenerator.nextInt(lines.size());
+            if (!selectedIndices.contains(selectedIndex)) {
+                selectedIndices.add(selectedIndex);
+                selectedLines.add(lines.get(selectedIndex));
+            }
+        }
+        return selectedLines;
     }
 
     /**
