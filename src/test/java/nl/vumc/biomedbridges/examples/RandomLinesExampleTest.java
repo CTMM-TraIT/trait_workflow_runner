@@ -19,7 +19,7 @@ import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for the RandomLinesExample class.
@@ -37,9 +37,9 @@ public class RandomLinesExampleTest {
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
         addOutputFileToOutputMap(randomLinesExample.workflowEngineFactory);
-        assertTrue(randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
-                                                 RandomLinesExample.INITIAL_LINE_COUNT,
-                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+        assertNotNull(randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+                                                    RandomLinesExample.INITIAL_LINE_COUNT,
+                                                    RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }
 
     /**

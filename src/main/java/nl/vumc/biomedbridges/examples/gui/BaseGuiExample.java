@@ -15,6 +15,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,14 +25,20 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyledDocument;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.examples.RandomLinesExample;
@@ -45,6 +52,9 @@ import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowEngineMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowMetadata;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowStep;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class contains all the base code for using the metadata for a Galaxy workflow to build a simple read-only Swing 
  * GUI that looks a bit like the web interface of this workflow in Galaxy.
@@ -52,6 +62,11 @@ import nl.vumc.biomedbridges.galaxy.metadata.GalaxyWorkflowStep;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class BaseGuiExample {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(RandomLinesExample.class);
+
     /**
      * The frame width.
      */
@@ -63,24 +78,34 @@ public class BaseGuiExample {
     private static final int FRAME_HEIGHT = 660;
 
     /**
-     * The font name.
+     * The font name for the GUI components.
      */
-    private static final String FONT_NAME = "sans-serif";
+    private static final String GUI_FONT_NAME = "SansSerif";
 
     /**
      * The title font.
      */
-    private static final Font TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 24);
+    private static final Font TITLE_FONT = new Font(GUI_FONT_NAME, Font.BOLD, 24);
 
     /**
      * The header level 2 font.
      */
-    private static final Font HEADER_2_FONT = new Font(FONT_NAME, Font.BOLD, 14);
+    private static final Font HEADER_2_FONT = new Font(GUI_FONT_NAME, Font.BOLD, 14);
 
     /**
-     * The default font.
+     * The default GUI component font.
      */
-    private static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.PLAIN, 14);
+    private static final Font DEFAULT_GUI_FONT = new Font(GUI_FONT_NAME, Font.PLAIN, 14);
+
+    /**
+     * The font name for the workflow results.
+     */
+    private static final String RESULTS_FONT_NAME = "Monospaced";
+
+    /**
+     * The results font.
+     */
+    private static final Font RESULTS_FONT = new Font(RESULTS_FONT_NAME, Font.PLAIN, 14);
 
     /**
      * Small distance between components.
@@ -106,6 +131,26 @@ public class BaseGuiExample {
      * The frame of the Swing GUI.
      */
     private JFrame frame;
+
+    /**
+     * The main panel for the GUI.
+     */
+    private JPanel guiPanel;
+
+    /**
+     * The layout manager for the GUI panel.
+     */
+    private SpringLayout guiLayout;
+
+    /**
+     * The button to run the workflow.
+     */
+    private JButton runWorkflowButton;
+
+    /**
+     * The list of the step panels.
+     */
+    private List<JPanel> stepPanels;
 
     /**
      * The map of parameter names to text fields.
@@ -154,8 +199,8 @@ public class BaseGuiExample {
         // Create the GUI.
         frame = new JFrame(workflowName + " gui example");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        final SpringLayout guiLayout = new SpringLayout();
-        final JPanel guiPanel = new JPanel(guiLayout);
+        guiLayout = new SpringLayout();
+        guiPanel = new JPanel(guiLayout);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(guiPanel, BorderLayout.CENTER);
         final GalaxyWorkflowMetadata workflowMetadata = new GalaxyWorkflowEngineMetadata().getWorkflow(workflowName);
@@ -163,7 +208,7 @@ public class BaseGuiExample {
         final JLabel titleLabel = addLabel(guiPanel, guiLayout, titleText, TITLE_FONT, null);
         final String annotation = workflowMetadata.getAnnotation();
         final JLabel annotationLabel = annotation != null
-                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_FONT, titleLabel)
+                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel)
                                        : null;
         // todo: Fix this cosmetic change of the annotation label constraint.
         if (annotationLabel != null)
@@ -173,15 +218,16 @@ public class BaseGuiExample {
         guiPanel.add(separatorLine);
         guiLayout.putConstraint(SpringLayout.NORTH, separatorLine, QUAD_PAD, SpringLayout.SOUTH, previousLabel);
         guiLayout.putConstraint(SpringLayout.WEST, separatorLine, SMALL_PAD, SpringLayout.WEST, guiPanel);
-        guiLayout.putConstraint(SpringLayout.EAST, separatorLine, SMALL_PAD, SpringLayout.EAST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.EAST, separatorLine, -SMALL_PAD, SpringLayout.EAST, guiPanel);
 
+        stepPanels = new ArrayList<>();
         parameterTextFieldsMap = new HashMap<>();
         Component previousComponent = separatorLine;
         for (int stepIndex = 0; stepIndex < workflowMetadata.getSteps().size(); stepIndex++)
             previousComponent = addStepPanel(workflowMetadata, stepIndex, guiPanel, guiLayout, previousComponent);
 
         if (workflowName.equals("RandomLinesTwice")) {
-            final JButton runWorkflowButton = new JButton("Run workflow");
+            runWorkflowButton = new JButton("Run workflow");
             runWorkflowButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
@@ -191,38 +237,16 @@ public class BaseGuiExample {
             guiPanel.add(runWorkflowButton);
             guiLayout.putConstraint(SpringLayout.NORTH, runWorkflowButton, QUAD_PAD, SpringLayout.SOUTH, previousComponent);
             guiLayout.putConstraint(SpringLayout.WEST, runWorkflowButton, SMALL_PAD, SpringLayout.WEST, guiPanel);
-            guiLayout.putConstraint(SpringLayout.EAST, runWorkflowButton, SMALL_PAD, SpringLayout.EAST, guiPanel);
+            guiLayout.putConstraint(SpringLayout.EAST, runWorkflowButton, -SMALL_PAD, SpringLayout.EAST, guiPanel);
         }
 
         // Center the frame and show it.
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         frame.setLocationRelativeTo(null);
         frame.setVisible(makeVisible);
-        adjustStepPanelSizes(guiPanel);
+        adjustStepPanelSizes(true);
 
         return frame;
-    }
-
-    /**
-     * Run the workflow.
-     */
-    // todo: currently only works for the RandomLinesTwice workflow.
-    private void runWorkflow() {
-        final Thread runWorkflowThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Create a Guice injector and use it to build the RandomLinesExample object.
-                final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-                final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
-
-                final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
-                final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
-//                final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-                final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
-                randomLinesExample.runExample(workflowType, initialLineCount, definitiveLineCount);
-            }
-        });
-        runWorkflowThread.start();
     }
 
     /**
@@ -260,6 +284,7 @@ public class BaseGuiExample {
     private JPanel addStepPanel(final GalaxyWorkflowMetadata workflowMetadata, final int stepIndex,
                                 final JPanel guiPanel, final SpringLayout guiLayout, final Component previousComponent) {
         final JPanel stepPanel = new JPanel();
+        stepPanels.add(stepPanel);
         final GalaxyWorkflowStep step = workflowMetadata.getSteps().get(stepIndex);
         final String toolVersion = step.getToolVersion();
         final String stepText = "Step " + (stepIndex + 1) + ": " + step.getName()
@@ -280,7 +305,7 @@ public class BaseGuiExample {
         guiPanel.add(stepPanel);
         guiLayout.putConstraint(SpringLayout.NORTH, stepPanel, SMALL_PAD, SpringLayout.SOUTH, previousComponent);
         guiLayout.putConstraint(SpringLayout.WEST, stepPanel, SMALL_PAD, SpringLayout.WEST, guiPanel);
-        guiLayout.putConstraint(SpringLayout.EAST, stepPanel, QUAD_PAD, SpringLayout.EAST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.EAST, stepPanel, -SMALL_PAD, SpringLayout.EAST, guiPanel);
         return stepPanel;
     }
 
@@ -306,7 +331,7 @@ public class BaseGuiExample {
         final String anchorEdge = previousStepComponent == null ? SpringLayout.NORTH : SpringLayout.SOUTH;
         stepLayout.putConstraint(SpringLayout.NORTH, titleLabel, DOUBLE_PAD, anchorEdge, anchorComponent);
         stepLayout.putConstraint(SpringLayout.WEST, titleLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
-        stepLayout.putConstraint(SpringLayout.EAST, titleLabel, SMALL_PAD, SpringLayout.EAST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.EAST, titleLabel, -SMALL_PAD, SpringLayout.EAST, stepPanel);
         final Component component;
         // todo: Quick test to attempt editing some parameters (of the random lines twice workflow).
         if (title.equals("Randomly select")) {
@@ -317,11 +342,11 @@ public class BaseGuiExample {
         }
         else
             component = new JLabel(getFinalText(text, step, parameter));
-        component.setFont(DEFAULT_FONT);
+        component.setFont(DEFAULT_GUI_FONT);
         stepPanel.add(component);
         stepLayout.putConstraint(SpringLayout.NORTH, component, SMALL_PAD, SpringLayout.SOUTH, titleLabel);
         stepLayout.putConstraint(SpringLayout.WEST, component, SMALL_PAD, SpringLayout.WEST, stepPanel);
-        stepLayout.putConstraint(SpringLayout.EAST, component, SMALL_PAD, SpringLayout.EAST, stepPanel);
+        stepLayout.putConstraint(SpringLayout.EAST, component, -SMALL_PAD, SpringLayout.EAST, stepPanel);
         return component;
     }
 
@@ -428,20 +453,96 @@ public class BaseGuiExample {
     /**
      * Adjust the preferred sizes of the step panels.
      *
-     * @param guiPanel the GUI panel that contains the step panels.
+     * @param visible whether the step panels should be visible.
      */
-    private void adjustStepPanelSizes(final JPanel guiPanel) {
+    private void adjustStepPanelSizes(final boolean visible) {
         final int minimumBottomY = 30;
         final int widthDecrement = 40;
         final int bottomIncrement = 10;
-        for (final Component component : guiPanel.getComponents())
-            if (component instanceof JPanel) {
-                final JPanel stepPanel = (JPanel) component;
-                int bottomY = minimumBottomY;
+        for (final JPanel stepPanel : stepPanels) {
+            stepPanel.setVisible(visible);
+            int bottomY = minimumBottomY;
+            if (visible)
                 for (final Component stepComponent : stepPanel.getComponents())
                     bottomY = Math.max(bottomY, stepComponent.getY() + stepComponent.getHeight());
-                stepPanel.setPreferredSize(new Dimension(FRAME_WIDTH - widthDecrement, bottomY + bottomIncrement));
-                stepPanel.revalidate();
+            final int height = visible ? bottomY + bottomIncrement : 0;
+            stepPanel.setPreferredSize(new Dimension(FRAME_WIDTH - widthDecrement, height));
+            stepPanel.revalidate();
+        }
+        guiPanel.revalidate();
+    }
+
+    /**
+     * Run the workflow.
+     */
+    // todo: currently only works for the RandomLinesTwice workflow.
+    private void runWorkflow() {
+        final Thread runWorkflowThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final StyledDocument resultsDocument = adaptGuiForRunningWorkflow();
+
+                // Create a Guice injector and use it to build the RandomLinesExample object.
+                final Injector injector = Guice.createInjector(new DefaultGuiceModule());
+                final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+
+                final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
+                final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
+                //final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+                final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+                final List<String> outputLines = randomLinesExample.runExample(workflowType, initialLineCount,
+                                                                               definitiveLineCount);
+                if (outputLines != null) {
+                    final List<String> resultLines = new ArrayList<>();
+                    resultLines.add("The workflow ran successfully and produced the following output:");
+                    resultLines.add("");
+                    resultLines.addAll(outputLines);
+                    addLinesToResults(resultsDocument, resultLines.toArray(new String[resultLines.size()]));
+                }
             }
+        });
+        runWorkflowThread.start();
+    }
+
+    /**
+     * Adapt the GUI for the running workflow by hiding the step panels and showing the results text pane.
+     *
+     * @return the results document connected to the results text pane.
+     */
+    private StyledDocument adaptGuiForRunningWorkflow() {
+        final JTextPane resultsTextPane = new JTextPane();
+        resultsTextPane.setEditable(false);
+        resultsTextPane.setFont(RESULTS_FONT);
+        final StyledDocument resultsDocument = new DefaultStyledDocument();
+        final String initialText = "Running workflow \"" + Constants.WORKFLOW_RANDOM_LINES_TWICE + "\".";
+        addLinesToResults(resultsDocument, initialText, "", "");
+        resultsTextPane.setDocument(resultsDocument);
+        final JScrollPane resultsScrollPane = new JScrollPane(resultsTextPane);
+        resultsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        resultsScrollPane.setPreferredSize(new Dimension(250, 145));
+        resultsScrollPane.setMinimumSize(new Dimension(10, 10));
+        resultsScrollPane.setBorder(new TitledBorder("Results"));
+        guiPanel.add(resultsScrollPane);
+        guiLayout.putConstraint(SpringLayout.NORTH, resultsScrollPane, QUAD_PAD, SpringLayout.SOUTH, runWorkflowButton);
+        guiLayout.putConstraint(SpringLayout.WEST, resultsScrollPane, SMALL_PAD, SpringLayout.WEST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.EAST, resultsScrollPane, -SMALL_PAD, SpringLayout.EAST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.SOUTH, resultsScrollPane, -SMALL_PAD, SpringLayout.SOUTH, guiPanel);
+        adjustStepPanelSizes(false);
+        return resultsDocument;
+    }
+
+    /**
+     * Add the lines to the results text pane.
+     *
+     * @param resultsDocument the results document connected to the results text pane.
+     * @param lines the lines to add.
+     */
+    private void addLinesToResults(final StyledDocument resultsDocument, final String... lines) {
+        try {
+            for (final String line : lines)
+                resultsDocument.insertString(resultsDocument.getLength(), line + "\n", null);
+        } catch (final BadLocationException e) {
+            logger.error("Exception while adding text to a PlainDocument object.", e);
+        }
     }
 }

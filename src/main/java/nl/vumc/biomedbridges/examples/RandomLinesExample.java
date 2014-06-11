@@ -104,13 +104,15 @@ public class RandomLinesExample extends BaseExample {
      * @param workflowType the workflow (engine) type to use.
      * @param initialLineCount the initial line count the input file is limited to.
      * @param definitiveLineCount the definitive line count the input file is limited to.
-     * @return whether the workflow ran successfully.
+     * @return the output lines if the workflow ran successfully or else null.
      */
-    public boolean runExample(final String workflowType, final int initialLineCount, final int definitiveLineCount) {
+    public List<String> runExample(final String workflowType, final int initialLineCount, final int definitiveLineCount) {
+        List<String> outputLines = null;
         initializeExample(logger, "RandomLinesExample.runExample");
 
         this.definitiveLineCount = definitiveLineCount;
         final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
+        // Note: the configuration will be ignored for the demonstration workflow type.
         final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
@@ -126,39 +128,40 @@ public class RandomLinesExample extends BaseExample {
             result = workflowEngine.runWorkflow(workflow);
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowOutput(workflow);
+            outputLines = checkWorkflowOutput(workflow);
+            result &= outputLines != null;
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
         finishExample(logger);
-        return result;
+        return result ? outputLines : null;
     }
 
     /**
      * Check the output after running the workflow.
      *
      * @param workflow the workflow that has been executed.
-     * @return whether the workflow output is correct.
+     * @return the output lines if the workflow output is correct or else null.
      * @throws IOException if reading an output file fails.
      */
-    private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
-        boolean result = false;
+    private List<String> checkWorkflowOutput(final Workflow workflow) throws IOException {
+        List<String> result = null;
         final Object output = workflow.getOutputMap().get(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             logger.trace("Reading output file {}.", outputFile.getAbsolutePath());
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
             if (lines.size() == definitiveLineCount) {
-                result = true;
+                result = lines;
                 logger.trace("The number of lines ({}) is as expected.", lines.size());
             } else
                 logger.error("The number of lines ({}) is not as expected ({}).", lines.size(), DEFINITIVE_LINE_COUNT);
             for (final String line : lines)
                 logger.trace(line);
-            final boolean deleteResult = outputFile.delete();
-            result &= deleteResult;
-            if (!deleteResult)
+            if (!outputFile.delete()) {
+                result = null;
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
+            }
         } else
             logger.error("There is no output parameter {} of type file.", OUTPUT_NAME);
         return result;
