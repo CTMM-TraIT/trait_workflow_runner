@@ -41,6 +41,11 @@ public class BaseExample {
     private long startTime;
 
     /**
+     * The runtime duration of this workflow (in seconds).
+     */
+    private double durationSeconds;
+
+    /**
      * Construct a base example object.
      *
      * @param workflowEngineFactory the workflow engine factory to use.
@@ -69,8 +74,17 @@ public class BaseExample {
      * @param logger the logger to use.
      */
     public void finishExample(final Logger logger) {
-        final double durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
+        durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
         logger.info("");
         logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
+    }
+
+    /**
+     * Get the runtime duration of this workflow (in seconds).
+     *
+     * @return the runtime duration of this workflow (in seconds).
+     */
+    public double getDurationSeconds() {
+        return durationSeconds;
     }
 }

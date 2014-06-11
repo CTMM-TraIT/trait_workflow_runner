@@ -155,7 +155,7 @@ public class RandomLinesExample extends BaseExample {
                 result = lines;
                 logger.trace("The number of lines ({}) is as expected.", lines.size());
             } else
-                logger.error("The number of lines ({}) is not as expected ({}).", lines.size(), DEFINITIVE_LINE_COUNT);
+                logger.error("The number of lines ({}) is not as expected ({}).", lines.size(), definitiveLineCount);
             for (final String line : lines)
                 logger.trace(line);
             if (!outputFile.delete()) {

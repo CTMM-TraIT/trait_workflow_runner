@@ -535,10 +535,16 @@ public class BaseGuiExample {
 
         if (outputLines != null) {
             final List<String> resultLines = new ArrayList<>();
-            resultLines.add("The workflow ran successfully and produced the following output:");
+            final String message = "The workflow ran successfully in %1.1f seconds and produced the following output:";
+            resultLines.add(String.format(message, randomLinesExample.getDurationSeconds()));
             resultLines.add("");
+            resultLines.add("======");
             resultLines.addAll(outputLines);
+            resultLines.add("======");
             addLinesToResults(resultsDocument, resultLines.toArray(new String[resultLines.size()]));
+        } else {
+            final String message = "The workflow failed after running for %1.1f seconds.";
+            addLinesToResults(resultsDocument, String.format(message, randomLinesExample.getDurationSeconds()));
         }
     }
 

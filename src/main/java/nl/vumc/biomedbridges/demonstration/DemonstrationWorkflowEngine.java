@@ -142,7 +142,8 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     }
 
     /**
-     * Select a number of random lines from the list of lines.
+     * Select a number of random lines from the list of lines. If the number of lines to be selected is greater than or
+     * equal to the total number of lines in the list, the entire list is returned.
      *
      * @param lines the list of lines.
      * @param lineCount the number of lines to select.
@@ -152,13 +153,16 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     private List<String> selectRandomLines(final List<String> lines, final int lineCount, final Random randomGenerator) {
         final List<String> selectedLines = new ArrayList<>();
         final List<Integer> selectedIndices = new ArrayList<>();
-        while (selectedIndices.size() < lineCount) {
-            final int selectedIndex = randomGenerator.nextInt(lines.size());
-            if (!selectedIndices.contains(selectedIndex)) {
-                selectedIndices.add(selectedIndex);
-                selectedLines.add(lines.get(selectedIndex));
+        if (lineCount >= lines.size())
+            selectedLines.addAll(lines);
+        else
+            while (selectedIndices.size() < lineCount) {
+                final int selectedIndex = randomGenerator.nextInt(lines.size());
+                if (!selectedIndices.contains(selectedIndex)) {
+                    selectedIndices.add(selectedIndex);
+                    selectedLines.add(lines.get(selectedIndex));
+                }
             }
-        }
         return selectedLines;
     }
 
