@@ -75,46 +75,69 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
 
     @Override
     public boolean runWorkflow(final Workflow workflow) {
-        boolean result = true;
+        boolean result = false;
         final String workflowName = workflow.getName();
+        logger.info("Running workflow " + workflowName + "...");
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
-            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflowName)) {
-                logger.info("Running workflow " + workflowName + "...");
-                final Object input1 = workflow.getInput("WorkflowInput1");
-                final Object input2 = workflow.getInput("WorkflowInput2");
-                if (input1 instanceof File && input2 instanceof File) {
-                    final String inputString1 = Joiner.on("").join(Files.readLines((File) input1, Charsets.UTF_8));
-                    final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
-                    logger.info("input 1: " + inputString1);
-                    logger.info("input 2: " + inputString2);
-                    workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
-                    logger.info("output: " + inputString1 + " " + inputString2);
-                } else {
-                    result = false;
-                    logger.error("Input parameters are not of the expected type (two input files where expected).");
-                }
-            } else if (Constants.WORKFLOW_RANDOM_LINES_TWICE.equals(workflowName)) {
-                logger.info("Running workflow " + workflowName + "...");
-                final Object input = workflow.getInput("Input Dataset");
-                final int initialLineCount = (int) workflow.getParameters().get(2).get("num_lines");
-                final int definitiveLineCount = (int) workflow.getParameters().get(3).get("num_lines");
-                final Random randomGenerator = new Random(123456);
-                if (input instanceof File) {
-                    final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
-                    final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
-                    final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);
-                    workflow.addOutput(RandomLinesExample.OUTPUT_NAME, createOutputFile(workflow, selectedLines2));
-                    logger.info("output: " + selectedLines2);
-                } else {
-                    result = false;
-                    logger.error("Expected input file was not found.");
-                }
-            }
+            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflowName))
+                result = runConcatenateWorkflow(workflow);
+            else if (Constants.WORKFLOW_RANDOM_LINES_TWICE.equals(workflowName))
+                result = runRandomLinesWorkflow(workflow);
         } catch (final IOException e) {
-            result = false;
             logger.error("Exception while running workflow {}.", workflowName, e);
         }
+        return result;
+    }
+
+    /**
+     * Run the concatenate workflow.
+     *
+     * @param workflow the workflow to run.
+     * @return whether the workflow ran successfully.
+     * @throws IOException if reading the workflow results fails.
+     */
+    private boolean runConcatenateWorkflow(final Workflow workflow) throws IOException {
+        final Object input1 = workflow.getInput("WorkflowInput1");
+        final Object input2 = workflow.getInput("WorkflowInput2");
+        final boolean result = input1 instanceof File && input2 instanceof File;
+        if (result) {
+            final String inputString1 = Joiner.on("").join(Files.readLines((File) input1, Charsets.UTF_8));
+            final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
+            logger.info("input 1: {}", inputString1);
+            logger.info("input 2: {}", inputString2);
+            workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
+            logger.info("output: {} {}", inputString1, inputString2);
+        } else
+            logger.error("Input parameters are not of the expected type (two input files where expected).");
+        return result;
+    }
+
+    /**
+     * Run the random lines twice workflow.
+     *
+     * @param workflow the workflow to run.
+     * @return whether the workflow ran successfully.
+     * @throws IOException if reading the workflow results fails.
+     */
+    private boolean runRandomLinesWorkflow(final Workflow workflow) throws IOException {
+        final String inputName = "Input Dataset";
+        final String numberOfLinesParameter = "num_lines";
+        final int stepId2 = 2;
+        final int stepId3 = 3;
+        final Object input = workflow.getInput(inputName);
+        final int initialLineCount = (int) workflow.getParameters().get(stepId2).get(numberOfLinesParameter);
+        final int definitiveLineCount = (int) workflow.getParameters().get(stepId3).get(numberOfLinesParameter);
+        final Random randomGenerator = new Random(123456);
+        final boolean result = input instanceof File;
+        if (result) {
+            final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
+            final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
+            final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);
+            workflow.addOutput(RandomLinesExample.OUTPUT_NAME, createOutputFile(workflow, selectedLines2));
+            logger.info("output: {}", selectedLines2);
+        } else
+            logger.error("Expected input file was not found.");
         return result;
     }
 

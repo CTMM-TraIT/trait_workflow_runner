@@ -203,30 +203,37 @@ public class BaseGuiExample {
         guiPanel = new JPanel(guiLayout);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(guiPanel, BorderLayout.CENTER);
+
         final GalaxyWorkflowMetadata workflowMetadata = new GalaxyWorkflowEngineMetadata().getWorkflow(workflowName);
-        final String titleText = "Running workflow \"" + workflowName + "\"";
-        final JLabel titleLabel = addLabel(guiPanel, guiLayout, titleText, TITLE_FONT, null);
-        final String annotation = workflowMetadata.getAnnotation();
-        final JLabel annotationLabel = annotation != null
-                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel)
-                                       : null;
-        // todo: Fix this cosmetic change of the annotation label constraint.
-        if (annotationLabel != null)
-            guiLayout.getConstraint(SpringLayout.WEST, annotationLabel).setValue(SMALL_PAD + 1);
-        final JLabel previousLabel = annotationLabel != null ? annotationLabel : titleLabel;
-        final JSeparator separatorLine = new JSeparator(SwingConstants.HORIZONTAL);
-        guiPanel.add(separatorLine);
-        guiLayout.putConstraint(SpringLayout.NORTH, separatorLine, QUAD_PAD, SpringLayout.SOUTH, previousLabel);
-        guiLayout.putConstraint(SpringLayout.WEST, separatorLine, SMALL_PAD, SpringLayout.WEST, guiPanel);
-        guiLayout.putConstraint(SpringLayout.EAST, separatorLine, -SMALL_PAD, SpringLayout.EAST, guiPanel);
+        final Component previousComponent = addTitleAndAnnotation(workflowName, workflowMetadata);
+        addStepPanelsAndButton(workflowName, workflowMetadata, previousComponent);
+
+        // Center the frame and show it.
+        frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(makeVisible);
+        adjustStepPanelSizes(true);
+
+        return frame;
+    }
+
+    /**
+     * Add the step panels and possibly the run workflow button.
+     *
+     * @param workflowName the name of the workflow to show.
+     * @param workflowMetadata the workflow metadata.
+     * @param initialPreviousComponent the previous component that was added to the GUI panel (used for layout).
+     */
+    private void addStepPanelsAndButton(final String workflowName, final GalaxyWorkflowMetadata workflowMetadata,
+                                        final Component initialPreviousComponent) {
+        Component previousComponent = initialPreviousComponent;
 
         stepPanels = new ArrayList<>();
         parameterTextFieldsMap = new HashMap<>();
-        Component previousComponent = separatorLine;
         for (int stepIndex = 0; stepIndex < workflowMetadata.getSteps().size(); stepIndex++)
             previousComponent = addStepPanel(workflowMetadata, stepIndex, guiPanel, guiLayout, previousComponent);
 
-        if (workflowName.equals("RandomLinesTwice")) {
+        if (workflowName.equals(Constants.WORKFLOW_RANDOM_LINES_TWICE)) {
             runWorkflowButton = new JButton("Run workflow");
             runWorkflowButton.addActionListener(new ActionListener() {
                 @Override
@@ -239,14 +246,34 @@ public class BaseGuiExample {
             guiLayout.putConstraint(SpringLayout.WEST, runWorkflowButton, SMALL_PAD, SpringLayout.WEST, guiPanel);
             guiLayout.putConstraint(SpringLayout.EAST, runWorkflowButton, -SMALL_PAD, SpringLayout.EAST, guiPanel);
         }
+    }
 
-        // Center the frame and show it.
-        frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(makeVisible);
-        adjustStepPanelSizes(true);
+    /**
+     * Add the title, the annotation (if available), and the separator line.
+     *
+     * @param workflowName the name of the workflow to show.
+     * @param workflowMetadata the workflow metadata.
+     * @return the last component added to the GUI panel (the separator line).
+     */
+    private Component addTitleAndAnnotation(final String workflowName, final GalaxyWorkflowMetadata workflowMetadata) {
+        final String titleText = String.format("Running workflow \"%s\"", workflowName);
+        final JLabel titleLabel = addLabel(guiPanel, guiLayout, titleText, TITLE_FONT, null);
 
-        return frame;
+        final String annotation = workflowMetadata.getAnnotation();
+        final JLabel annotationLabel = annotation != null
+                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel)
+                                       : null;
+        // todo: Fix this cosmetic change of the annotation label constraint.
+        if (annotationLabel != null)
+            guiLayout.getConstraint(SpringLayout.WEST, annotationLabel).setValue(SMALL_PAD + 1);
+
+        final JLabel previousLabel = annotationLabel != null ? annotationLabel : titleLabel;
+        final JSeparator separatorLine = new JSeparator(SwingConstants.HORIZONTAL);
+        guiPanel.add(separatorLine);
+        guiLayout.putConstraint(SpringLayout.NORTH, separatorLine, QUAD_PAD, SpringLayout.SOUTH, previousLabel);
+        guiLayout.putConstraint(SpringLayout.WEST, separatorLine, SMALL_PAD, SpringLayout.WEST, guiPanel);
+        guiLayout.putConstraint(SpringLayout.EAST, separatorLine, -SMALL_PAD, SpringLayout.EAST, guiPanel);
+        return separatorLine;
     }
 
     /**
@@ -334,13 +361,12 @@ public class BaseGuiExample {
         stepLayout.putConstraint(SpringLayout.EAST, titleLabel, -SMALL_PAD, SpringLayout.EAST, stepPanel);
         final Component component;
         // todo: Quick test to attempt editing some parameters (of the random lines twice workflow).
-        if (title.equals("Randomly select")) {
+        if ("Randomly select".equals(title)) {
             final String parameterKey = step.getId() + "-" + parameter.getName();
             final JTextField textField = new JTextField(getFinalText(text, step, parameter));
             parameterTextFieldsMap.put(parameterKey, textField);
             component = textField;
-        }
-        else
+        } else
             component = new JLabel(getFinalText(text, step, parameter));
         component.setFont(DEFAULT_GUI_FONT);
         stepPanel.add(component);
@@ -482,26 +508,38 @@ public class BaseGuiExample {
             public void run() {
                 final StyledDocument resultsDocument = adaptGuiForRunningWorkflow();
 
-                // Create a Guice injector and use it to build the RandomLinesExample object.
+                // Create a Guice injector.
                 final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-                final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
-                final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
-                final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
-                //final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-                final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
-                final List<String> outputLines = randomLinesExample.runExample(workflowType, initialLineCount,
-                                                                               definitiveLineCount);
-                if (outputLines != null) {
-                    final List<String> resultLines = new ArrayList<>();
-                    resultLines.add("The workflow ran successfully and produced the following output:");
-                    resultLines.add("");
-                    resultLines.addAll(outputLines);
-                    addLinesToResults(resultsDocument, resultLines.toArray(new String[resultLines.size()]));
-                }
+                runRandomLinesWorkflow(injector, resultsDocument);
             }
         });
         runWorkflowThread.start();
+    }
+
+    /**
+     * Run the "random lines twice" workflow.
+     *
+     * @param injector the Guice injector to build the RandomLinesExample object.
+     * @param resultsDocument the results document connected to the results text pane.
+     */
+    private void runRandomLinesWorkflow(final Injector injector, final StyledDocument resultsDocument) {
+        final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
+        final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
+        //final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+
+        final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+        final List<String> outputLines = randomLinesExample.runExample(workflowType, initialLineCount,
+                                                                       definitiveLineCount);
+
+        if (outputLines != null) {
+            final List<String> resultLines = new ArrayList<>();
+            resultLines.add("The workflow ran successfully and produced the following output:");
+            resultLines.add("");
+            resultLines.addAll(outputLines);
+            addLinesToResults(resultsDocument, resultLines.toArray(new String[resultLines.size()]));
+        }
     }
 
     /**
@@ -514,13 +552,11 @@ public class BaseGuiExample {
         resultsTextPane.setEditable(false);
         resultsTextPane.setFont(RESULTS_FONT);
         final StyledDocument resultsDocument = new DefaultStyledDocument();
-        final String initialText = "Running workflow \"" + Constants.WORKFLOW_RANDOM_LINES_TWICE + "\".";
+        final String initialText = String.format("Running workflow \"%s\"...", Constants.WORKFLOW_RANDOM_LINES_TWICE);
         addLinesToResults(resultsDocument, initialText, "", "");
         resultsTextPane.setDocument(resultsDocument);
         final JScrollPane resultsScrollPane = new JScrollPane(resultsTextPane);
         resultsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        resultsScrollPane.setPreferredSize(new Dimension(250, 145));
-        resultsScrollPane.setMinimumSize(new Dimension(10, 10));
         resultsScrollPane.setBorder(new TitledBorder("Results"));
         guiPanel.add(resultsScrollPane);
         guiLayout.putConstraint(SpringLayout.NORTH, resultsScrollPane, QUAD_PAD, SpringLayout.SOUTH, runWorkflowButton);
