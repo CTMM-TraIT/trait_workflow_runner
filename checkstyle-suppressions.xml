@@ -11,7 +11,7 @@
 
 <suppressions>
 
-    <!-- Disable requiring method javadoc in the test cases. -->
+    <!-- Disable requiring method Javadocs in the test cases. -->
     <suppress checks="JavadocMethod" files="^*Test\.java$"/>
 
     <!-- Disable requiring package-info.java files in the test cases. -->
