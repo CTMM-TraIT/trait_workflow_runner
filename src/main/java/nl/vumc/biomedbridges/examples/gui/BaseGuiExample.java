@@ -261,11 +261,8 @@ public class BaseGuiExample {
 
         final String annotation = workflowMetadata.getAnnotation();
         final JLabel annotationLabel = annotation != null
-                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel)
+                                       ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel, 1)
                                        : null;
-        // todo: fix this cosmetic change of the annotation label constraint (one pixel off).
-        if (annotationLabel != null)
-            guiLayout.getConstraint(SpringLayout.WEST, annotationLabel).setValue(SMALL_PAD + 1);
 
         final JLabel previousLabel = annotationLabel != null ? annotationLabel : titleLabel;
         final JSeparator separatorLine = new JSeparator(SwingConstants.HORIZONTAL);
@@ -288,13 +285,29 @@ public class BaseGuiExample {
      */
     private JLabel addLabel(final JPanel panel, final SpringLayout springLayout, final String text, final Font font,
                             final Component previousComponent) {
+        return addLabel(panel, springLayout, text, font, previousComponent, 0);
+    }
+
+    /**
+     * Add a label to a panel.
+     *
+     * @param panel the panel to add the new label to.
+     * @param springLayout the spring layout to add GUI constraints to.
+     * @param text the text for the label.
+     * @param font the font for the label.
+     * @param previousComponent the previous component that was added to the GUI panel (used for layout).
+     * @param extraPadWest optional extra padding for the west constraint.
+     * @return the new label.
+     */
+    private JLabel addLabel(final JPanel panel, final SpringLayout springLayout, final String text, final Font font,
+                            final Component previousComponent, final int extraPadWest) {
         final JLabel label = new JLabel(text);
         label.setFont(font);
         panel.add(label);
         final Component anchorComponent = previousComponent == null ? panel : previousComponent;
         final String anchorEdge = previousComponent == null ? SpringLayout.NORTH : SpringLayout.SOUTH;
         springLayout.putConstraint(SpringLayout.NORTH, label, SMALL_PAD, anchorEdge, anchorComponent);
-        springLayout.putConstraint(SpringLayout.WEST, label, SMALL_PAD, SpringLayout.WEST, panel);
+        springLayout.putConstraint(SpringLayout.WEST, label, SMALL_PAD + extraPadWest, SpringLayout.WEST, panel);
         return label;
     }
 
