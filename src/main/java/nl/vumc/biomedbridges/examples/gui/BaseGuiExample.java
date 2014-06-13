@@ -263,7 +263,7 @@ public class BaseGuiExample {
         final JLabel annotationLabel = annotation != null
                                        ? addLabel(guiPanel, guiLayout, annotation, DEFAULT_GUI_FONT, titleLabel)
                                        : null;
-        // todo: Fix this cosmetic change of the annotation label constraint.
+        // todo: fix this cosmetic change of the annotation label constraint (one pixel off).
         if (annotationLabel != null)
             guiLayout.getConstraint(SpringLayout.WEST, annotationLabel).setValue(SMALL_PAD + 1);
 
@@ -360,7 +360,7 @@ public class BaseGuiExample {
         stepLayout.putConstraint(SpringLayout.WEST, titleLabel, SMALL_PAD, SpringLayout.WEST, stepPanel);
         stepLayout.putConstraint(SpringLayout.EAST, titleLabel, -SMALL_PAD, SpringLayout.EAST, stepPanel);
         final Component component;
-        // todo: Quick test to attempt editing some parameters (of the random lines twice workflow).
+        // todo: quick test to attempt editing some parameters (of the random lines twice workflow).
         if ("Randomly select".equals(title)) {
             final String parameterKey = step.getId() + "-" + parameter.getName();
             final JTextField textField = new JTextField(getFinalText(text, step, parameter));

@@ -105,7 +105,7 @@ public class GalaxyWorkflowEngineTest {
     @Ignore
     @Test
     public void testRunWorkflow() throws Exception {
-        // todo: Prepare some mocks for the Galaxy instance and the workflows client so we do not have to run an actual
+        // todo: prepare some mocks for the Galaxy instance and the workflows client so we do not have to run an actual
         // todo: workflow for this test.
         PowerMockito.mockStatic(GalaxyInstanceFactory.class);
         PowerMockito.mockStatic(HistoryUtils.class);
@@ -123,7 +123,7 @@ public class GalaxyWorkflowEngineTest {
         historyDetailsRunning.setState("running");
         historyDetailsOK.setState("ok");
 
-        // todo: retrieving the workflow output file is done multiple times. This dummy file works only once.
+        // todo: retrieving the workflow output file is done multiple times; this dummy file works only once.
         final File dummyFile = new File((String) getHiddenStaticField(GalaxyWorkflowEngine.class, "OUTPUT_FILE_PATH"));
         //System.out.println("dummyFile.getAbsolutePath(): " + dummyFile.getAbsolutePath());
         assertTrue("Create a dummy file.", dummyFile.createNewFile());

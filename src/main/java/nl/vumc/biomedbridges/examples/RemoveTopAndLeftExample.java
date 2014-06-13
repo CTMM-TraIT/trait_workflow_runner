@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * removes a number of lines from the input file and removes a number of characters from the start of the remaining
  * lines.
  *
- * todo: this example is not working yet.
+ * todo [high priority]: this example is not working yet.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */

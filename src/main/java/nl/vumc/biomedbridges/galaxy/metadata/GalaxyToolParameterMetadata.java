@@ -13,7 +13,7 @@ import org.w3c.dom.NamedNodeMap;
 /**
  * The Galaxy tool parameter metadata.
  *
- * todo: Decide whether the Workflow Runner will only support a subset of all Galaxy workflow and tool functionality.
+ * todo: decide whether the Workflow Runner will only support a subset of all Galaxy workflow and tool functionality.
  * - Some functionality might not be supported by the Galaxy API and/or blend4j.
  * - Some functionality (like conditional parameters) will be too complicated to be supported by Workflow Runner version
  *   1 (and/or the tranSMART workflow plugin version 1).

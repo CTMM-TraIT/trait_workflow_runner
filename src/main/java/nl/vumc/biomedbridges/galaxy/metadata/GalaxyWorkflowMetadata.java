@@ -173,7 +173,7 @@ public class GalaxyWorkflowMetadata {
         else
             logger.trace("No duplicate parameter names were found.");
         // (If there is at least one duplicate, we need to make some names more specific...)
-        // todo: To make the user interface clear, it's probably best to support groups of parameters (steps).
+        // todo: to make the user interface clear, it's probably best to support groups of parameters (steps).
         return parameters;
     }
 }

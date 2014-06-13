@@ -434,7 +434,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             for (final String outputId : workflowOutputs.getOutputIds()) {
                 final Dataset dataset = historiesClient.showDataset(historyId, outputId);
                 final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
-                // todo: make downloading optional (only some files might be needed) and use configurable output directory.
+                // FT-931 - Output file downloading optional
+                // todo [high priority]: make downloading optional (only some files might be needed) and use configurable output directory.
                 final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
                 final File outputFile = File.createTempFile(prefix, ".txt");
                 logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());

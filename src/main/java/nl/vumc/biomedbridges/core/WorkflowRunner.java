@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class contains a simple test of the workflow running functionality.
  *
- * todo: improve error messages, for example when incorrect names for input files are used.
+ * todo [high priority]: improve error messages, for example when incorrect names for input files are used.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
@@ -123,6 +123,7 @@ public class WorkflowRunner {
      */
     private void checkWorkflowOutput(final Workflow workflow) throws IOException {
         // todo: look at all outputs (since GalaxyWorkflowEngine.downloadOutputFiles now downloads all output files).
+        // todo [high priority]: make it possible to only download some of the output files.
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;

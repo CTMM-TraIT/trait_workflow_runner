@@ -128,7 +128,7 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     /**
      * Parses the JSON / GA-file of a Galaxy workflow.
      *
-     * // todo: Use the GalaxyWorkflowMetadata class instead.
+     * // todo: use the GalaxyWorkflowMetadata class instead.
      */
     public void parseJson() {
         try {
