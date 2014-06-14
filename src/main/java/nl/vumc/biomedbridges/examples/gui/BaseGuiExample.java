@@ -551,9 +551,10 @@ public class BaseGuiExample {
             final String message = "The workflow ran successfully in %1.1f seconds and produced the following output:";
             resultLines.add(String.format(message, randomLinesExample.getDurationSeconds()));
             resultLines.add("");
-            resultLines.add("======");
+            final String outputSeparator = "======";
+            resultLines.add(outputSeparator);
             resultLines.addAll(outputLines);
-            resultLines.add("======");
+            resultLines.add(outputSeparator);
             addLinesToResults(resultsDocument, resultLines.toArray(new String[resultLines.size()]));
         } else {
             final String message = "The workflow failed after running for %1.1f seconds.";

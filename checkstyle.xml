@@ -268,10 +268,9 @@
 
         <module name="FinalParameters"/>
 
-        <!-- todo: enable this check with throws property when maven-checkstyle-plugin supports Checkstyle 5.7. -->
-        <!--<module name="Indentation">-->
-            <!--<property name="throwsIndent" value="8"/>-->
-        <!--</module>-->
+        <module name="Indentation">
+            <property name="throwsIndent" value="8"/>
+        </module>
 
         <module name="TrailingComment"/>
         <module name="UncommentedMain"/>
