@@ -13,7 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class for creating workflow engines based on workflow type.
+ * Factory class for creating workflow engines based on workflow type. Using dependency injection, the
+ * DefaultGuiceModule class binds the WorkflowEngineFactory interface to this class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
