@@ -68,6 +68,8 @@ public class HistoryUtils {
         try {
             final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             final boolean ok = connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+            if (!ok)
+                logger.error("Reading from url {} is not working ok.", url);
             try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
                 Files.copy(inputStream, Paths.get(fullFilePath), StandardCopyOption.REPLACE_EXISTING);
                 success = true;

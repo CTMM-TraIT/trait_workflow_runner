@@ -171,6 +171,8 @@ public class GalaxyConfiguration {
     private static void loadProperties() {
         properties = new Properties();
         final File propertiesFile = new File(propertiesFilePath);
+        if (!propertiesFile.exists())
+            logger.error("The properties file {} is not found.", propertiesFile.getAbsolutePath());
         try (final InputStream inputStream = new FileInputStream(propertiesFile)) {
             properties.load(inputStream);
         } catch (final IOException e) {
@@ -191,8 +193,8 @@ public class GalaxyConfiguration {
                 logger.error("The configuration file '{}' was not read successfully.", propertiesFilePath);
                 logger.error("Please ensure the following properties are available:");
             }
-            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=https://usegalaxy.org/");
-            logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]12345d2238a4e3");
+            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=https://usegalaxy.org/ [or another Galaxy server]");
+            logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]");
             logger.error("");
             logger.error("Optional property:");
             logger.error(HISTORY_NAME_PROPERTY_KEY + "=Some History Name");
