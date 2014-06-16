@@ -118,9 +118,9 @@ public class GalaxyConfiguration {
      *
      * @param propertiesFilePath the path of the properties file.
      */
-    public static void setPropertiesFilePath(final String propertiesFilePath) {
+    public static String setPropertiesFilePath(final String propertiesFilePath) {
         GalaxyConfiguration.propertiesFilePath = propertiesFilePath;
-        loadProperties();
+        return loadProperties();
     }
 
     /**
@@ -168,17 +168,20 @@ public class GalaxyConfiguration {
     /**
      * Load and check the properties.
      */
-    private static void loadProperties() {
+    private static String loadProperties() {
+        String message = null;
         properties = new Properties();
         final File propertiesFile = new File(propertiesFilePath);
         if (!propertiesFile.exists())
-            logger.error("The properties file {} is not found.", propertiesFile.getAbsolutePath());
+            message = String.format("The properties file %s is not found.", propertiesFile.getAbsolutePath());
         try (final InputStream inputStream = new FileInputStream(propertiesFile)) {
             properties.load(inputStream);
         } catch (final IOException e) {
             logger.error("Error loading properties from file {}.", propertiesFile.getAbsolutePath(), e);
+            message = String.format("Error loading properties from file %s.", propertiesFile.getAbsolutePath());
         }
         checkConfiguration();
+        return message;
     }
 
     /**

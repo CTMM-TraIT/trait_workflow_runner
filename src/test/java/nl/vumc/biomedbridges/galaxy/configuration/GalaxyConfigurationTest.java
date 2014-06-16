@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNull;
+
 /**
  * The unit tests for the GalaxyConfiguration class.
  *
@@ -34,7 +36,7 @@ public class GalaxyConfigurationTest {
      */
     @Test
     public void testGetGalaxyHistoryNameDefault() {
-        Assert.assertNull(GalaxyConfiguration.getGalaxyHistoryName());
+        assertNull(GalaxyConfiguration.getGalaxyHistoryName());
     }
 
     /**
@@ -44,8 +46,8 @@ public class GalaxyConfigurationTest {
     @Test
     public void testGetGalaxyHistoryNameFromProperties() {
         GalaxyConfiguration.setPropertiesFilePath(CONFIGURATION_DIRECTORY + "HistoryName.properties");
-        Assert.assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
-        Assert.assertNull(GalaxyConfiguration.getGalaxyApiKey());
+        assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
+        assertNull(GalaxyConfiguration.getGalaxyApiKey());
         Assert.assertEquals("GalaxyConfigurationTest-1", GalaxyConfiguration.getGalaxyHistoryName());
     }
 
@@ -55,9 +57,9 @@ public class GalaxyConfigurationTest {
     @Test
     public void testSetPropertiesFilePathToEmptyString() {
         GalaxyConfiguration.setPropertiesFilePath("");
-        Assert.assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
-        Assert.assertNull(GalaxyConfiguration.getGalaxyApiKey());
-        Assert.assertNull(GalaxyConfiguration.getGalaxyHistoryName());
+        assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
+        assertNull(GalaxyConfiguration.getGalaxyApiKey());
+        assertNull(GalaxyConfiguration.getGalaxyHistoryName());
     }
 
     /**
@@ -66,9 +68,9 @@ public class GalaxyConfigurationTest {
     @Test
     public void testSetPropertiesFilePathToEmptyFile() {
         GalaxyConfiguration.setPropertiesFilePath(CONFIGURATION_DIRECTORY + "Empty.properties");
-        Assert.assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
-        Assert.assertNull(GalaxyConfiguration.getGalaxyApiKey());
-        Assert.assertNull(GalaxyConfiguration.getGalaxyHistoryName());
+        assertNull(GalaxyConfiguration.getGalaxyInstanceUrl());
+        assertNull(GalaxyConfiguration.getGalaxyApiKey());
+        assertNull(GalaxyConfiguration.getGalaxyHistoryName());
     }
 
     /**
@@ -88,11 +90,12 @@ public class GalaxyConfigurationTest {
      */
     @Test
     public void testBuildConfigurationGalaxyInstanceOnly() {
-        GalaxyConfiguration.setPropertiesFilePath(CONFIGURATION_DIRECTORY + "All.properties");
+        final String message = GalaxyConfiguration.setPropertiesFilePath(CONFIGURATION_DIRECTORY + "All.properties");
         final String expectedConfigurationString = "test.galaxy.instance=a6|" +
                                                    "test.galaxy.key=bbbbbb|" +
                                                    "galaxy.history.name=GalaxyConfigurationTest-1";
         Assert.assertEquals(expectedConfigurationString, GalaxyConfiguration.buildConfiguration("a6"));
+        assertNull(message);
     }
 
     /**
