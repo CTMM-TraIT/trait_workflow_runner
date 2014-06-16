@@ -78,7 +78,7 @@ public class GalaxyWorkflowEngineMetadata {
         logger.info("toolReferences: " + toolReferences);
         logger.trace("");
         logger.trace("");
-        final String toolsDirectory = DATA_DIRECTORY + "tools\\";
+        final String toolsDirectory = DATA_DIRECTORY + "tools" + File.separator;
         final String configurationFilePath = toolsDirectory + "tool_conf.xml";
         final GalaxyToolMetadataParser toolMetadataParser = new GalaxyToolMetadataParser();
         final List<String> toolDefinitionPaths = toolMetadataParser.parseToolsConfiguration(configurationFilePath,

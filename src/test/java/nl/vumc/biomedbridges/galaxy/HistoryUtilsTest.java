@@ -53,7 +53,9 @@ public class HistoryUtilsTest {
     public void testDownloadFileFromUrl() throws Exception {
         final HistoryUtils historyUtils = new HistoryUtils();
         final String flagUrl = "http://www.biomedbridges.eu/sites/biomedbridges.eu/files/images/euflag.png";
-        final String filePath = System.getProperty("java.io.tmpdir") + "testDownloadFileFromUrl.txt";
+        final String temporaryDirectory = System.getProperty("java.io.tmpdir");
+        final String separatorIfNeeded = !temporaryDirectory.endsWith(File.separator) ? File.separator : "";
+        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl.txt";
 
         assertTrue(historyUtils.downloadFileFromUrl(flagUrl, filePath));
         assertTrue(new File(filePath).exists());
