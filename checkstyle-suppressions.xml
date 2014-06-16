@@ -9,6 +9,11 @@
         "-//Puppy Crawl//DTD Suppressions 1.1//EN"
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
+<!--
+  -  Checkstyle configuration (suppressed checks) for the Ephrin Proteomics Project Tracking Software.
+  -  Author: Freek de Bruijn (f.debruijn@vumc.nl).
+-->
+
 <suppressions>
 
     <!-- Disable requiring method Javadocs in the test cases. -->

@@ -10,8 +10,7 @@
 
 <!--
   -  Checkstyle configuration for the Workflow Runner project.
-  -
-  -  @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
+  -  Author: Freek de Bruijn (f.debruijn@vumc.nl).
 -->
 
 <module name="Checker">
