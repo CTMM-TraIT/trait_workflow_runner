@@ -117,6 +117,7 @@ public class GalaxyConfiguration {
      * Set the path of the properties file and load the properties.
      *
      * @param propertiesFilePath the path of the properties file.
+     * @return null or an error message.
      */
     public static String setPropertiesFilePath(final String propertiesFilePath) {
         GalaxyConfiguration.propertiesFilePath = propertiesFilePath;
@@ -167,6 +168,8 @@ public class GalaxyConfiguration {
 
     /**
      * Load and check the properties.
+     *
+     * @return null or an error message.
      */
     private static String loadProperties() {
         String message = null;
