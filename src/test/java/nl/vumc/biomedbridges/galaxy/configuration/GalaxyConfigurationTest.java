@@ -91,11 +91,11 @@ public class GalaxyConfigurationTest {
     @Test
     public void testBuildConfigurationGalaxyInstanceOnly() {
         final String message = GalaxyConfiguration.setPropertiesFilePath(CONFIGURATION_DIRECTORY + "All.properties");
+        assertNull(message);
         final String expectedConfigurationString = "test.galaxy.instance=a6|" +
                                                    "test.galaxy.key=bbbbbb|" +
                                                    "galaxy.history.name=GalaxyConfigurationTest-1";
         Assert.assertEquals(expectedConfigurationString, GalaxyConfiguration.buildConfiguration("a6"));
-        assertNull(message);
     }
 
     /**
