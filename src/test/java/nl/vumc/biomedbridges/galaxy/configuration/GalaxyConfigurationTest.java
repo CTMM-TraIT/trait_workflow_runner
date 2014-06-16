@@ -5,6 +5,9 @@
 
 package nl.vumc.biomedbridges.galaxy.configuration;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +23,9 @@ public class GalaxyConfigurationTest {
     /**
      * The resources directory for the configuration package.
      */
-    private static final String CONFIGURATION_DIRECTORY = "src\\test\\resources\\nl\\vumc\\biomedbridges\\" +
-                                                          "galaxy\\configuration\\";
+    private static final String CONFIGURATION_DIRECTORY = Paths.get(
+            "src", "test", "resources", "nl", "vumc", "biomedbridges", "galaxy", "configuration"
+    ) + File.separator;
 
     /**
      * Reset all static fields of the class to be tested before each unit test to prevent interference.

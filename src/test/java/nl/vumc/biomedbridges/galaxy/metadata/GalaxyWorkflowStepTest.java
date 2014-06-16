@@ -8,6 +8,7 @@ package nl.vumc.biomedbridges.galaxy.metadata;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,7 +32,9 @@ public class GalaxyWorkflowStepTest {
     /**
      * The resources directory for the configuration package.
      */
-    private static final String GALAXY_DIRECTORY = "src\\test\\resources\\nl\\vumc\\biomedbridges\\galaxy\\";
+    private static final String GALAXY_DIRECTORY = Paths.get(
+            "src", "test", "resources", "nl", "vumc", "biomedbridges", "galaxy"
+    ) + File.separator;
 
     /**
      * The workflow step to test.

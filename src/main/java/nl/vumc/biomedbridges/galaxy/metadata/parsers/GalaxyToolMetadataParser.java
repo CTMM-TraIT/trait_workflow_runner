@@ -52,7 +52,7 @@ public class GalaxyToolMetadataParser {
                 for (int toolIndex = 0; toolIndex < toolElements.getLength(); toolIndex++) {
                     final Element toolElement = (Element) toolElements.item(toolIndex);
                     final String fileAttribute = toolElement.getAttribute("file");
-                    final String toolFilePath = toolsDirectory + fileAttribute.replaceAll("/", "\\\\");
+                    final String toolFilePath = toolsDirectory + fileAttribute.replace('/', File.separatorChar);
                     logger.trace("toolFilePath: " + toolFilePath);
                     toolDefinitionFilePaths.add(toolFilePath);
                 }

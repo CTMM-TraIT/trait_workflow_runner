@@ -5,6 +5,8 @@
 
 package nl.vumc.biomedbridges.galaxy.metadata;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +33,7 @@ public class GalaxyWorkflowEngineMetadata {
     /**
      * Galaxy configuration data directory for testing.
      */
-    private static final String DATA_DIRECTORY = "data\\Galaxy configuration\\";
+    private static final String DATA_DIRECTORY = Paths.get("data", "Galaxy configuration") + File.separator;
 
     /**
      * Mapping of workflow names to workflow metadata objects.
