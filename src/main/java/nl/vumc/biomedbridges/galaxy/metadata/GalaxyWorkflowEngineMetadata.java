@@ -29,14 +29,9 @@ public class GalaxyWorkflowEngineMetadata {
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowEngineMetadata.class);
 
     /**
-     * Project directory.
-     */
-    private static final String PROJECT_DIRECTORY = "C:\\Freek\\VUmc\\BioMedBridges\\WorkflowRunner\\";
-
-    /**
      * Galaxy configuration data directory for testing.
      */
-    private static final String DATA_DIRECTORY = PROJECT_DIRECTORY + "data\\Galaxy configuration\\";
+    private static final String DATA_DIRECTORY = "data\\Galaxy configuration\\";
 
     /**
      * Mapping of workflow names to workflow metadata objects.
