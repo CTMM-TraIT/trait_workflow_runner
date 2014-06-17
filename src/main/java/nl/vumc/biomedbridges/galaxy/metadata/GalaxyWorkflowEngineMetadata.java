@@ -33,7 +33,7 @@ public class GalaxyWorkflowEngineMetadata {
     /**
      * Galaxy configuration data directory for testing.
      */
-    private static final String DATA_DIRECTORY = Paths.get("data", "Galaxy configuration") + File.separator;
+    private static final String DATA_DIRECTORY = Paths.get("data", "galaxy-configuration") + File.separator;
 
     /**
      * Mapping of workflow names to workflow metadata objects.

@@ -5,9 +5,9 @@ For example, search for the concatenate tool could look like this:
 
 cd tools
 grep cat1 */*.*
-cp filters/catWrapper.* [WorkflowRunner]/data/Galaxy configuration/tools/filters
+cp filters/catWrapper.* [WorkflowRunner]/data/galaxy-configuration/tools/filters
 
 
-Finally, add the tool to the [WorkflowRunner]/data/Galaxy configuration/tools/tool_conf.xml file:
+Finally, add the tool to the [WorkflowRunner]/data/galaxy-configuration/tools/tool_conf.xml file:
 
     <tool file="filters/catWrapper.xml" />
