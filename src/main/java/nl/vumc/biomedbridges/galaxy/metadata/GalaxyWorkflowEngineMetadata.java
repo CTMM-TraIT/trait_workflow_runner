@@ -68,7 +68,8 @@ public class GalaxyWorkflowEngineMetadata {
      * the tool definitions.
      */
     private void initializeWorkflowMetadata() {
-        workflowsMap = new GalaxyWorkflowMetadataParser().readWorkflowsFromDirectories(DATA_DIRECTORY + "workflows\\");
+        final String workflowsDirectoryPath = DATA_DIRECTORY + "workflows" + File.separator;
+        workflowsMap = new GalaxyWorkflowMetadataParser().readWorkflowsFromDirectories(workflowsDirectoryPath);
         logger.trace("");
         logger.info("workflowsMap: " + workflowsMap);
         logger.trace("");
