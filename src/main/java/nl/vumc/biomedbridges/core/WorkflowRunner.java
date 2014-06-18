@@ -73,7 +73,7 @@ public class WorkflowRunner {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final WorkflowRunner workflowRunner = injector.getInstance(WorkflowRunner.class);
 
-        workflowRunner.runWorkflowRunner();
+        workflowRunner.runWorkflowRunner(WorkflowEngineFactory.GALAXY_TYPE);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -84,35 +84,38 @@ public class WorkflowRunner {
      * 500 Internal Server Error
      * The server has either erred or is incapable of performing
      * the requested operation.
+     *
+     * @param workflowType the workflow (engine) type.
+     * @return whether the workflow ran successfully.
      */
-    private void runWorkflowRunner() {
+    protected boolean runWorkflowRunner(final String workflowType) {
+        boolean result;
         try {
             DOMConfigurator.configure(WorkflowRunner.class.getClassLoader().getResource("log4j.xml"));
             logger.info("=============================================");
             logger.info("WorkflowRunner.runWorkflowRunner has started.");
 
             final long startTime = System.currentTimeMillis();
-            //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
-            final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
             final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType);
             workflowEngine.configure();
             final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
-            final String input1Key = "input1";
             if (Constants.TEST_WORKFLOW_CONCATENATE.equals(Constants.TEST_WORKFLOW_CONCATENATE)) {
-                workflow.addInput(input1Key, FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
-                workflow.addInput("input2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
+                workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
+                workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
             } else {
                 final URL scatterplotInputURL = WorkflowRunner.class.getResource("ScatterplotInput.txt");
-                workflow.addInput(input1Key, new File(scatterplotInputURL.toURI()));
+                workflow.addInput("input1", new File(scatterplotInputURL.toURI()));
             }
-            workflowEngine.runWorkflow(workflow);
+            result = workflowEngine.runWorkflow(workflow);
             checkWorkflowOutput(workflow);
             final double durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
             logger.info("");
             logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
         } catch (final InterruptedException | IOException | URISyntaxException e) {
             logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_CONCATENATE, e);
+            result = false;
         }
+        return result;
     }
 
     /**

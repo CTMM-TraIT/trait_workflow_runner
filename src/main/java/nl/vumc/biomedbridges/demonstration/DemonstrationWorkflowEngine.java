@@ -122,15 +122,15 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
      */
     private boolean runRandomLinesWorkflow(final Workflow workflow) throws IOException {
         final String inputName = "Input Dataset";
-        final String numberOfLinesParameter = "num_lines";
-        final int stepId2 = 2;
-        final int stepId3 = 3;
         final Object input = workflow.getInput(inputName);
-        final int initialLineCount = (int) workflow.getParameters().get(stepId2).get(numberOfLinesParameter);
-        final int definitiveLineCount = (int) workflow.getParameters().get(stepId3).get(numberOfLinesParameter);
-        final Random randomGenerator = new Random(123456);
         final boolean result = input instanceof File;
         if (result) {
+            final int stepId2 = 2;
+            final int stepId3 = 3;
+            final String numberOfLinesParameter = "num_lines";
+            final int initialLineCount = (int) workflow.getParameters().get(stepId2).get(numberOfLinesParameter);
+            final int definitiveLineCount = (int) workflow.getParameters().get(stepId3).get(numberOfLinesParameter);
+            final Random randomGenerator = new Random(123456);
             final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
             final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
             final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);

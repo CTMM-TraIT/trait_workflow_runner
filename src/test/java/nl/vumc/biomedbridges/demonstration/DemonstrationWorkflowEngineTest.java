@@ -30,9 +30,14 @@ public class DemonstrationWorkflowEngineTest {
     private DemonstrationWorkflowEngine demonstrationWorkflowEngine;
 
     /**
-     * The workflow to use.
+     * The concatenate workflow.
      */
-    private Workflow demonstrationWorkflow;
+    private Workflow concatenateWorkflow;
+
+    /**
+     * The "random lines twice" workflow.
+     */
+    private Workflow randomLinesWorkflow;
 
     /**
      * Set up for each unit test.
@@ -40,36 +45,8 @@ public class DemonstrationWorkflowEngineTest {
     @Before
     public void setUp() {
         demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
-        demonstrationWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
-    }
-
-    /**
-     * Test the runWorkflow method with an invalid parameter.
-     */
-    @Test
-    public void testRunWorkflowInvalidParameter() {
-        demonstrationWorkflow.addInput("WorkflowInput1", new BigInteger("123456"));
-        assertFalse(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
-    }
-
-    /**
-     * Test the runWorkflow method with two non-existing files.
-     */
-    @Test
-    public void testRunWorkflowNonExistingFiles() {
-        demonstrationWorkflow.addInput("WorkflowInput1", new File("non-existing file 1"));
-        demonstrationWorkflow.addInput("WorkflowInput2", new File("non-existing file 2"));
-        assertFalse(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
-    }
-
-    /**
-     * Test the runWorkflow method with two correct parameters.
-     */
-    @Test
-    public void testRunWorkflowCorrectParameters() {
-        demonstrationWorkflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile("line 1"));
-        demonstrationWorkflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile("line 2"));
-        assertTrue(demonstrationWorkflowEngine.runWorkflow(demonstrationWorkflow));
+        concatenateWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        randomLinesWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
     }
 
     /**
@@ -77,6 +54,59 @@ public class DemonstrationWorkflowEngineTest {
      */
     @Test
     public void testConfigure() {
+        assertTrue(demonstrationWorkflowEngine.configure());
         assertTrue(demonstrationWorkflowEngine.configure(null));
+    }
+
+    /**
+     * Test the runWorkflow method with an invalid parameter.
+     */
+    @Test
+    public void testRunWorkflowInvalidParameter() {
+        concatenateWorkflow.addInput("WorkflowInput1", new BigInteger("123456"));
+        assertFalse(demonstrationWorkflowEngine.runWorkflow(concatenateWorkflow));
+
+        randomLinesWorkflow.addInput("Input Dataset", new BigInteger("654321"));
+        assertFalse(demonstrationWorkflowEngine.runWorkflow(randomLinesWorkflow));
+    }
+
+    /**
+     * Test the runWorkflow method with two non-existing files.
+     */
+    @Test
+    public void testRunWorkflowNonExistingFiles() {
+        concatenateWorkflow.addInput("WorkflowInput1", new File("non-existing file 1"));
+        concatenateWorkflow.addInput("WorkflowInput2", new File("non-existing file 2"));
+        assertFalse(demonstrationWorkflowEngine.runWorkflow(concatenateWorkflow));
+
+        setRandomLinesInputAndParameters(new File("non-existing file 3"));
+        assertFalse(demonstrationWorkflowEngine.runWorkflow(randomLinesWorkflow));
+    }
+
+    /**
+     * Test the runWorkflow method with two correct parameters.
+     */
+    @Test
+    public void testRunWorkflowCorrectParameters() {
+        concatenateWorkflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile("line 1"));
+        concatenateWorkflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile("line 2"));
+        assertTrue(demonstrationWorkflowEngine.runWorkflow(concatenateWorkflow));
+
+        setRandomLinesInputAndParameters(FileUtils.createTemporaryFile("line a", "line b", "line c", "line d"));
+        assertTrue(demonstrationWorkflowEngine.runWorkflow(randomLinesWorkflow));
+    }
+
+    /**
+     * Set the input file and the parameters of the "random lines twice" workflow.
+     *
+     * @param inputFile the input file.
+     */
+    private void setRandomLinesInputAndParameters(final File inputFile) {
+        final int stepId2 = 2;
+        final int stepId3 = 3;
+        final String numberOfLinesParameter = "num_lines";
+        randomLinesWorkflow.addInput("Input Dataset", inputFile);
+        randomLinesWorkflow.setParameter(stepId2, numberOfLinesParameter, 1);
+        randomLinesWorkflow.setParameter(stepId3, numberOfLinesParameter, 6);
     }
 }
