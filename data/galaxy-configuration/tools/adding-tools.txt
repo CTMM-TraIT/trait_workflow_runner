@@ -1,13 +1,13 @@
-You can easily add more tools here by copying the tool xml configuration (and optionally the source code) from the
-[galaxy-central-repository]/tools directory.
+You can easily add more tools to this directory by copying the tool xml configuration (and optionally the source code)
+from (for example) the [galaxy-central-repository]/tools directory (see https://bitbucket.org/galaxy/galaxy-central).
 
-For example, search for the concatenate tool could look like this:
+For example, a search for the concatenate tool could look like this:
 
-cd tools
+cd [galaxy-central-repository]/tools
 grep cat1 */*.*
 cp filters/catWrapper.* [WorkflowRunner]/data/galaxy-configuration/tools/filters
 
 
-Finally, add the tool to the [WorkflowRunner]/data/galaxy-configuration/tools/tool_conf.xml file:
+Finally, add the tool reference to the [WorkflowRunner]/data/galaxy-configuration/tools/tool_conf.xml file:
 
     <tool file="filters/catWrapper.xml" />
