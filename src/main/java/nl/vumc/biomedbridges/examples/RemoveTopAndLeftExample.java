@@ -86,9 +86,9 @@ public class RemoveTopAndLeftExample extends BaseExample {
             initializeExample(logger, "RemoveTopAndLeftExample.main");
 
             final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-            final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
-            final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+            final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+            galaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
+            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration);
             final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_REMOVE_TOP_AND_LEFT);
 
             workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("First line", "Second line", "Third line"));

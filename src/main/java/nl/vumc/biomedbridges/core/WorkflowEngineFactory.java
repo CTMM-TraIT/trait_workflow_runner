@@ -41,5 +41,5 @@ public interface WorkflowEngineFactory {
      * @param configurationData the configuration data.
      * @return the new workflow engine (or null if the type was not recognized).
      */
-    WorkflowEngine getWorkflowEngine(final String workflowType, final String configurationData);
+    WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData);
 }

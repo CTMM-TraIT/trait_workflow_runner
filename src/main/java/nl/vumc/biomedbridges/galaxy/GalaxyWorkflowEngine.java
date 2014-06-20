@@ -6,7 +6,6 @@
 package nl.vumc.biomedbridges.galaxy;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
-import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
@@ -28,7 +27,6 @@ import java.util.Map;
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -38,8 +36,6 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
 
 /**
  * The workflow engine implementation for Galaxy.
- *
- * todo: make galaxyInstanceUrl, apiKey, and historyName non static to enable using multiple Galaxy servers?
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
@@ -95,19 +91,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final String STATE_OK = "ok";
 
     /**
-     * The Galaxy server URL.
-     */
-    private static String galaxyInstanceUrl = GalaxyConfiguration.getGalaxyInstanceUrl();
-
-    /**
-     * The Galaxy API key.
-     */
-    private static String apiKey = GalaxyConfiguration.getGalaxyApiKey();
-
-    /**
      * The name of the history to run the workflow in.
      */
-    private static String historyName = DEFAULT_HISTORY_NAME;
+    private String historyName = DEFAULT_HISTORY_NAME;
 
     /**
      * The Galaxy server instance that will run the workflows.
@@ -129,6 +115,27 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private WorkflowOutputs workflowOutputs;
 
+    /**
+     * Create a Galaxy workflow engine.
+     *
+     * @deprecated todo: this constructor will be removed later.
+     */
+    public GalaxyWorkflowEngine() {
+    }
+
+    /**
+     * Create a Galaxy workflow engine.
+     *
+     * @param galaxyInstance the Galaxy instance that is used.
+     */
+    public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyName) {
+        this.galaxyInstance = galaxyInstance;
+        this.workflowsClient = galaxyInstance != null ? galaxyInstance.getWorkflowsClient() : null;
+        this.historiesClient = galaxyInstance != null ? galaxyInstance.getHistoriesClient() : null;
+        this.historyName = historyName;
+    }
+
+    // todo: remove the configure methods from the interface and the implementing classes?
     @Override
     public boolean configure() {
         return configure(null);
@@ -136,63 +143,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public boolean configure(final String configurationData) {
-        final String instancePrefix = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
-                                      + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        final String apiKeyPrefix = GalaxyConfiguration.API_KEY_PROPERTY_KEY + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        final String historyNamePrefix = GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
-                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        String message = null;
-        if (configurationData != null)
-            if (configurationData.contains(GalaxyConfiguration.PROPERTY_SEPARATOR)
-                && configurationData.contains(instancePrefix)
-                && configurationData.contains(apiKeyPrefix))
-                message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
-            else
-                message = String.format("Expected properties were not found in configuration data %s.", configurationData);
-        final boolean success = message == null;
-        if (success) {
-            galaxyInstance = GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey);
-            workflowsClient = galaxyInstance.getWorkflowsClient();
-            historiesClient = galaxyInstance.getHistoriesClient();
-        } else {
-            logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
-                         GalaxyConfiguration.PROPERTY_SEPARATOR, apiKeyPrefix);
-            galaxyInstance = null;
-        }
-        return success;
-    }
-
-    /**
-     * Process all configuration properties.
-     *
-     * @param configurationData the configuration data.
-     * @param instancePrefix    the Galaxy instance property prefix.
-     * @param apiKeyPrefix      the api key property prefix.
-     * @param historyNamePrefix the history name property prefix.
-     * @return the logging message or null if there is nothing to log.
-     */
-    private String processConfigurationProperties(final String configurationData, final String instancePrefix,
-                                                  final String apiKeyPrefix, final String historyNamePrefix) {
-        String message = null;
-        boolean instanceFound = false;
-        boolean apiKeyFound = false;
-        for (final String propertyDefinition : configurationData.split("\\|"))
-            if (propertyDefinition.startsWith(instancePrefix)) {
-                galaxyInstanceUrl = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                instanceFound = true;
-                logger.trace("Read property Galaxy instance URL: {}.", galaxyInstanceUrl);
-            } else if (propertyDefinition.startsWith(apiKeyPrefix)) {
-                apiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                apiKeyFound = true;
-                logger.trace("Read property Galaxy API key: {}.", apiKey);
-            } else if (propertyDefinition.startsWith(historyNamePrefix)) {
-                historyName = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
-                logger.trace("Read property Galaxy history name: {}.", historyName);
-            }
-        if (!instanceFound || !apiKeyFound)
-            message = String.format("Not all expected properties (Galaxy instance and API key) were found in"
-                                    + " configuration data %s.", configurationData);
-        return message;
+        return true;
     }
 
     @Override
@@ -240,8 +191,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private void logStartRunWorkflow() {
         logger.info("nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine.runWorkflow");
         logger.info("");
-        logger.info("Galaxy instance URL: {}.", galaxyInstanceUrl);
-        logger.info("Galaxy API key: {}.", apiKey);
+        logger.info("Galaxy instance URL: {}.", galaxyInstance.getGalaxyUrl());
+        logger.info("Galaxy API key: {}.", galaxyInstance.getApiKey());
         logger.info("Galaxy history name: {}.", historyName);
         logger.info("");
 
@@ -254,7 +205,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * @return the ID of the newly created history.
      */
     private String createNewHistory() {
-        return galaxyInstance.getHistoriesClient().create(new History(historyName)).getId();
+        return historiesClient.create(new History(historyName)).getId();
     }
 
     /**
@@ -435,7 +386,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 final Dataset dataset = historiesClient.showDataset(historyId, outputId);
                 final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
                 // FT-931 - Output file downloading optional
-                // todo [high priority]: make downloading optional (only some files might be needed) and use configurable output directory.
+                // todo [high priority]: make downloading optional (only some files might be needed) and use
+                // configurable output directory.
                 final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
                 final File outputFile = File.createTempFile(prefix, ".txt");
                 logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());

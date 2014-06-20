@@ -21,8 +21,13 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.junit.Ignore;
@@ -30,7 +35,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,15 +48,14 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-//@RunWith(PowerMockRunner.class)
-//@PrepareForTest({GalaxyInstanceFactory.class, HistoryUtils.class, URL.class})
 public class GalaxyWorkflowEngineTest {
     /**
      * Test the configure method with nonsense configuration data.
      */
     @Test
     public void testConfigureNonsense() {
-        assertFalse(new GalaxyWorkflowEngine().configure("nonsense"));
+        // todo: move this test and the next two tests to another test class: GalaxyConfigurationTest.
+        assertNull(new GalaxyConfiguration().determineGalaxyInstance("nonsense"));
     }
 
     /**
@@ -62,7 +69,7 @@ public class GalaxyWorkflowEngineTest {
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR
                                          + GalaxyConfiguration.API_KEY_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR;
-        assertFalse(new GalaxyWorkflowEngine().configure(configurationData));
+        assertNull(new GalaxyConfiguration().determineGalaxyInstance(configurationData));
     }
 
     /**
@@ -70,33 +77,54 @@ public class GalaxyWorkflowEngineTest {
      */
     @Test
     public void testConfigureValid() {
+        final String apiKey = "some-api-key";
+        final String historyName = "some-history-name";
         final String configurationData = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR + "https://usegalaxy.org/"
                                          + GalaxyConfiguration.PROPERTY_SEPARATOR
                                          + GalaxyConfiguration.API_KEY_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR
-                                         + "some-api-key"
+                                         + apiKey
                                          + GalaxyConfiguration.PROPERTY_SEPARATOR
                                          + GalaxyConfiguration.HISTORY_NAME_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR
-                                         + "some-history-name";
-        assertTrue(new GalaxyWorkflowEngine().configure(configurationData));
+                                         + historyName;
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+        assertNotNull(galaxyConfiguration.determineGalaxyInstance(configurationData));
+        assertEquals(apiKey, galaxyConfiguration.getGalaxyApiKey());
+        assertEquals(historyName, galaxyConfiguration.getGalaxyHistoryName());
     }
 
     /**
      * Test the runWorkflow method.
-     *
-     * todo: complete this test.
      */
-    @Ignore
     @Test
     public void testRunWorkflowV2() throws Exception {
         final GalaxyWorkflow galaxyWorkflow = Mockito.mock(GalaxyWorkflow.class);
-        final String configuration = GalaxyConfiguration.buildConfiguration("...", "...", "...");
-        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine();
-        galaxyWorkflowEngine.configure(configuration);
-        //galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow("TestWorkflow"));
-        galaxyWorkflowEngine.runWorkflow(galaxyWorkflow);
+        final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
+        final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
+        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
+        final History historyMock = Mockito.mock(History.class);
+        final String historyId = "history-id";
+        final HistoryDetails historyDetailsMock = Mockito.mock(HistoryDetails.class);
+        final WorkflowOutputs workflowOutputsMock = Mockito.mock(WorkflowOutputs.class);
+        final Map<String, List<String>> stateIds = new HashMap<>();
+        stateIds.put("running", new ArrayList<String>());
+        stateIds.put("queued", new ArrayList<String>());
+        stateIds.put("ok", new ArrayList<String>());
+
+        Mockito.when(galaxyInstanceMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
+        Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
+        Mockito.when(historiesClientMock.create(Mockito.any(History.class))).thenReturn(historyMock);
+        Mockito.when(historyMock.getId()).thenReturn(historyId);
+        Mockito.when(historiesClientMock.showHistory(historyId)).thenReturn(historyDetailsMock);
+        Mockito.when(historyDetailsMock.getStateIds()).thenReturn(stateIds);
+        Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
+        Mockito.when(workflowOutputsMock.getHistoryId()).thenReturn(historyId);
+
+        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, "history-name");
+
+        assertTrue(galaxyWorkflowEngine.runWorkflow(galaxyWorkflow));
     }
 
     /**
@@ -146,8 +174,10 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(urlConnection.getInputStream()).thenReturn(inputStream);
         Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(Arrays.asList("one item"));
 
-        final String configuration = GalaxyConfiguration.buildConfiguration("GALAXY_INSTANCE_URL", "apiKey", "HISTORY_NAME");
-        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine();
+        final String configuration = new GalaxyConfiguration().buildConfiguration("GALAXY_INSTANCE_URL", "apiKey",
+                                                                                  "HISTORY_NAME");
+        final GalaxyInstance configurationData = new GalaxyConfiguration().determineGalaxyInstance(configuration);
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(configurationData, "history-name");
         galaxyWorkflowEngine.configure(configuration);
         galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow("TestWorkflow"));
 

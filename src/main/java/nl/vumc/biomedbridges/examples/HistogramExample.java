@@ -78,9 +78,9 @@ public class HistogramExample extends BaseExample {
         initializeExample(logger, "HistogramExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-        final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
-        final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+        galaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
 
         workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));

@@ -5,6 +5,9 @@
 
 package nl.vumc.biomedbridges.galaxy.configuration;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,32 +63,47 @@ public class GalaxyConfiguration {
      * The blend(4j) properties. These are loaded when the first property is retrieved or when an explicit properties
      * file path is set.
      */
-    private static Properties properties;
+    private Properties properties;
 
     /**
      * The path of the properties file.
      */
-    private static String propertiesFilePath;
+    private String propertiesFilePath;
 
     /**
-     * Initialize the static fields.
+     * The Galaxy server URL.
      */
-    static {
-        resetStaticFields();
+    private String galaxyInstanceUrl;
+
+    /**
+     * The Galaxy API key.
+     */
+    private String apiKey;
+
+    /**
+     * The name of the history to run the workflow in.
+     */
+    private String historyName;
+
+    /**
+     * Construct a Galaxy configuration object, using the default properties file.
+     */
+    public GalaxyConfiguration() {
+        this(null);
     }
 
     /**
-     * Hidden constructor. Only the static methods of this class are meant to be used.
+     * Construct a Galaxy configuration object.
+     *
+     * @param propertiesFilePath the path of the properties file.
      */
-    private GalaxyConfiguration() {
-    }
-
-    /**
-     * Reset (or initialize) all static fields.
-     */
-    protected static void resetStaticFields() {
-        properties = null;
-        propertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
+    public GalaxyConfiguration(final String propertiesFilePath) {
+        final String defaultPropertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
+        this.propertiesFilePath = propertiesFilePath != null ? propertiesFilePath : defaultPropertiesFilePath;
+        loadProperties();
+        this.galaxyInstanceUrl = getGalaxyInstanceUrl();
+        this.apiKey = getGalaxyApiKey();
+        this.historyName = getGalaxyHistoryName();
     }
 
     /**
@@ -96,11 +114,14 @@ public class GalaxyConfiguration {
      * @param galaxyHistoryName the Galaxy history name.
      * @return the configuration string.
      */
-    public static String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey,
-                                            final String galaxyHistoryName) {
+    public String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey,
+                                     final String galaxyHistoryName) {
+        this.galaxyInstanceUrl = galaxyInstanceUrl;
+        this.apiKey = galaxyApiKey;
+        this.historyName = galaxyHistoryName;
         return GALAXY_INSTANCE_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyInstanceUrl + PROPERTY_SEPARATOR
-               + API_KEY_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyApiKey + PROPERTY_SEPARATOR + HISTORY_NAME_PROPERTY_KEY
-               + KEY_VALUE_SEPARATOR + galaxyHistoryName;
+               + API_KEY_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyApiKey + PROPERTY_SEPARATOR
+               + HISTORY_NAME_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyHistoryName;
     }
 
     /**
@@ -109,8 +130,69 @@ public class GalaxyConfiguration {
      * @param galaxyInstanceUrl the Galaxy instance URL.
      * @return the configuration string.
      */
-    public static String buildConfiguration(final String galaxyInstanceUrl) {
+    public String buildConfiguration(final String galaxyInstanceUrl) {
+        this.galaxyInstanceUrl = galaxyInstanceUrl;
         return buildConfiguration(galaxyInstanceUrl, getGalaxyApiKey(), getGalaxyHistoryName());
+    }
+
+    /**
+     * Create and configure a Galaxy instance object.
+     *
+     * todo: create a getGalaxyInstance method that handles the configurationData == null case? And cache the object?
+     *
+     * @param configurationData the configuration string or null to use the settings from the properties file.
+     * @return a Galaxy instance object or null.
+     */
+    public GalaxyInstance determineGalaxyInstance(final String configurationData) {
+        String message = null;
+        if (configurationData != null) {
+            final String instancePrefix = GALAXY_INSTANCE_PROPERTY_KEY + KEY_VALUE_SEPARATOR;
+            final String apiKeyPrefix = API_KEY_PROPERTY_KEY + KEY_VALUE_SEPARATOR;
+            final String historyNamePrefix = HISTORY_NAME_PROPERTY_KEY + KEY_VALUE_SEPARATOR;
+            if (configurationData.contains(PROPERTY_SEPARATOR)
+                && configurationData.contains(instancePrefix)
+                && configurationData.contains(apiKeyPrefix))
+                message = processConfigurationProperties(configurationData, instancePrefix, apiKeyPrefix, historyNamePrefix);
+            else
+                message = String.format("Expected properties were not found in configuration data %s.", configurationData);
+            if (message != null)
+                logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
+                             PROPERTY_SEPARATOR, apiKeyPrefix);
+        }
+        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey) : null;
+    }
+
+    /**
+     * Process all configuration properties.
+     *
+     * @param configurationData the configuration data.
+     * @param instancePrefix    the Galaxy instance property prefix.
+     * @param apiKeyPrefix      the api key property prefix.
+     * @param historyNamePrefix the history name property prefix.
+     * @return the logging message or null if there is nothing to log.
+     */
+    private String processConfigurationProperties(final String configurationData, final String instancePrefix,
+                                                  final String apiKeyPrefix, final String historyNamePrefix) {
+        String message = null;
+        boolean instanceFound = false;
+        boolean apiKeyFound = false;
+        for (final String propertyDefinition : configurationData.split("\\|"))
+            if (propertyDefinition.startsWith(instancePrefix)) {
+                galaxyInstanceUrl = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                instanceFound = true;
+                logger.trace("Read property Galaxy instance URL: {}.", galaxyInstanceUrl);
+            } else if (propertyDefinition.startsWith(apiKeyPrefix)) {
+                apiKey = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                apiKeyFound = true;
+                logger.trace("Read property Galaxy API key: {}.", apiKey);
+            } else if (propertyDefinition.startsWith(historyNamePrefix)) {
+                historyName = propertyDefinition.substring(propertyDefinition.indexOf('=') + 1);
+                logger.trace("Read property Galaxy history name: {}.", historyName);
+            }
+        if (!instanceFound || !apiKeyFound)
+            message = String.format("Not all expected properties (Galaxy instance and API key) were found in"
+                                    + " configuration data %s.", configurationData);
+        return message;
     }
 
     /**
@@ -119,8 +201,8 @@ public class GalaxyConfiguration {
      * @param propertiesFilePath the path of the properties file.
      * @return null or an error message.
      */
-    public static String setPropertiesFilePath(final String propertiesFilePath) {
-        GalaxyConfiguration.propertiesFilePath = propertiesFilePath;
+    public String setPropertiesFilePath(final String propertiesFilePath) {
+        this.propertiesFilePath = propertiesFilePath;
         return loadProperties();
     }
 
@@ -129,8 +211,8 @@ public class GalaxyConfiguration {
      *
      * @return the Galaxy instance URL.
      */
-    public static String getGalaxyInstanceUrl() {
-        return getProperty(GALAXY_INSTANCE_PROPERTY_KEY);
+    public String getGalaxyInstanceUrl() {
+        return galaxyInstanceUrl != null ? galaxyInstanceUrl : getProperty(GALAXY_INSTANCE_PROPERTY_KEY);
     }
 
     /**
@@ -138,8 +220,8 @@ public class GalaxyConfiguration {
      *
      * @return the Galaxy API key.
      */
-    public static String getGalaxyApiKey() {
-        return getProperty(API_KEY_PROPERTY_KEY);
+    public String getGalaxyApiKey() {
+        return apiKey != null ? apiKey : getProperty(API_KEY_PROPERTY_KEY);
     }
 
     /**
@@ -147,8 +229,8 @@ public class GalaxyConfiguration {
      *
      * @return the Galaxy history name.
      */
-    public static String getGalaxyHistoryName() {
-        return getProperty(HISTORY_NAME_PROPERTY_KEY);
+    public String getGalaxyHistoryName() {
+        return historyName != null ? historyName : getProperty(HISTORY_NAME_PROPERTY_KEY);
     }
 
     /**
@@ -157,7 +239,7 @@ public class GalaxyConfiguration {
      * @param key the property key.
      * @return the property value.
      */
-    private static String getProperty(final String key) {
+    private String getProperty(final String key) {
         if (properties == null)
             loadProperties();
         String value = null;
@@ -171,7 +253,7 @@ public class GalaxyConfiguration {
      *
      * @return null or an error message.
      */
-    private static String loadProperties() {
+    private String loadProperties() {
         String message = null;
         properties = new Properties();
         final File propertiesFile = new File(propertiesFilePath);
@@ -190,7 +272,7 @@ public class GalaxyConfiguration {
     /**
      * Check whether the properties return a non-null value and log errors if this is not the case.
      */
-    private static void checkConfiguration() {
+    private void checkConfiguration() {
         if (getGalaxyInstanceUrl() == null || getGalaxyApiKey() == null) {
             if (!new File(propertiesFilePath).exists()) {
                 logger.error("The configuration file '{}' was not found.", propertiesFilePath);

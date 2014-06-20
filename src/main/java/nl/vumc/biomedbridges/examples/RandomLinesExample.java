@@ -111,10 +111,10 @@ public class RandomLinesExample extends BaseExample {
         initializeExample(logger, "RandomLinesExample.runExample");
 
         this.definitiveLineCount = definitiveLineCount;
-        final String apiKey = GalaxyConfiguration.getGalaxyApiKey();
         // Note: the configuration will be ignored for the demonstration workflow type.
-        final String configuration = GalaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configuration);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+        galaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
         workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));

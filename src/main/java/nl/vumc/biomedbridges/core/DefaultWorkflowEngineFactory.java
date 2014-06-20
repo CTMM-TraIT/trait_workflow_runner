@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.core;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflowEngine;
 
 import org.slf4j.Logger;
@@ -54,14 +55,19 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
      * @return the new workflow engine (or null if the type was not recognized).
      */
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final String configurationData) {
+    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData) {
         final WorkflowEngine workflowEngine;
         switch (workflowType) {
             case DEMONSTRATION_TYPE:
                 workflowEngine = new DemonstrationWorkflowEngine();
                 break;
             case GALAXY_TYPE:
-                workflowEngine = new GalaxyWorkflowEngine();
+                if (configurationData instanceof GalaxyConfiguration) {
+                    final GalaxyConfiguration galaxyConfiguration = (GalaxyConfiguration) configurationData;
+                    workflowEngine = new GalaxyWorkflowEngine(galaxyConfiguration.determineGalaxyInstance(null),
+                                                              galaxyConfiguration.getGalaxyHistoryName());
+                } else
+                    workflowEngine = null;
                 break;
             case MOLGENIS_TYPE:
                 workflowEngine = new MolgenisWorkflowEngine();
@@ -71,8 +77,8 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
                 workflowEngine = null;
                 break;
         }
-        if (workflowEngine != null && configurationData != null)
-            workflowEngine.configure(configurationData);
+//        if (workflowEngine != null && configurationData != null)
+//            workflowEngine.configure(configurationData);
         return workflowEngine;
     }
 }
