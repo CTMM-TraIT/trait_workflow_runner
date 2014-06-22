@@ -79,7 +79,7 @@ public class HistogramExample extends BaseExample {
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration);
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
 

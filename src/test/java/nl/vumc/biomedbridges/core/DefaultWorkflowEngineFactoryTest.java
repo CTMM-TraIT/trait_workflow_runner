@@ -7,11 +7,13 @@ package nl.vumc.biomedbridges.core;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflowEngine;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -25,17 +27,25 @@ public class DefaultWorkflowEngineFactoryTest {
      */
     @Test
     public void testGetWorkflowEngine() {
-        checkEngineReturnType(DemonstrationWorkflowEngine.class, WorkflowEngineFactory.DEMONSTRATION_TYPE);
-        checkEngineReturnType(GalaxyWorkflowEngine.class, WorkflowEngineFactory.GALAXY_TYPE);
-        checkEngineReturnType(MolgenisWorkflowEngine.class, WorkflowEngineFactory.MOLGENIS_TYPE);
-        checkEngineReturnType(null, "unknown workflow (engine) type");
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
+                                               "history name");
+
+        checkEngineReturnType(DemonstrationWorkflowEngine.class, WorkflowEngineFactory.DEMONSTRATION_TYPE, null);
+        checkEngineReturnType(GalaxyWorkflowEngine.class, WorkflowEngineFactory.GALAXY_TYPE, galaxyConfiguration);
+        checkEngineReturnType(MolgenisWorkflowEngine.class, WorkflowEngineFactory.MOLGENIS_TYPE, null);
+        checkEngineReturnType(null, "unknown workflow (engine) type", null);
     }
 
-    private void checkEngineReturnType(final Class<? extends WorkflowEngine> returnType, final String workflowType) {
-        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
+    private void checkEngineReturnType(final Class<? extends WorkflowEngine> returnType, final String workflowType,
+                                       final Object configurationData) {
+        final WorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData);
         if (returnType == null)
             assertNull(workflowEngine);
-        else
+        else {
+            assertNotNull(workflowEngine);
             assertEquals(returnType, workflowEngine.getClass());
+        }
     }
 }

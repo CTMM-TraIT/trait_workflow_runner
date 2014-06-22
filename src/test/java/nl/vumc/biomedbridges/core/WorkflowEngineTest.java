@@ -7,11 +7,13 @@ package nl.vumc.biomedbridges.core;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflow;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflow;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflow;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -25,17 +27,25 @@ public class WorkflowEngineTest {
      */
     @Test
     public void testGetWorkflow() {
-        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowEngineFactory.DEMONSTRATION_TYPE);
-        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowEngineFactory.GALAXY_TYPE);
-        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowEngineFactory.MOLGENIS_TYPE);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
+        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
+                                               "history name");
+
+        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowEngineFactory.DEMONSTRATION_TYPE, null);
+        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowEngineFactory.GALAXY_TYPE, galaxyConfiguration);
+        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowEngineFactory.MOLGENIS_TYPE, null);
     }
 
-    private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType) {
-        final WorkflowEngine workflowEngine = new DefaultWorkflowEngineFactory().getWorkflowEngine(workflowType);
+    private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType,
+                                         final Object configurationData) {
+        final WorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData);
         final Workflow workflow = workflowEngine.getWorkflow("unused workflow name");
         if (workflowClass == null)
             assertNull(workflow);
-        else
+        else {
+            assertNotNull(workflow);
             assertEquals(workflowClass, workflow.getClass());
+        }
     }
 }

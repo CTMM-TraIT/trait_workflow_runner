@@ -5,6 +5,7 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.apache.log4j.xml.DOMConfigurator;
@@ -16,20 +17,6 @@ import org.slf4j.Logger;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class BaseExample {
-    /**
-     * The Galaxy server (instance URL) to use.
-     *
-     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
-     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
-     * Galaxy server and the API key together to keep them in sync.
-     */
-    protected static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
-
-    /**
-     * The number of milliseconds in a second.
-     */
-    private static final int MILLISECONDS_PER_SECOND = 1000;
-
     /**
      * The workflow engine factory to use.
      */
@@ -74,7 +61,7 @@ public class BaseExample {
      * @param logger the logger to use.
      */
     public void finishExample(final Logger logger) {
-        durationSeconds = (System.currentTimeMillis() - startTime) / (float) MILLISECONDS_PER_SECOND;
+        durationSeconds = (System.currentTimeMillis() - startTime) / (float) Constants.MILLISECONDS_PER_SECOND;
         logger.info("");
         logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
     }

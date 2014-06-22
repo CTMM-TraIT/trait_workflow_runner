@@ -12,6 +12,15 @@ package nl.vumc.biomedbridges.core;
  */
 public class Constants {
     /**
+     * The Galaxy server (instance URL) to use by default.
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
+
+    /**
      * The name of the concatenate test workflow.
      */
     public static final String TEST_WORKFLOW_CONCATENATE = "TestWorkflowConcatenate";
@@ -35,6 +44,11 @@ public class Constants {
      * The name of the "remove top and left" workflow.
      */
     public static final String WORKFLOW_REMOVE_TOP_AND_LEFT = "RemoveTopAndLeft";
+
+    /**
+     * The number of milliseconds in a second.
+     */
+    public static final int MILLISECONDS_PER_SECOND = 1000;
 
     /**
      * Hidden constructor. Only the static fields of this class are meant to be used.
