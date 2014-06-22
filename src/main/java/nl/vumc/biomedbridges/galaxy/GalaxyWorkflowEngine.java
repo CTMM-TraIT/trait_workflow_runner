@@ -120,6 +120,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      *
      * @deprecated todo: this constructor will be removed later.
      */
+    @Deprecated
     public GalaxyWorkflowEngine() {
     }
 
@@ -127,6 +128,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * Create a Galaxy workflow engine.
      *
      * @param galaxyInstance the Galaxy instance that is used.
+     * @param historyName the history name.
      */
     public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyName) {
         this.galaxyInstance = galaxyInstance;
