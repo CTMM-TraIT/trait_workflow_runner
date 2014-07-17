@@ -51,6 +51,12 @@ Saved working directory and index state WIP on master: 123a456 [Some description
 HEAD is now at 123a456 [Some description.]
 ```
 
+If you want to remove all you local changes to files (tracked by git), you can use the reset command:
+**`git reset --hard`**<br/>
+```
+HEAD is now at 123a456 [Some description.]
+```
+
 
 Maven
 -----
