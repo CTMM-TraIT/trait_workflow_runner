@@ -20,6 +20,12 @@ import org.slf4j.LoggerFactory;
 /**
  * The Galaxy workflow metadata (which is read from a .ga file in json format).
  *
+ * todo [hackathon]: Use the API to get the tool configuration details in json format.
+ *     - example: https://usegalaxy.org/api/tools/random_lines1?io_details=true
+ *     - see: https://bitbucket.org/galaxy/galaxy-dist/src/5273e0bf9ae54599f1dadbce9d943dcac828d0f0
+ *            /lib/galaxy/webapps/galaxy/api/tools.py?at=default
+ *            * search for: "GET /api/tools/{tool_id}"
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */

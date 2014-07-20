@@ -159,7 +159,7 @@ public class GalaxyConfiguration {
                 logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
                              PROPERTY_SEPARATOR, apiKeyPrefix);
         }
-        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey) : null;
+        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, true) : null;
     }
 
     /**
