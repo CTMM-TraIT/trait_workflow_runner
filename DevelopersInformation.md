@@ -57,7 +57,7 @@ If you want to remove all you local changes to files (tracked by git), you can u
 HEAD is now at 123a456 [Some description.]
 ```
 
-[//]: <> (todo: add some information on branches: see http://genomewiki.ucsc.edu/index.php/Working_with_branches_in_Git)
+<!--- todo: add some information on branches: see http://genomewiki.ucsc.edu/index.php/Working_with_branches_in_Git -->
 
 
 Maven
