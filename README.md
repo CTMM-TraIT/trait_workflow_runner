@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/CTMM-TraIT/trait_workflow_runner.png)](https://travis-ci.org/CTMM-TraIT/trait_workflow_runner)
 
-[//]: <> (todo: add code coverage (see for example https://github.com/simkimsia/UtilityBehaviors))
+<!--- todo: add code coverage (see for example https://github.com/simkimsia/UtilityBehaviors) -->
 
 This library is part of a larger project to connect [tranSMART](http://transmartfoundation.org/) to [Galaxy](https://usegalaxy.org/), which is made possible by the [BioMedBridges](http://www.biomedbridges.eu/) and [CTMM TraIT](http://www.ctmm-trait.nl/) projects. tranSMART is a scientific data management system and Galaxy is a web-based platform for data intensive biomedical research.
 
