@@ -159,7 +159,9 @@ public class GalaxyConfiguration {
                 logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
                              PROPERTY_SEPARATOR, apiKeyPrefix);
         }
-        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, true) : null;
+        // todo: use new get method with debug parameter when a blend4j release with the 2014-06-28 changes is available.
+        //return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, true) : null;
+        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey) : null;
     }
 
     /**
