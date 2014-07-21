@@ -423,7 +423,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * @param workflow the workflow.
      * @param outputId the ID of the output file.
      * @return whether downloading was successful.
-     * @throws IOException
+     * @throws IOException if a local file could not be created.
      */
     protected boolean downloadOutputFile(final Workflow workflow, final String outputId) throws IOException {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
@@ -437,8 +437,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             outputFile = File.createTempFile(prefix, extension);
         logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         // todo: is it necessary to fill in the data type (last parameter)?
-        boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                             outputFile.getAbsolutePath(), false, null);
+        final boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
+                                                                   outputFile.getAbsolutePath(), false, null);
         workflow.addOutput(outputName, outputFile);
         return success;
     }
