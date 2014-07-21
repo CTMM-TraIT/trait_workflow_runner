@@ -41,14 +41,14 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflow.class);
 
     /**
-     * The inputs definition from the Galaxy workflow JSON file.
+     * The inputs metadata from the Galaxy workflow JSON file.
      */
-    private List<Map<String, String>> inputs;
+    private List<Map<String, String>> inputsMetadata;
 
     /**
-     * The outputs definition from the Galaxy workflow JSON file.
+     * The outputs metadata from the Galaxy workflow JSON file.
      */
-    private List<Map<String, String>> outputs;
+    private List<Map<String, String>> outputsMetadata;
 
     /**
      * Construct a Galaxy workflow.
@@ -132,8 +132,8 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
      */
     public void parseJson() {
         try {
-            inputs = new ArrayList<>();
-            outputs = new ArrayList<>();
+            inputsMetadata = new ArrayList<>();
+            outputsMetadata = new ArrayList<>();
             final String jsonContent = getJsonContent();
             if (jsonContent != null) {
                 final JSONObject workflowJson = (JSONObject) new JSONParser().parse(jsonContent);
@@ -168,17 +168,17 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
      * @param jsonInputs the json array with the inputs.
      */
     public void addJsonInputs(final JSONArray jsonInputs) {
-        inputs.addAll(createListOfMaps(jsonInputs));
-        logger.trace("inputs: " + inputs);
+        inputsMetadata.addAll(createListOfMaps(jsonInputs));
+        logger.trace("inputsMetadata: " + inputsMetadata);
     }
 
     /**
-     * Get the inputs definition from the Galaxy workflow JSON file.
+     * Get the inputs metadata from the Galaxy workflow JSON file.
      *
-     * @return the inputs definition.
+     * @return the inputs metadata.
      */
-    public List<Map<String, String>> getInputs() {
-        return inputs;
+    public List<Map<String, String>> getInputsMetadata() {
+        return inputsMetadata;
     }
 
     /**
@@ -187,17 +187,17 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
      * @param jsonOutputs the json array with the outputs.
      */
     public void addJsonOutputs(final JSONArray jsonOutputs) {
-        outputs.addAll(createListOfMaps(jsonOutputs));
-        logger.trace("outputs: " + outputs);
+        outputsMetadata.addAll(createListOfMaps(jsonOutputs));
+        logger.trace("outputsMetadata: " + outputsMetadata);
     }
 
     /**
-     * Get the outputs definition from the Galaxy workflow JSON file.
+     * Get the outputs metadata from the Galaxy workflow JSON file.
      *
-     * @return the outputs definition.
+     * @return the outputs metadata.
      */
-    public List<Map<String, String>> getOutputs() {
-        return outputs;
+    public List<Map<String, String>> getOutputsMetadata() {
+        return outputsMetadata;
     }
 
     /**
@@ -221,4 +221,10 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
         }
         return listOfMaps;
     }
+
+//    @Override
+//    public Object getOutput(final String outputName) {
+//        // todo: check whether an output file has been downloaded; if not: do it now and add to map.
+//        return outputs.get(outputName);
+//    }
 }

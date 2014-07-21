@@ -60,6 +60,22 @@ public interface Workflow {
     Map<String, Object> getInputMap();
 
     /**
+     * Get the directory where output files should be downloaded. If this directory is not set, files will be downloaded
+     * in a temporary directory.
+     *
+     * @return the directory where output files should be downloaded or null (use temporary directory).
+     */
+    String getDownloadDirectory();
+
+    /**
+     * Set the directory where output files should be downloaded. If this directory is not set, files will be downloaded
+     * in a temporary directory.
+     *
+     * @param downloadDirectory the directory where output files should be downloaded or null.
+     */
+    void setDownloadDirectory(final String downloadDirectory);
+
+    /**
      * Add an actual output object.
      *
      * @param outputName the output name.

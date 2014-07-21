@@ -18,6 +18,11 @@ import java.util.Set;
  */
 public class BaseWorkflow implements Workflow {
     /**
+     * The mapping of the output names to the actual output objects.
+     */
+    protected final Map<String, Object> outputs = new HashMap<>();
+
+    /**
      * The name of the workflow.
      */
     private final String name;
@@ -28,16 +33,17 @@ public class BaseWorkflow implements Workflow {
     private final Map<String, Object> inputs = new HashMap<>();
 
     /**
+     * The directory where output files should be downloaded. If this directory is not set, files will be downloaded
+     * in a temporary directory.
+     */
+    private String downloadDirectory;
+
+    /**
      * The mapping of the parameter names to the actual parameter objects. For the moment, the parameters are stored in
      * a map for each Galaxy step id.
      */
     // todo: make parameter handling independent of Galaxy?
     private final Map<Object, Map<String, Object>> parameters = new HashMap<>();
-
-    /**
-     * The mapping of the output names to the actual output objects.
-     */
-    private final Map<String, Object> outputs = new HashMap<>();
 
     /**
      * Construct a base workflow. This is only meant to be used by subclasses.
@@ -76,6 +82,16 @@ public class BaseWorkflow implements Workflow {
     @Override
     public Map<String, Object> getInputMap() {
         return new HashMap<>(inputs);
+    }
+
+    @Override
+    public String getDownloadDirectory() {
+        return downloadDirectory;
+    }
+
+    @Override
+    public void setDownloadDirectory(final String downloadDirectory) {
+        this.downloadDirectory = downloadDirectory;
     }
 
     @Override

@@ -391,7 +391,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 // todo [high priority]: make downloading optional (only some files might be needed) and use
                 // configurable output directory.
                 final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
-                final File outputFile = File.createTempFile(prefix, ".txt");
+                final String extension = ".txt";
+                final File outputFile;
+                if (workflow.getDownloadDirectory() != null)
+                    outputFile = new File(workflow.getDownloadDirectory() + File.separator + prefix + extension);
+                else
+                    outputFile = File.createTempFile(prefix, extension);
                 logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
                 // todo: is it necessary to fill in the data type (last parameter)?
                 success &= new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,

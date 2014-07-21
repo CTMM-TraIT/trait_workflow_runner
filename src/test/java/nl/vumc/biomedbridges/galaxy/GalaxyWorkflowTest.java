@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class GalaxyWorkflowTest {
     /**
-     * Test the constructor, the json parsing, and the getInputs & getOutputs methods.
+     * Test the constructor, the json parsing, and the getInputsMetadata & getOutputsMetadata methods.
      */
     @Test
     public void testConstructorAndJsonParsing() {
@@ -36,10 +36,10 @@ public class GalaxyWorkflowTest {
         final List<Map<String, String>> expectedInputs = new ArrayList<>();
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput1"));
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput2"));
-        assertEquals(expectedInputs, concatenateWorkflow.getInputs());
+        assertEquals(expectedInputs, concatenateWorkflow.getInputsMetadata());
         final List<Map<String, String>> expectedOutputs = new ArrayList<>();
         expectedOutputs.add(ImmutableMap.of("name", "out_file1", "type", "input"));
-        assertEquals(expectedOutputs, concatenateWorkflow.getOutputs());
+        assertEquals(expectedOutputs, concatenateWorkflow.getOutputsMetadata());
     }
 
     /**
