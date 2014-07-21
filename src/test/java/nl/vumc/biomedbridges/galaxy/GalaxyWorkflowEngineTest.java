@@ -179,7 +179,7 @@ public class GalaxyWorkflowEngineTest {
         final GalaxyInstance configurationData = new GalaxyConfiguration().determineGalaxyInstance(configuration);
         final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(configurationData, "history-name");
         galaxyWorkflowEngine.configure(configuration);
-        galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow("TestWorkflow"));
+        galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow(galaxyWorkflowEngine, "TestWorkflow"));
 
         assertFalse(dummyFile.delete());
     }

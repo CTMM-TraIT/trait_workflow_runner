@@ -60,6 +60,20 @@ public interface Workflow {
     Map<String, Object> getInputMap();
 
     /**
+     * Whether all output files should be downloaded automatically after the workflow has finished.
+     *
+     * @return whether all output files should be downloaded automatically.
+     */
+    boolean getAutomaticDownload();
+
+    /**
+     * Set whether all output files should be downloaded automatically after the workflow has finished.
+     *
+     * @param automaticDownload whether all output files should be downloaded automatically.
+     */
+    void setAutomaticDownload(final boolean automaticDownload);
+
+    /**
      * Get the directory where output files should be downloaded. If this directory is not set, files will be downloaded
      * in a temporary directory.
      *

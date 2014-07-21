@@ -14,7 +14,6 @@ import com.google.inject.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -115,8 +114,7 @@ public class HistogramExample extends BaseExample {
      */
     private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
-        final Map<String, Object> outputMap = workflow.getOutputMap();
-        final Object output = outputMap.isEmpty() ? null : outputMap.values().iterator().next();
+        final Object output = workflow.getOutput("Histogram on data 1");
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);

@@ -33,17 +33,22 @@ public class BaseWorkflow implements Workflow {
     private final Map<String, Object> inputs = new HashMap<>();
 
     /**
-     * The directory where output files should be downloaded. If this directory is not set, files will be downloaded
-     * in a temporary directory.
-     */
-    private String downloadDirectory;
-
-    /**
      * The mapping of the parameter names to the actual parameter objects. For the moment, the parameters are stored in
      * a map for each Galaxy step id.
      */
     // todo: make parameter handling independent of Galaxy?
     private final Map<Object, Map<String, Object>> parameters = new HashMap<>();
+
+    /**
+     * Whether all output files should be downloaded automatically after the workflow has finished.
+     */
+    private boolean automaticDownload;
+
+    /**
+     * The directory where output files should be downloaded. If this directory is not set, files will be downloaded
+     * in a temporary directory.
+     */
+    private String downloadDirectory;
 
     /**
      * Construct a base workflow. This is only meant to be used by subclasses.
@@ -52,6 +57,8 @@ public class BaseWorkflow implements Workflow {
      */
     protected BaseWorkflow(final String name) {
         this.name = name;
+        // todo: set/leave automaticDownload false by default (change later to make sure current code is not breaking).
+        this.automaticDownload = true;
     }
 
     @Override
@@ -82,6 +89,16 @@ public class BaseWorkflow implements Workflow {
     @Override
     public Map<String, Object> getInputMap() {
         return new HashMap<>(inputs);
+    }
+
+    @Override
+    public boolean getAutomaticDownload() {
+        return automaticDownload;
+    }
+
+    @Override
+    public void setAutomaticDownload(final boolean automaticDownload) {
+        this.automaticDownload = automaticDownload;
     }
 
     @Override

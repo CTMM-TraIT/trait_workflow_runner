@@ -146,7 +146,7 @@ public class RandomLinesExample extends BaseExample {
      */
     private List<String> checkWorkflowOutput(final Workflow workflow) throws IOException {
         List<String> result = null;
-        final Object output = workflow.getOutputMap().get(OUTPUT_NAME);
+        final Object output = workflow.getOutput(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             logger.trace("Reading output file {}.", outputFile.getAbsolutePath());

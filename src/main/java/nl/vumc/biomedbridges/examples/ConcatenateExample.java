@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -123,8 +122,7 @@ public class ConcatenateExample extends BaseExample {
      */
     private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
-        final Map<String, Object> outputMap = workflow.getOutputMap();
-        final Object output = (outputMap.size() == 1) ? outputMap.values().iterator().next() : null;
+        final Object output = workflow.getOutput("Concatenate datasets on data 2 and data 1");
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);

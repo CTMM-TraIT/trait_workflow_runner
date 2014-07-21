@@ -11,6 +11,7 @@ import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
+import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -111,9 +113,19 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private HistoriesClient historiesClient;
 
     /**
+     * The ID of the new history that is created to contain the input and output files.
+     */
+    private String historyId;
+
+    /**
      * The outputs of the executed workflow.
      */
     private WorkflowOutputs workflowOutputs;
+
+    /**
+     * Mappings from output name to output ID (used when output files are not downloaded automatically).
+     */
+    private Map<String, String> outputNameToIdsMap;
 
     /**
      * Create a Galaxy workflow engine.
@@ -150,7 +162,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public Workflow getWorkflow(final String workflowName) {
-        return new GalaxyWorkflow(workflowName);
+        return new GalaxyWorkflow(this, workflowName);
     }
 
     @Override
@@ -162,21 +174,21 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
-            final String historyId = createNewHistory();
-            uploadInputFiles(historyId, workflow);
-            final WorkflowInputs inputs = createInputsObject(historyId, workflow);
+            historyId = createNewHistory();
+            uploadInputFiles(workflow);
+            final WorkflowInputs inputs = createInputsObject(workflow);
 
-            final boolean workflowFinished = executeWorkflow(historyId, inputs);
-            final boolean downloadsSuccessful = downloadOutputFiles(workflow, historyId);
+            final boolean workflowFinished = executeWorkflow(inputs);
+            final boolean downloadsSuccessful = downloadOutputFiles(workflow);
             logger.trace("Download output files downloadsSuccessful: {}.", downloadsSuccessful);
 
             final boolean checkResults;
             if (workflowFinished)
-                checkResults = checkWorkflowResults(historyId);
+                checkResults = checkWorkflowResults();
             else {
                 logger.info("Timeout while waiting for workflow output file(s).");
-                // Freek: test the output anyway to generate some logging for analysis.
-                checkResults = checkWorkflowResults(historyId);
+                // Freek: test the output anyway to generate some logging for debugging/analysis.
+                checkResults = checkWorkflowResults();
             }
             logger.trace("workflowFinished: " + workflowFinished);
             logger.trace("downloadsSuccessful: " + downloadsSuccessful);
@@ -213,11 +225,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Upload the input files and wait for it to finish.
      *
-     * @param historyId the ID of the history to use for workflow input and output.
-     * @param workflow  the workflow.
+     * @param workflow the workflow.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
      */
-    private void uploadInputFiles(final String historyId, final Workflow workflow) throws InterruptedException {
+    private void uploadInputFiles(final Workflow workflow) throws InterruptedException {
         logger.info("- Upload the input files.");
         for (final Object inputObject : workflow.getAllInputValues())
             if (inputObject instanceof File) {
@@ -296,11 +307,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Create the workflow inputs object with the input files and parameters.
      *
-     * @param historyId the ID of the history to use for workflow input and output.
-     * @param workflow  the workflow.
+     * @param workflow the workflow.
      * @return the workflow inputs object.
      */
-    private WorkflowInputs createInputsObject(final String historyId, final Workflow workflow) {
+    private WorkflowInputs createInputsObject(final Workflow workflow) {
         logger.info("- Create the workflow inputs object.");
         final WorkflowInputs inputs = new WorkflowInputs();
         inputs.setDestination(new WorkflowInputs.ExistingHistory(historyId));
@@ -346,13 +356,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Execute the workflow that was prepared with the workflows client.
      *
-     * @param historyId      the ID of the history to use for workflow input and output.
      * @param workflowInputs the blend4j workflow inputs.
      * @return whether the workflow finished successfully.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for Galaxy.
      */
-    private boolean executeWorkflow(final String historyId, final WorkflowInputs workflowInputs)
-            throws InterruptedException {
+    private boolean executeWorkflow(final WorkflowInputs workflowInputs) throws InterruptedException {
         workflowOutputs = workflowsClient.runWorkflow(workflowInputs);
         logger.info("Running the workflow (history ID: {}).", workflowOutputs.getHistoryId());
         boolean finished = false;
@@ -375,33 +383,22 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
-     * Download all output files and add them as results to the workflow object.
+     * If the workflow has automatically downloading selected: download all output files and add them as results to the
+     * workflow object. Else: fill a map with output name to output ID entries to allow later download.
      *
      * @param workflow  the workflow.
-     * @param historyId the ID of the history to use for workflow input and output.
      * @return whether all output files were downloaded successfully.
      */
-    private boolean downloadOutputFiles(final Workflow workflow, final String historyId) {
+    private boolean downloadOutputFiles(final Workflow workflow) {
         boolean success = true;
         try {
-            for (final String outputId : workflowOutputs.getOutputIds()) {
-                final Dataset dataset = historiesClient.showDataset(historyId, outputId);
-                final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
-                // FT-931 - Output file downloading optional
-                // todo [high priority]: make downloading optional (only some files might be needed) and use
-                // configurable output directory.
-                final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
-                final String extension = ".txt";
-                final File outputFile;
-                if (workflow.getDownloadDirectory() != null)
-                    outputFile = new File(workflow.getDownloadDirectory() + File.separator + prefix + extension);
-                else
-                    outputFile = File.createTempFile(prefix, extension);
-                logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
-                // todo: is it necessary to fill in the data type (last parameter)?
-                success &= new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                              outputFile.getAbsolutePath(), false, null);
-                workflow.addOutput(outputName, outputFile);
+            if (workflow.getAutomaticDownload())
+                for (final String outputId : workflowOutputs.getOutputIds())
+                    success &= downloadOutputFile(workflow, outputId);
+            else {
+                outputNameToIdsMap = new HashMap<>();
+                for (final HistoryContents historyContents : historiesClient.showHistoryContents(historyId))
+                    outputNameToIdsMap.put(historyContents.getName(), historyContents.getId());
             }
         } catch (final IllegalArgumentException | IOException | SecurityException e) {
             logger.error("Error downloading a workflow output file.", e);
@@ -411,13 +408,48 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     /**
+     * Retrieve the output ID for a workflow output file using the output name.
+     *
+     * @param outputName the output name.
+     * @return the output ID.
+     */
+    public String getOutputIdForOutputName(final String outputName) {
+        return outputNameToIdsMap != null ? outputNameToIdsMap.get(outputName) : null;
+    }
+
+    /**
+     * Download a workflow output file and add it to the output map in the workflow.
+     *
+     * @param workflow the workflow.
+     * @param outputId the ID of the output file.
+     * @return whether downloading was successful.
+     * @throws IOException
+     */
+    protected boolean downloadOutputFile(final Workflow workflow, final String outputId) throws IOException {
+        final Dataset dataset = historiesClient.showDataset(historyId, outputId);
+        final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
+        final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
+        final String extension = ".txt";
+        final File outputFile;
+        if (workflow.getDownloadDirectory() != null)
+            outputFile = new File(workflow.getDownloadDirectory() + File.separator + prefix + extension);
+        else
+            outputFile = File.createTempFile(prefix, extension);
+        logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
+        // todo: is it necessary to fill in the data type (last parameter)?
+        boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
+                                                             outputFile.getAbsolutePath(), false, null);
+        workflow.addOutput(outputName, outputFile);
+        return success;
+    }
+
+    /**
      * Check the results of the workflow.
      *
-     * @param historyId the ID of the history to use for workflow input and output.
      * @return whether the workflow results appear to be valid.
      * @throws IOException if reading the workflow results fails.
      */
-    private boolean checkWorkflowResults(final String historyId) throws IOException {
+    private boolean checkWorkflowResults() throws IOException {
         boolean valid = true;
         logger.info("Check outputs.");
         for (final String outputId : workflowOutputs.getOutputIds())

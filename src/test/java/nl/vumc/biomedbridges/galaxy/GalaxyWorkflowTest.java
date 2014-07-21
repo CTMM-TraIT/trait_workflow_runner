@@ -32,7 +32,7 @@ public class GalaxyWorkflowTest {
      */
     @Test
     public void testConstructorAndJsonParsing() {
-        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(null, Constants.TEST_WORKFLOW_CONCATENATE);
         final List<Map<String, String>> expectedInputs = new ArrayList<>();
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput1"));
         expectedInputs.add(ImmutableMap.of("description", "", "name", "WorkflowInput2"));
@@ -47,7 +47,7 @@ public class GalaxyWorkflowTest {
      */
     @Test
     public void testEnsureWorkflowIsOnServerAlreadyThere() {
-        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(null, Constants.TEST_WORKFLOW_CONCATENATE);
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
                 = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
@@ -61,7 +61,7 @@ public class GalaxyWorkflowTest {
      */
     @Test
     public void testEnsureWorkflowIsOnServerWithImport() {
-        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(null, Constants.TEST_WORKFLOW_CONCATENATE);
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock1
                 = getBlend4jWorkflowMock("dummy");
