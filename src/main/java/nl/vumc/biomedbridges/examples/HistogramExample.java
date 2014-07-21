@@ -34,6 +34,11 @@ import org.slf4j.LoggerFactory;
  */
 public class HistogramExample extends BaseExample {
     /**
+     * The name of the output dataset.
+     */
+    public static final String OUTPUT_NAME = "Histogram on data 1";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(HistogramExample.class);
@@ -114,7 +119,7 @@ public class HistogramExample extends BaseExample {
      */
     private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
-        final Object output = workflow.getOutput("Histogram on data 1");
+        final Object output = workflow.getOutput(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);

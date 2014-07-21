@@ -125,8 +125,6 @@ public class WorkflowRunner {
      * @throws IOException if reading an output file fails.
      */
     private void checkWorkflowOutput(final Workflow workflow) throws IOException {
-        // todo: look at all outputs (since GalaxyWorkflowEngine.downloadOutputFiles now downloads all output files).
-        // todo [high priority]: make it possible to only download some of the output files.
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;

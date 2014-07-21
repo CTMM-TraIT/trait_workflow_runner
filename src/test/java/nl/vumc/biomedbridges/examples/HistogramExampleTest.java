@@ -12,9 +12,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.vumc.biomedbridges.core.DummyWorkflow;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
+import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class HistogramExampleTest {
         for (int lineIndex = 0; lineIndex < 499; lineIndex++)
             dummyLines.add("");
         final File temporaryPdfFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final DummyWorkflow workflow = (DummyWorkflow) workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
-        workflow.addToOutputMap("out_file1", temporaryPdfFile);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        workflow.addOutput(HistogramExample.OUTPUT_NAME, temporaryPdfFile);
     }
 }

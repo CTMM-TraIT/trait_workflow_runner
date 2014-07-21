@@ -106,9 +106,9 @@ public interface Workflow {
     Object getOutput(final String outputName);
 
     /**
-     * Get all the outputs in a map.
+     * Get all the output files in a map.
      *
-     * @return the map with all outputs.
+     * @return the map with all output files.
      */
     Map<String, Object> getOutputMap();
 

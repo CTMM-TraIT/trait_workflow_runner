@@ -12,9 +12,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.vumc.biomedbridges.core.DummyWorkflow;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
+import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class ConcatenateExampleTest {
         final Injector injector = Guice.createInjector(new TestGuiceModule());
         final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
 
-        addOutputFileToOutputMap(concatenateExample.workflowEngineFactory);
+        addOutputFilesToOutputMap(concatenateExample.workflowEngineFactory);
         assertTrue(concatenateExample.runExample());
     }
 
@@ -45,12 +45,12 @@ public class ConcatenateExampleTest {
      *
      * @param workflowEngineFactory the dummy workflow engine factory.
      */
-    private void addOutputFileToOutputMap(final WorkflowEngineFactory workflowEngineFactory) {
+    private void addOutputFilesToOutputMap(final WorkflowEngineFactory workflowEngineFactory) {
         final List<String> dummyLines = new ArrayList<>();
         dummyLines.add(ConcatenateExample.LINE_TEST_FILE_1);
         dummyLines.add(ConcatenateExample.LINE_TEST_FILE_2);
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final DummyWorkflow workflow = (DummyWorkflow) workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
-        workflow.addToOutputMap(RandomLinesExample.OUTPUT_NAME, temporaryOutputFile);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        workflow.addOutput(ConcatenateExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

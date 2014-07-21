@@ -36,6 +36,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcatenateExample extends BaseExample {
     /**
+     * The name of the output dataset.
+     */
+    public static final String OUTPUT_NAME = "Concatenate datasets on data 2 and data 1";
+
+    /**
      * The name of the Galaxy history.
      */
     protected static final String HISTORY_NAME = "Concatenate History";
@@ -122,7 +127,7 @@ public class ConcatenateExample extends BaseExample {
      */
     private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
-        final Object output = workflow.getOutput("Concatenate datasets on data 2 and data 1");
+        final Object output = workflow.getOutput(OUTPUT_NAME);
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);

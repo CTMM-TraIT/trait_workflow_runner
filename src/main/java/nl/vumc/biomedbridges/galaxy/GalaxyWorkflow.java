@@ -230,13 +230,13 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     @Override
     public Object getOutput(final String outputName) {
         // todo: check whether an output file has been downloaded; if not: do it now and add to map.
-        if (!getAutomaticDownload() && !outputs.containsKey(outputName)) {
+        if (!getAutomaticDownload() && !outputFiles.containsKey(outputName)) {
             try {
                 workflowEngine.downloadOutputFile(this, workflowEngine.getOutputIdForOutputName(outputName));
             } catch (final IOException e) {
                 logger.error("Error downloading a workflow output file.", e);
             }
         }
-        return outputs.get(outputName);
+        return outputFiles.get(outputName);
     }
 }

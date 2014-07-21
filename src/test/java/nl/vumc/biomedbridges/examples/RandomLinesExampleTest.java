@@ -12,9 +12,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.vumc.biomedbridges.core.DummyWorkflow;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
+import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class RandomLinesExampleTest {
         for (int lineIndex = 0; lineIndex < RandomLinesExample.DEFINITIVE_LINE_COUNT; lineIndex++)
             dummyLines.add("");
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final DummyWorkflow workflow = (DummyWorkflow) workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
-        workflow.addToOutputMap(RandomLinesExample.OUTPUT_NAME, temporaryOutputFile);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        workflow.addOutput(RandomLinesExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }
