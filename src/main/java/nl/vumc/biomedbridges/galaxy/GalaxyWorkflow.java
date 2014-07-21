@@ -100,7 +100,10 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
                 }
         } catch (final RuntimeException e) {
             // todo: could blend4j catch the com.sun.jersey.api.client.ClientHandlerException and throw a known one?
-            logger.error("Error retrieving the available workflows from the Galaxy server.");
+            logger.error("Error retrieving the available workflows from the Galaxy server.", e);
+            // todo: example of an error message from the Galaxy API: "Provided API key is not valid.", which is
+            // todo: translated to a JsonParseException: Unexpected character ('P' (code 80)): expected a valid value
+            //       (number, String, array, object, 'true', 'false' or 'null')
         }
         // CHECKSTYLE_ON: IllegalCatchCheck
         return found;
