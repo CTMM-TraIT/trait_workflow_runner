@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 
@@ -428,7 +429,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     protected boolean downloadOutputFile(final Workflow workflow, final String outputId) throws IOException {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
         final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
-        final String prefix = String.format("workflow-runner-%s-%s-", historyId, outputName);
+        final String prefix = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
         final String extension = ".txt";
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)

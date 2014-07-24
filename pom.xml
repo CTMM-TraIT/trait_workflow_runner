@@ -15,7 +15,7 @@
 
     <!-- General project settings. -->
     <name>Workflow Runner</name>
-    <description>Workflow Runner tool for running a workflow on a Galaxy server</description>
+    <description>Workflow Runner tool for running a workflow on a Galaxy server.</description>
     <url>https://github.com/CTMM-TraIT/trait_workflow_runner/tree/master</url>
     <groupId>nl.vumc.biomedbridges</groupId>
     <artifactId>WorkflowRunner</artifactId>
@@ -73,7 +73,7 @@
             <version>${blend4j.version}</version>
         </dependency>
 
-        <!-- JSON Parser -->
+        <!-- JSON Parser. -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>

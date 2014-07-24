@@ -53,4 +53,19 @@ public class FileUtils {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Replace all characters that could give file system problems with underscores.
+     *
+     * Inspired by http://stackoverflow.com/a/5626340/1694043 and sun.nio.fs.WindowsPathParser.isInvalidPathChar.
+     *
+     * @param originalFileName the original file name.
+     * @return the clean file name that should be safe on the popular platforms.
+     */
+    public static String cleanFileName(final String originalFileName) {
+        final StringBuilder cleanName = new StringBuilder();
+        for (char character : originalFileName.toCharArray())
+            cleanName.append(character >= 32 && "\\/<>:\"|?*".indexOf(character) == -1 ? character : "_");
+        return cleanName.toString();
+    }
 }

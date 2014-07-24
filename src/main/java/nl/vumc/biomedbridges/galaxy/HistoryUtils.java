@@ -19,6 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import nl.vumc.biomedbridges.core.FileUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +53,9 @@ public class HistoryUtils {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
         final String toExt = (dataType != null) ? dataType : dataset.getDataType();
         final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
-        final String fullFilePath = filePath + (useDatasetName ? File.separator + dataset.getName() : "");
-        logger.trace("Downloading dataset {} to file {}.", dataset.getName(), fullFilePath);
+        final String fullFilePath = filePath
+                                    + (useDatasetName ? File.separator + FileUtils.cleanFileName(dataset.getName()) : "");
+        logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), fullFilePath);
         return downloadFileFromUrl(url, fullFilePath);
     }
 
