@@ -53,6 +53,8 @@ public class HistoryUtils {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
         final String toExt = (dataType != null) ? dataType : dataset.getDataType();
         final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
+        // todo: use FileUtils.createUniqueFilePath() here.
+        // todo: does the dataset name include the (correct) extension (like for example pdf)?
         final String fullFilePath = filePath
                                     + (useDatasetName ? File.separator + FileUtils.cleanFileName(dataset.getName()) : "");
         logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), fullFilePath);

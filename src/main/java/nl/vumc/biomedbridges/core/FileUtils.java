@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +66,33 @@ public class FileUtils {
      * @return the clean file name that should be safe on the popular platforms.
      */
     public static String cleanFileName(final String originalFileName) {
+        // See https://en.wikipedia.org/wiki/ASCII#ASCII_control_code_chart for information on ASCII control characters.
+        final int controlCharactersLimit = 32;
+        final int ruboutCharacter = 127;
         final StringBuilder cleanName = new StringBuilder();
-        for (char character : originalFileName.toCharArray())
-            cleanName.append(character >= 32 && "\\/<>:\"|?*".indexOf(character) == -1 ? character : "_");
+        for (final char character : originalFileName.toCharArray()) {
+            final boolean controlCharacter = character < controlCharactersLimit || character == ruboutCharacter;
+            cleanName.append(!controlCharacter && "\\/<>:\"|?*".indexOf(character) == -1 ? character : "_");
+        }
         return cleanName.toString();
+    }
+
+    /**
+     * Create a unique file path from a directory, base name, and suffix. While the file path exists, a minus and an
+     * increasing number are added after the base name.
+     *
+     * @param directory the directory where the file should be created.
+     * @param baseName the base name.
+     * @param suffix the suffix (starting with a period).
+     * @return a unique file path.
+     */
+    public static String createUniqueFilePath(final String directory, final String baseName, final String suffix) {
+        Path filePath = Paths.get(directory, baseName + suffix);
+        int index = 1;
+        while (Files.exists(filePath)) {
+            filePath = Paths.get(directory, baseName + "-" + index + suffix);
+            index++;
+        }
+        return filePath.toString();
     }
 }

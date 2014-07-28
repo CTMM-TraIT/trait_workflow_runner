@@ -429,13 +429,13 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     protected boolean downloadOutputFile(final Workflow workflow, final String outputId) throws IOException {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
         final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
-        final String prefix = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
+        final String baseName = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
         final String extension = ".txt";
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
-            outputFile = new File(workflow.getDownloadDirectory() + File.separator + prefix + extension);
+            outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, extension));
         else
-            outputFile = File.createTempFile(prefix, extension);
+            outputFile = File.createTempFile(baseName, extension);
         logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         // todo: is it necessary to fill in the data type (last parameter)?
         final boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
