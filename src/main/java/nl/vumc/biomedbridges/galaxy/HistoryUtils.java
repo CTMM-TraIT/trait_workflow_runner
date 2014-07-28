@@ -10,7 +10,6 @@ import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -18,8 +17,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import nl.vumc.biomedbridges.core.FileUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,22 +40,17 @@ public class HistoryUtils {
      * @param historyId       the ID of the history that contains the dataset.
      * @param datasetId       the ID of the dataset.
      * @param filePath        the (base) file path to write the dataset to.
-     * @param useDatasetName  whether the dataset name should be appended to the file path.
      * @param dataType        the explicit data type of the dataset (or null to use the data type from the dataset).
      * @return whether the download was successful.
      */
     public boolean downloadDataset(final GalaxyInstance galaxyInstance, final HistoriesClient historiesClient,
                                    final String historyId, final String datasetId, final String filePath,
-                                   final boolean useDatasetName, final String dataType) {
+                                   final String dataType) {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
         final String toExt = (dataType != null) ? dataType : dataset.getDataType();
         final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
-        // todo: use FileUtils.createUniqueFilePath() here.
-        // todo: does the dataset name include the (correct) extension (like for example pdf)?
-        final String fullFilePath = filePath
-                                    + (useDatasetName ? File.separator + FileUtils.cleanFileName(dataset.getName()) : "");
-        logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), fullFilePath);
-        return downloadFileFromUrl(url, fullFilePath);
+        logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), filePath);
+        return downloadFileFromUrl(url, filePath);
     }
 
     /**

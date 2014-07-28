@@ -43,7 +43,7 @@ public class HistoryUtilsTest {
         Mockito.when(historyUtilsSpy.downloadFileFromUrl(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 
         assertTrue(historyUtilsSpy.downloadDataset(galaxyInstance, historiesClient, historyId, datasetId, filePath,
-                                                   false, null));
+                                                   null));
     }
 
     /**

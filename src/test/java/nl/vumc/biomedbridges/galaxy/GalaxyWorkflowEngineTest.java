@@ -165,7 +165,7 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
         PowerMockito.when(new HistoryUtils().downloadDataset(Mockito.eq(galaxyMock), Mockito.eq(historiesClientMock),
                                                              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                                                             Mockito.anyBoolean(), Mockito.anyString())).thenReturn(true);
+                                                             Mockito.anyString())).thenReturn(true);
         Mockito.when(historiesClientMock.showDataset(Mockito.anyString(), Mockito.anyString())).thenReturn(datasetMock);
         Mockito.when(galaxyMock.getGalaxyUrl()).thenReturn("http://");
         PowerMockito.whenNew(URL.class).withArguments(Mockito.anyString()).thenReturn(url);

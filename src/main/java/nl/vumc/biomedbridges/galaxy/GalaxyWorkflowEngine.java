@@ -128,6 +128,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private Map<String, String> outputNameToIdsMap;
 
+    ///**
+    // * The metadata for the workflow engine.
+    // */
+    //private GalaxyWorkflowEngineMetadata workflowEngineMetadata;
+
     /**
      * Create a Galaxy workflow engine.
      *
@@ -430,6 +435,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
         final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
         final String baseName = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
+        // todo: determine the appropriate extension (like for example pdf).
+        //if (workflowEngineMetadata == null)
+        //    workflowEngineMetadata = new GalaxyWorkflowEngineMetadata();
+        //workflowEngineMetadata.getWorkflow(workflow.getName()).getSteps().get(0).getOutputs().get(0).getName();
         final String extension = ".txt";
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
@@ -439,13 +448,15 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         // todo: is it necessary to fill in the data type (last parameter)?
         final boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                                   outputFile.getAbsolutePath(), false, null);
+                                                                   outputFile.getAbsolutePath(), null);
         workflow.addOutput(outputName, outputFile);
         return success;
     }
 
     /**
      * Check the results of the workflow.
+     *
+     * todo: is this still necessary? only if automatic download is on? last output file is downloaded twice?
      *
      * @return whether the workflow results appear to be valid.
      * @throws IOException if reading the workflow results fails.
@@ -464,7 +475,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             // Freek: the last workflow output file is most likely to be the end result?
             final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
             new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId,
-                                               OUTPUT_FILE_PATH, false, null);
+                                               OUTPUT_FILE_PATH, null);
             final File outputFile = new File(OUTPUT_FILE_PATH);
             if (outputFile.exists())
                 logger.info("- Output file exists.");
