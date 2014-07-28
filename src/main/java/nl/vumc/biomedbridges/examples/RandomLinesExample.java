@@ -118,10 +118,10 @@ public class RandomLinesExample extends BaseExample {
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
         workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
-        final int stepIdFirstFilter = 2;
-        final int stepIdSecondFilter = 3;
-        workflow.setParameter(stepIdFirstFilter, LINE_COUNT_PARAMETER_NAME, initialLineCount);
-        workflow.setParameter(stepIdSecondFilter, LINE_COUNT_PARAMETER_NAME, definitiveLineCount);
+        final int stepNumberFirstFilter = 2;
+        final int stepNumberSecondFilter = 3;
+        workflow.setParameter(stepNumberFirstFilter, LINE_COUNT_PARAMETER_NAME, initialLineCount);
+        workflow.setParameter(stepNumberSecondFilter, LINE_COUNT_PARAMETER_NAME, definitiveLineCount);
 
         boolean result = true;
         try {

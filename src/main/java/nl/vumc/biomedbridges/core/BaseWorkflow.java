@@ -128,12 +128,12 @@ public class BaseWorkflow implements Workflow {
 
     @Override
     // todo: make setting parameters independent of Galaxy?
-    public void setParameter(final int stepId, final String name, final Object value) {
-        Map<String, Object> keyValueMap = parameters.get(stepId);
+    public void setParameter(final int stepNumber, final String name, final Object value) {
+        Map<String, Object> keyValueMap = parameters.get(stepNumber);
         if (keyValueMap == null)
             keyValueMap = new HashMap<>();
         keyValueMap.put(name, value);
-        parameters.put(stepId, keyValueMap);
+        parameters.put(stepNumber, keyValueMap);
     }
 
     @Override

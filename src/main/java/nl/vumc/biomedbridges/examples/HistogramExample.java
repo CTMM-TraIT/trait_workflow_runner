@@ -88,14 +88,14 @@ public class HistogramExample extends BaseExample {
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
 
         workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
-        final int stepId = 2;
+        final int stepNumber = 2;
         final int barCount = 6;
-        workflow.setParameter(stepId, "title", "A histogram example");
-        workflow.setParameter(stepId, "numerical_column", 1);
-        workflow.setParameter(stepId, "breaks", barCount);
-        workflow.setParameter(stepId, "xlab", "Number");
-        workflow.setParameter(stepId, "density", true);
-        workflow.setParameter(stepId, "frequency", false);
+        workflow.setParameter(stepNumber, "title", "A histogram example");
+        workflow.setParameter(stepNumber, "numerical_column", 1);
+        workflow.setParameter(stepNumber, "breaks", barCount);
+        workflow.setParameter(stepNumber, "xlab", "Number");
+        workflow.setParameter(stepNumber, "density", true);
+        workflow.setParameter(stepNumber, "frequency", false);
 
         boolean result = true;
         try {

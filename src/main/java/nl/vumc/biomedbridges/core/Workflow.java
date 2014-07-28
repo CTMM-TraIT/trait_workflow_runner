@@ -115,12 +115,12 @@ public interface Workflow {
     /**
      * Set a workflow parameter.
      *
-     * @param stepId the Galaxy step id.
+     * @param stepNumber the Galaxy step number: one-based index (even if the step IDs are higher).
      * @param name the parameter name.
      * @param value the parameter value.
      */
     // todo: make parameter handling independent of Galaxy?
-    void setParameter(final int stepId, String name, Object value);
+    void setParameter(final int stepNumber, String name, Object value);
 
     /**
      * Retrieve all workflow parameters.

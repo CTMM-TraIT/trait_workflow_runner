@@ -102,11 +102,11 @@ public class DemonstrationWorkflowEngineTest {
      * @param inputFile the input file.
      */
     private void setRandomLinesInputAndParameters(final File inputFile) {
-        final int stepId2 = 2;
-        final int stepId3 = 3;
+        final int stepNumber2 = 2;
+        final int stepNumber3 = 3;
         final String numberOfLinesParameter = "num_lines";
         randomLinesWorkflow.addInput("Input Dataset", inputFile);
-        randomLinesWorkflow.setParameter(stepId2, numberOfLinesParameter, 1);
-        randomLinesWorkflow.setParameter(stepId3, numberOfLinesParameter, 6);
+        randomLinesWorkflow.setParameter(stepNumber2, numberOfLinesParameter, 1);
+        randomLinesWorkflow.setParameter(stepNumber3, numberOfLinesParameter, 6);
     }
 }
