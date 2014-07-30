@@ -177,6 +177,17 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (galaxyInstance != null) {
             logStartRunWorkflow();
 
+            // todo: separate check and/or better error message when the server is not available.
+            /*
+            <html>
+                <head><title>504 Gateway Time-out</title></head>
+                <body bgcolor="white">
+                    <center><h1>504 Gateway Time-out</h1></center>
+                    <hr>
+                    <center>nginx/1.2.0</center>
+                </body>
+            </html>
+             */
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
@@ -439,7 +450,13 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         //if (workflowEngineMetadata == null)
         //    workflowEngineMetadata = new GalaxyWorkflowEngineMetadata();
         //workflowEngineMetadata.getWorkflow(workflow.getName()).getSteps().get(0).getOutputs().get(0).getName();
-        final String extension = ".txt";
+        // todo: use dataset data type?
+        final String dataType = dataset.getDataType();
+        final String extension;
+        if ("tabular".equals(dataType))
+            extension = ".txt";
+        else
+            extension = ".txt";
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
             outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, extension));

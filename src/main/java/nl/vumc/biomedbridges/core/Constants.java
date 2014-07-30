@@ -21,6 +21,15 @@ public class Constants {
     public static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
 
     /**
+     * The SURFsara CTMM TraIT Galaxy server (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String TRAIT_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
+
+    /**
      * The name of the concatenate test workflow.
      */
     public static final String TEST_WORKFLOW_CONCATENATE = "TestWorkflowConcatenate";
@@ -39,6 +48,11 @@ public class Constants {
      * The name of the RandomLinesTwice workflow.
      */
     public static final String WORKFLOW_RANDOM_LINES_TWICE = "RandomLinesTwice";
+
+    /**
+     * The name of the RNA-Seq edgeR DGE workflow.
+     */
+    public static final String WORKFLOW_RNA_SEQ_DGE = "RNA-Seq-edgeR-DGE";
 
     /**
      * The name of the "remove top and left" workflow.
