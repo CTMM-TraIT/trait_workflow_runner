@@ -11,7 +11,6 @@ import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -112,6 +111,7 @@ public class RnaSeqDgeExample extends BaseExample {
      * @throws IOException if reading an output file fails.
      */
     private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
-        return workflow.getOutputMap().size() == 7;
+        final int expectedOutputCount = 7;
+        return workflow.getOutputMap().size() == expectedOutputCount;
     }
 }

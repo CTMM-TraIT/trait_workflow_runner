@@ -94,6 +94,21 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final String STATE_OK = "ok";
 
     /**
+     * File type tabular.
+     */
+    private static final String FILE_TYPE_TABULAR = "tabular";
+
+    /**
+     * File type text.
+     */
+    private static final String FILE_TYPE_TEXT = "txt";
+
+    /**
+     * File extension text.
+     */
+    private static final String EXTENSION_TEXT = FILE_TYPE_TEXT;
+
+    /**
      * The name of the history to run the workflow in.
      */
     private String historyName = DEFAULT_HISTORY_NAME;
@@ -270,9 +285,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final ToolsClient.FileUploadRequest fileUploadRequest = new ToolsClient.FileUploadRequest(historyId, inputFile);
         // todo: do this based on what the Galaxy workflow needs.
         if (workflow.getName().equals(Constants.WORKFLOW_REMOVE_TOP_AND_LEFT))
-            fileUploadRequest.setFileType("txt");
+            fileUploadRequest.setFileType(FILE_TYPE_TEXT);
         else
-            fileUploadRequest.setFileType("tabular");
+            fileUploadRequest.setFileType(FILE_TYPE_TABULAR);
         return galaxyInstance.getToolsClient().uploadRequest(fileUploadRequest);
     }
 
@@ -452,16 +467,17 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         //workflowEngineMetadata.getWorkflow(workflow.getName()).getSteps().get(0).getOutputs().get(0).getName();
         // todo: use dataset data type?
         final String dataType = dataset.getDataType();
-        final String extension;
-        if ("tabular".equals(dataType))
-            extension = ".txt";
+        final String suffix;
+        final String period = ".";
+        if (FILE_TYPE_TABULAR.equals(dataType))
+            suffix = period + EXTENSION_TEXT;
         else
-            extension = ".txt";
+            suffix = period + EXTENSION_TEXT;
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
-            outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, extension));
+            outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, suffix));
         else
-            outputFile = File.createTempFile(baseName, extension);
+            outputFile = File.createTempFile(baseName, suffix);
         logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         // todo: is it necessary to fill in the data type (last parameter)?
         final boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
@@ -482,7 +498,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         boolean valid = true;
         logger.info("Check outputs.");
         for (final String outputId : workflowOutputs.getOutputIds())
-            logger.info("- Workflow output ID: " + outputId + ".");
+            logger.info("- Workflow output ID: {}.", outputId);
         final int outputCount = workflowOutputs.getOutputIds().size();
         if (outputCount == 0)
             logger.warn("No workflow output found.");
