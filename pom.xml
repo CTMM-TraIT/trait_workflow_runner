@@ -35,7 +35,6 @@
         <mockito.version>1.9.5</mockito.version>
         <powermock.version>1.5.3</powermock.version>
         <slf4j.version>1.7.6</slf4j.version>
-        <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
 
         <!-- Source and output properties. -->
         <java-version>1.7</java-version>
@@ -43,7 +42,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Plugin versions. -->
-        <jacoco-maven-plugin.version>0.7.0.201403182114</jacoco-maven-plugin.version>
+        <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.12.1</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
