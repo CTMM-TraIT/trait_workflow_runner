@@ -19,6 +19,7 @@ import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -28,27 +29,70 @@ import static org.junit.Assert.assertTrue;
  */
 public class ConcatenateExampleTest {
     /**
-     * Test the concatenate example.
+     * Test the concatenate example under normal circumstances.
      */
     @Test
-    public void testConcatenateExample() {
+    public void testConcatenateExampleNormal() {
+        final String line1 = ConcatenateExample.LINE_TEST_FILE_1;
+        final String line2 = ConcatenateExample.LINE_TEST_FILE_2;
+        final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
+
+        assertTrue(concatenateExample.runExample());
+    }
+
+    /**
+     * Test the concatenate example when no output is generated.
+     */
+    @Test
+    public void testConcatenateExampleNoOutput() {
+        final ConcatenateExample concatenateExample = initializeConcatenateExample(false, null, null);
+
+        assertFalse(concatenateExample.runExample());
+    }
+
+    /**
+     * Test the concatenate example when invalid output is generated.
+     */
+    @Test
+    public void testConcatenateExampleInvalidOutput() {
+        final String line1 = ConcatenateExample.LINE_TEST_FILE_1 + " - something";
+        final String line2 = ConcatenateExample.LINE_TEST_FILE_2 + " - is wrong!";
+        final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
+
+        assertFalse(concatenateExample.runExample());
+    }
+
+    /**
+     * Create and initialize a concatenate example instance.
+     *
+     * @param generateOutput whether an output file should be generated.
+     * @param line1 the first output line.
+     * @param line2 the second output line.
+     * @return the concatenate example instance.
+     */
+    private ConcatenateExample initializeConcatenateExample(final boolean generateOutput, final String line1,
+                                                            final String line2) {
         // Create a Guice injector and use it to build the ConcatenateExample object.
         final Injector injector = Guice.createInjector(new TestGuiceModule());
         final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
 
-        addOutputFilesToOutputMap(concatenateExample.workflowEngineFactory);
-        assertTrue(concatenateExample.runExample());
+        if (generateOutput)
+            addOutputFilesToOutputMap(concatenateExample.workflowEngineFactory, line1, line2);
+        return concatenateExample;
     }
 
     /**
      * Add a temporary output file to the output map of the dummy workflow.
      *
      * @param workflowEngineFactory the dummy workflow engine factory.
+     * @param line1 the first output line.
+     * @param line2 the second output line.
      */
-    private void addOutputFilesToOutputMap(final WorkflowEngineFactory workflowEngineFactory) {
+    private void addOutputFilesToOutputMap(final WorkflowEngineFactory workflowEngineFactory, final String line1,
+                                           final String line2) {
         final List<String> dummyLines = new ArrayList<>();
-        dummyLines.add(ConcatenateExample.LINE_TEST_FILE_1);
-        dummyLines.add(ConcatenateExample.LINE_TEST_FILE_2);
+        dummyLines.add(line1);
+        dummyLines.add(line2);
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
         final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
         workflow.addOutput(ConcatenateExample.OUTPUT_NAME, temporaryOutputFile);

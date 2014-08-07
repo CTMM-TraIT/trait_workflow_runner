@@ -17,6 +17,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -125,6 +127,35 @@ public class GalaxyWorkflowEngineTest {
         final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, "history-name");
 
         assertTrue(galaxyWorkflowEngine.runWorkflow(galaxyWorkflow));
+    }
+
+    /**
+     * Test the downloadOutputFile method with invalid input.
+     *
+     * @throws IOException if a local file could not be created.
+     */
+    @Test
+    public void testDownloadOutputFile() throws IOException, NoSuchFieldException, IllegalAccessException {
+        final String historyId = "history-id";
+        final String outputId = "output-id";
+
+        final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
+        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
+        final Dataset datasetMock = Mockito.mock(Dataset.class);
+
+        Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
+        Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId))).thenReturn(datasetMock);
+
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, "history-name");
+        final Workflow workflow = galaxyWorkflowEngine.getWorkflow("workflow-name");
+
+        // Set history id.
+        // todo: use a better way (http://stackoverflow.com/questions/8995540/mocking-member-variables-of-a-class-using-mockito).
+        final Field historyIdField = GalaxyWorkflowEngine.class.getDeclaredField("historyId");
+        historyIdField.setAccessible(true);
+        historyIdField.set(galaxyWorkflowEngine, historyId);
+
+        assertFalse(galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
     }
 
     /**
