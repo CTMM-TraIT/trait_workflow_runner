@@ -1,6 +1,7 @@
 # Workflow Runner
 
 [![Build Status](https://travis-ci.org/CTMM-TraIT/trait_workflow_runner.png)](https://travis-ci.org/CTMM-TraIT/trait_workflow_runner)
+[![Coverage Status](https://coveralls.io/repos/CTMM-TraIT/trait_workflow_runner/badge.png)](https://coveralls.io/r/CTMM-TraIT/trait_workflow_runner)
 
 <!--- todo: add code coverage (see for example https://github.com/simkimsia/UtilityBehaviors) -->
 
