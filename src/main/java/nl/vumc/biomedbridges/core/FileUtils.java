@@ -31,6 +31,16 @@ public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     /**
+     * File name suffix for files that are created.
+     */
+    private static final String FILE_NAME_SUFFIX = ".txt";
+
+    /**
+     * New line character.
+     */
+    private static final char NEW_LINE = '\n';
+
+    /**
      * Hidden constructor. Only the static methods of this class are meant to be used.
      */
     private FileUtils() {
@@ -44,11 +54,11 @@ public class FileUtils {
      */
     public static File createTemporaryFile(final String... lines) {
         try {
-            final File tempFile = File.createTempFile("workflow-runner", ".txt");
+            final File tempFile = File.createTempFile("workflow-runner", FILE_NAME_SUFFIX);
             try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
                 for (final String line : lines) {
                     writer.write(line);
-                    writer.write("\n");
+                    writer.write(NEW_LINE);
                 }
             }
             return tempFile;
@@ -71,7 +81,7 @@ public class FileUtils {
             try (final Writer writer = new OutputStreamWriter(new FileOutputStream(newFile), StandardCharsets.UTF_8)) {
                 for (final String line : lines) {
                     writer.write(line);
-                    writer.write("\n");
+                    writer.write(NEW_LINE);
                 }
             }
             return newFile;
@@ -95,11 +105,11 @@ public class FileUtils {
     public static File createOutputFile(final Workflow workflow, final List<String> lines) {
         try {
             final String filenamePrefix = "workflow-runner-" + workflow.getName().toLowerCase() + "-output";
-            final File tempFile = File.createTempFile(filenamePrefix, ".txt");
+            final File tempFile = File.createTempFile(filenamePrefix, FILE_NAME_SUFFIX);
             try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
                 for (final String line : lines) {
                     writer.write(line);
-                    writer.write('\n');
+                    writer.write(NEW_LINE);
                 }
             }
             return tempFile;
