@@ -12,8 +12,15 @@ import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
+import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
+import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
+import com.github.jmchilton.blend4j.galaxy.beans.WorkflowStepDefinition;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -27,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -102,18 +110,38 @@ public class GalaxyWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowV2() throws Exception {
-        final GalaxyWorkflow galaxyWorkflow = Mockito.mock(GalaxyWorkflow.class);
-        final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
-        final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
-        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
-        final History historyMock = Mockito.mock(History.class);
         final String historyId = "history-id";
-        final HistoryDetails historyDetailsMock = Mockito.mock(HistoryDetails.class);
-        final WorkflowOutputs workflowOutputsMock = Mockito.mock(WorkflowOutputs.class);
+        final String historyName = "history-name";
+        final String workflowId = "workflow-id";
+        final String workflowName = "workflow-name";
+        final String inputLabel = "input-label";
         final Map<String, List<String>> stateIds = new HashMap<>();
         stateIds.put("running", new ArrayList<String>());
         stateIds.put("queued", new ArrayList<String>());
         stateIds.put("ok", new ArrayList<String>());
+        final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow
+                = new com.github.jmchilton.blend4j.galaxy.beans.Workflow();
+        blend4jWorkflow.setName(workflowName);
+        blend4jWorkflow.setId(workflowId);
+        final Set<Map.Entry<String, Object>> inputEntries
+                = ImmutableSet.of(Maps.immutableEntry(inputLabel, (Object) new File("non-existing-file")));
+        final WorkflowInputDefinition workflowInputDefinition = new WorkflowInputDefinition();
+        workflowInputDefinition.setLabel(inputLabel);
+        final Map<String, WorkflowInputDefinition> inputDefinitionMap
+                = ImmutableMap.of(inputLabel, workflowInputDefinition);
+        final String stepId = "1";
+        final Map<Object, Map<String, Object>> parameters
+                = ImmutableMap.of((Object) stepId, (Map<String, Object>) ImmutableMap.of("parameter", (Object) "value"));
+        final Map<String, WorkflowStepDefinition> workflowSteps = ImmutableMap.of(stepId, new WorkflowStepDefinition());
+
+        final GalaxyWorkflow galaxyWorkflowMock = Mockito.mock(GalaxyWorkflow.class);
+        final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
+        final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
+        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
+        final History historyMock = Mockito.mock(History.class);
+        final HistoryDetails historyDetailsMock = Mockito.mock(HistoryDetails.class);
+        final WorkflowOutputs workflowOutputsMock = Mockito.mock(WorkflowOutputs.class);
+        final WorkflowDetails workflowDetailsMock = Mockito.mock(WorkflowDetails.class);
 
         Mockito.when(galaxyInstanceMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
         Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
@@ -123,10 +151,17 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(historyDetailsMock.getStateIds()).thenReturn(stateIds);
         Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
         Mockito.when(workflowOutputsMock.getHistoryId()).thenReturn(historyId);
+        Mockito.when(galaxyWorkflowMock.getName()).thenReturn(workflowName);
+        Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(ImmutableList.of(blend4jWorkflow));
+        Mockito.when(workflowsClientMock.showWorkflow(Mockito.eq(workflowId))).thenReturn(workflowDetailsMock);
+        Mockito.when(galaxyWorkflowMock.getAllInputEntries()).thenReturn(inputEntries);
+        Mockito.when(workflowDetailsMock.getInputs()).thenReturn(inputDefinitionMap);
+        Mockito.when(galaxyWorkflowMock.getParameters()).thenReturn(parameters);
+        Mockito.when(workflowDetailsMock.getSteps()).thenReturn(workflowSteps);
 
-        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, "history-name");
+        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyName);
 
-        assertTrue(galaxyWorkflowEngine.runWorkflow(galaxyWorkflow));
+        assertTrue(galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));
     }
 
     /**
