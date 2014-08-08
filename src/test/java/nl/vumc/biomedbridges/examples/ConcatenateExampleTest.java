@@ -94,7 +94,7 @@ public class ConcatenateExampleTest {
         dummyLines.add(line1);
         dummyLines.add(line2);
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null, null).getWorkflow(null);
         workflow.addOutput(ConcatenateExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

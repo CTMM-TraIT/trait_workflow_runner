@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple utility method for working with Galaxy histories.
+ * Simple utility methods for working with Galaxy histories.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */

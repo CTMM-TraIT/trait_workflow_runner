@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.core;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflow;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflow;
+import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflow;
 
@@ -39,7 +40,8 @@ public class WorkflowEngineTest {
     private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType,
                                          final Object configurationData) {
         final WorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData);
+        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData,
+                                                                                      new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow("unused workflow name");
         if (workflowClass == null)
             assertNull(workflow);

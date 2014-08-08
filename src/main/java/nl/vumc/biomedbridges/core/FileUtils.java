@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class FileUtils {
     }
 
     /**
-     * Create a temporary file with a single line.
+     * Create a temporary file with some lines.
      *
      * @param lines the lines to write to the test file.
      * @return the test file.
@@ -53,6 +54,57 @@ public class FileUtils {
             return tempFile;
         } catch (final IOException e) {
             logger.error("Exception while creating a temporary input file.", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Create a file with some lines.
+     *
+     * @param filePath the file path to use.
+     * @param lines    the lines to write to the test file.
+     * @return the test file.
+     */
+    public static File createFile(final String filePath, final String... lines) {
+        try {
+            final File newFile = new File(filePath);
+            try (final Writer writer = new OutputStreamWriter(new FileOutputStream(newFile), StandardCharsets.UTF_8)) {
+                for (final String line : lines) {
+                    writer.write(line);
+                    writer.write("\n");
+                }
+            }
+            return newFile;
+        } catch (final IOException e) {
+            logger.error("Exception while creating a file.", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Create a file with some lines.
+     *
+     * todo: compare to createTemporaryFile.
+     * todo: make filenamePrefix a parameter?
+     * todo: use variable number of arguments (String... lines) instead of list.
+     *
+     * @param workflow the workflow where this output file is created for.
+     * @param lines    the lines to write to the output file.
+     * @return the test file.
+     */
+    public static File createOutputFile(final Workflow workflow, final List<String> lines) {
+        try {
+            final String filenamePrefix = "workflow-runner-" + workflow.getName().toLowerCase() + "-output";
+            final File tempFile = File.createTempFile(filenamePrefix, ".txt");
+            try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
+                for (final String line : lines) {
+                    writer.write(line);
+                    writer.write('\n');
+                }
+            }
+            return tempFile;
+        } catch (final IOException e) {
+            logger.error("Exception while creating the output file.", e);
             throw new RuntimeException(e);
         }
     }

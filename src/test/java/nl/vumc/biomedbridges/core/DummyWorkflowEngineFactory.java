@@ -5,6 +5,8 @@
 
 package nl.vumc.biomedbridges.core;
 
+import nl.vumc.biomedbridges.galaxy.HistoryUtils;
+
 /**
  * Factory class usable for testing purposes for creating workflow engines based on workflow type. Using dependency
  * injection, the TestGuiceModule class binds the WorkflowEngineFactory interface to this class.
@@ -18,12 +20,13 @@ public class DummyWorkflowEngineFactory implements WorkflowEngineFactory {
     private final DummyWorkflowEngine dummyWorkflowEngine = new DummyWorkflowEngine();
 
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType) {
+    public WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils) {
         return dummyWorkflowEngine;
     }
 
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData) {
+    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+                                            final HistoryUtils historyUtils) {
         return dummyWorkflowEngine;
     }
 }

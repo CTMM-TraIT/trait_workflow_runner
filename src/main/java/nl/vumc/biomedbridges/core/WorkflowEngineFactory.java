@@ -5,6 +5,8 @@
 
 package nl.vumc.biomedbridges.core;
 
+import nl.vumc.biomedbridges.galaxy.HistoryUtils;
+
 /**
  * Factory interface for creating workflow engines based on workflow type.
  *
@@ -30,16 +32,19 @@ public interface WorkflowEngineFactory {
      * Create a workflow engine based on the workflow (engine) type.
      *
      * @param workflowType the workflow (engine) type.
+     * @param historyUtils the history utils object (for Galaxy).
      * @return the new workflow engine (or null if the type was not recognized).
      */
-    WorkflowEngine getWorkflowEngine(final String workflowType);
+    WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils);
 
     /**
      * Create a workflow engine based on the workflow (engine) type.
      *
      * @param workflowType      the workflow (engine) type.
      * @param configurationData the configuration data.
+     * @param historyUtils      the history utils object (for Galaxy).
      * @return the new workflow engine (or null if the type was not recognized).
      */
-    WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData);
+    WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+                                     final HistoryUtils historyUtils);
 }

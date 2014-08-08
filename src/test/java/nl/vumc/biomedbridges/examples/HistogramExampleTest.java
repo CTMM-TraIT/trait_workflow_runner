@@ -50,7 +50,7 @@ public class HistogramExampleTest {
         for (int lineIndex = 0; lineIndex < 499; lineIndex++)
             dummyLines.add("");
         final File temporaryPdfFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null, null).getWorkflow(null);
         workflow.addOutput(HistogramExample.OUTPUT_NAME, temporaryPdfFile);
     }
 }

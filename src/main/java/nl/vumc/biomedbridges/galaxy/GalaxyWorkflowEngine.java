@@ -44,6 +44,11 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  */
 public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
+     * Workflow output file path.
+     */
+    protected static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowEngine.class);
@@ -84,11 +89,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final int WORKFLOW_WAIT_SECONDS = 3;
 
     /**
-     * Workflow output file path.
-     */
-    private static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
-
-    /**
      * History state ok.
      */
     private static final String STATE_OK = "ok";
@@ -112,6 +112,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * The name of the history to run the workflow in.
      */
     private String historyName = DEFAULT_HISTORY_NAME;
+
+    /**
+     * The history utils object.
+     */
+    private HistoryUtils historyUtils;
 
     /**
      * The Galaxy server instance that will run the workflows.
@@ -161,13 +166,16 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * Create a Galaxy workflow engine.
      *
      * @param galaxyInstance the Galaxy instance that is used.
-     * @param historyName the history name.
+     * @param historyName    the history name.
+     * @param historyUtils   the history utils object.
      */
-    public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyName) {
+    public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyName,
+                                final HistoryUtils historyUtils) {
         this.galaxyInstance = galaxyInstance;
         this.workflowsClient = galaxyInstance != null ? galaxyInstance.getWorkflowsClient() : null;
         this.historiesClient = galaxyInstance != null ? galaxyInstance.getHistoriesClient() : null;
         this.historyName = historyName;
+        this.historyUtils = historyUtils;
     }
 
     // todo: remove the configure methods from the interface and the implementing classes?
@@ -352,7 +360,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final WorkflowDetails workflowDetails = workflowsClient.showWorkflow(galaxyWorkflowId);
         for (final Map.Entry<String, Object> inputEntry : workflow.getAllInputEntries()) {
             final String fileName = ((File) inputEntry.getValue()).getName();
-            final String inputId = new HistoryUtils().getDatasetIdByName(fileName, historiesClient, historyId);
+            final String inputId = historyUtils.getDatasetIdByName(fileName, historiesClient, historyId);
             final WorkflowInput workflowInput = new WorkflowInput(inputId, WorkflowInputs.InputSourceType.HDA);
             logger.trace("Add input file {} for input label {}.", fileName, inputEntry.getKey());
             WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
@@ -480,8 +488,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             outputFile = File.createTempFile(baseName, suffix);
         logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         // todo: is it necessary to fill in the data type (last parameter)?
-        final boolean success = new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                                   outputFile.getAbsolutePath(), null);
+        final boolean success = historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
+                                                             outputFile.getAbsolutePath(), null);
         workflow.addOutput(outputName, outputFile);
         return success;
     }
@@ -507,8 +515,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (outputCount > 0) {
             // Freek: the last workflow output file is most likely to be the end result?
             final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
-            new HistoryUtils().downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId,
-                                               OUTPUT_FILE_PATH, null);
+            historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId, OUTPUT_FILE_PATH,
+                                         null);
             final File outputFile = new File(OUTPUT_FILE_PATH);
             if (outputFile.exists())
                 logger.info("- Output file exists.");

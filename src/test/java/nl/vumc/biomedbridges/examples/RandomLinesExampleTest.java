@@ -94,7 +94,7 @@ public class RandomLinesExampleTest {
         for (int lineIndex = 0; lineIndex < definitiveLineCount; lineIndex++)
             dummyLines.add("");
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null).getWorkflow(null);
+        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null, null).getWorkflow(null);
         workflow.addOutput(RandomLinesExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

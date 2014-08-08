@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import nl.vumc.biomedbridges.galaxy.HistoryUtils;
+
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +98,8 @@ public class WorkflowRunner {
             logger.info("WorkflowRunner.runWorkflowRunner has started.");
 
             final long startTime = System.currentTimeMillis();
-            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType);
+            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType,
+                                                                                          new HistoryUtils());
             workflowEngine.configure();
             final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
             if (Constants.TEST_WORKFLOW_CONCATENATE.equals(Constants.TEST_WORKFLOW_CONCATENATE)) {

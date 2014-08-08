@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.core;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine;
+import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflowEngine;
 
@@ -41,11 +42,12 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
      * Create a workflow engine based on the workflow (engine) type.
      *
      * @param workflowType the workflow (engine) type.
+     * @param historyUtils the history utils object.
      * @return the new workflow engine (or null if the type was not recognized).
      */
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType) {
-        return getWorkflowEngine(workflowType, null);
+    public WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils) {
+        return getWorkflowEngine(workflowType, null, historyUtils);
     }
 
     /**
@@ -53,10 +55,12 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
      *
      * @param workflowType      the workflow (engine) type.
      * @param configurationData the configuration data.
+     * @param historyUtils      the history utils object.
      * @return the new workflow engine (or null if the type was not recognized).
      */
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData) {
+    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+                                            final HistoryUtils historyUtils) {
         final WorkflowEngine workflowEngine;
         switch (workflowType) {
             case DEMONSTRATION_TYPE:
@@ -66,7 +70,7 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
                 if (configurationData instanceof GalaxyConfiguration) {
                     final GalaxyConfiguration galaxyConfiguration = (GalaxyConfiguration) configurationData;
                     workflowEngine = new GalaxyWorkflowEngine(galaxyConfiguration.determineGalaxyInstance(null),
-                                                              galaxyConfiguration.getGalaxyHistoryName());
+                                                              galaxyConfiguration.getGalaxyHistoryName(), historyUtils);
                 } else
                     workflowEngine = null;
                 break;

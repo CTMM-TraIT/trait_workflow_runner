@@ -10,17 +10,14 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.examples.RandomLinesExample;
@@ -106,7 +103,7 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
             final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
             logger.info("input 1: {}", inputString1);
             logger.info("input 2: {}", inputString2);
-            workflow.addOutput("output", createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
+            workflow.addOutput("output", FileUtils.createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
             logger.info("output: {} {}", inputString1, inputString2);
         } else
             logger.error("Input parameters are not of the expected type (two input files where expected).");
@@ -134,7 +131,7 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
             final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
             final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
             final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);
-            workflow.addOutput(RandomLinesExample.OUTPUT_NAME, createOutputFile(workflow, selectedLines2));
+            workflow.addOutput(RandomLinesExample.OUTPUT_NAME, FileUtils.createOutputFile(workflow, selectedLines2));
             logger.info("output: {}", selectedLines2);
         } else
             logger.error("Expected input file was not found.");
@@ -164,29 +161,5 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
                 }
             }
         return selectedLines;
-    }
-
-    /**
-     * Create an output file with two lines.
-     *
-     * @param workflow the workflow where this output file is created for.
-     * @param lines the lines to write to the output file.
-     * @return the test file.
-     */
-    private static File createOutputFile(final Workflow workflow, final List<String> lines) {
-        try {
-            final String filenamePrefix = "workflow-runner-" + workflow.getName().toLowerCase() + "-output";
-            final File tempFile = File.createTempFile(filenamePrefix, ".txt");
-            try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
-                for (final String line : lines) {
-                    writer.write(line);
-                    writer.write('\n');
-                }
-            }
-            return tempFile;
-        } catch (final IOException e) {
-            logger.error("Exception while creating the output file.", e);
-            throw new RuntimeException(e);
-        }
     }
 }
