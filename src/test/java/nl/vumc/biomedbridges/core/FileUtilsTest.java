@@ -6,11 +6,7 @@
 package nl.vumc.biomedbridges.core;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
 
@@ -29,8 +25,10 @@ public class FileUtilsTest {
     @Test
     public void testCleanFileName() {
         final String solutionInUkrainian = "розв'язування";
-        assertEquals("_", FileUtils.cleanFileName(":"));
         assertEquals(solutionInUkrainian, FileUtils.cleanFileName(solutionInUkrainian));
+        assertEquals("_", FileUtils.cleanFileName(":"));
+        assertEquals("_", FileUtils.cleanFileName(Character.toString((char) 31)));
+        assertEquals("_", FileUtils.cleanFileName(Character.toString((char) 127)));
         assertEquals("output edgeR DGE on 1_ design_matrix.txt - differentially expressed genes",
                      FileUtils.cleanFileName("output edgeR DGE on 1: design_matrix.txt - differentially expressed genes"));
     }
@@ -44,37 +42,23 @@ public class FileUtilsTest {
         final String baseName = getClass().getName() + System.currentTimeMillis();
         final String suffix = ".txt";
         final File uniqueFile1 = new File(FileUtils.createUniqueFilePath(temporaryDirectory, baseName, suffix));
-        createFile(uniqueFile1, "1");
+        FileUtils.createFile(uniqueFile1.getAbsolutePath(), "1");
         final File uniqueFile2 = new File(FileUtils.createUniqueFilePath(temporaryDirectory, baseName, suffix));
-        createFile(uniqueFile2, "2");
+        FileUtils.createFile(uniqueFile2.getAbsolutePath(), "2");
         final File uniqueFile3 = new File(FileUtils.createUniqueFilePath(temporaryDirectory, baseName, suffix));
-        createFile(uniqueFile3, "3");
+        FileUtils.createFile(uniqueFile3.getAbsolutePath(), "3");
 
-        final String uniquePath2 = uniqueFile2.getAbsolutePath();
-        final String uniquePath3 = uniqueFile3.getAbsolutePath();
+        final String path2 = uniqueFile2.getAbsolutePath();
+        final String path3 = uniqueFile3.getAbsolutePath();
         assertTrue(uniqueFile1.getAbsolutePath().endsWith(suffix));
-        assertTrue(uniquePath2.endsWith(suffix));
-        assertTrue(uniquePath3.endsWith(suffix));
-        final int index2 = Integer.parseInt(uniquePath2.substring(uniquePath2.lastIndexOf('-') + 1, uniquePath2.lastIndexOf('.')));
-        final int index3 = Integer.parseInt(uniquePath3.substring(uniquePath3.lastIndexOf('-') + 1, uniquePath3.lastIndexOf('.')));
+        assertTrue(path2.endsWith(suffix));
+        assertTrue(path3.endsWith(suffix));
+        final int index2 = Integer.parseInt(path2.substring(path2.lastIndexOf('-') + 1, path2.lastIndexOf('.')));
+        final int index3 = Integer.parseInt(path3.substring(path3.lastIndexOf('-') + 1, path3.lastIndexOf('.')));
         assertEquals(index2 + 1, index3);
 
         assertTrue(uniqueFile1.delete());
         assertTrue(uniqueFile2.delete());
         assertTrue(uniqueFile3.delete());
-    }
-
-    /**
-     * Create a test file.
-     *
-     * @param file the file to be created.
-     * @param line the line to be written.
-     * @throws IOException if creating or writing to the file fails.
-     */
-    private void createFile(final File file, final String line) throws IOException {
-        try (final Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            writer.write(line);
-            writer.write("\n");
-        }
     }
 }

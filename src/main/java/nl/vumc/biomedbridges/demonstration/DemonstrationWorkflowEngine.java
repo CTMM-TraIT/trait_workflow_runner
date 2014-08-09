@@ -12,7 +12,6 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -103,7 +102,7 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
             final String inputString2 = Joiner.on("").join(Files.readLines((File) input2, Charsets.UTF_8));
             logger.info("input 1: {}", inputString1);
             logger.info("input 2: {}", inputString2);
-            workflow.addOutput("output", FileUtils.createOutputFile(workflow, Arrays.asList(inputString1, inputString2)));
+            workflow.addOutput("output", FileUtils.createOutputFile(workflow, inputString1, inputString2));
             logger.info("output: {} {}", inputString1, inputString2);
         } else
             logger.error("Input parameters are not of the expected type (two input files where expected).");
@@ -131,7 +130,9 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
             final List<String> lines = Files.readLines((File) input, Charsets.UTF_8);
             final List<String> selectedLines1 = selectRandomLines(lines, initialLineCount, randomGenerator);
             final List<String> selectedLines2 = selectRandomLines(selectedLines1, definitiveLineCount, randomGenerator);
-            workflow.addOutput(RandomLinesExample.OUTPUT_NAME, FileUtils.createOutputFile(workflow, selectedLines2));
+            final String[] selectedLines2Array = selectedLines2.toArray(new String[selectedLines2.size()]);
+            final File outputFile = FileUtils.createOutputFile(workflow, selectedLines2Array);
+            workflow.addOutput(RandomLinesExample.OUTPUT_NAME, outputFile);
             logger.info("output: {}", selectedLines2);
         } else
             logger.error("Expected input file was not found.");

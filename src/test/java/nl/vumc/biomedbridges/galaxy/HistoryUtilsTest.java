@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -47,17 +48,33 @@ public class HistoryUtilsTest {
     }
 
     /**
-     * Test the downloadFileFromUrl method.
+     * Test the downloadFileFromUrl method with a valid URL.
      */
     @Test
-    public void testDownloadFileFromUrl() throws Exception {
+    public void testDownloadFileFromUrlValidUrl() throws Exception {
         final HistoryUtils historyUtils = new HistoryUtils();
         final String flagUrl = "http://www.biomedbridges.eu/sites/biomedbridges.eu/files/images/euflag.png";
         final String temporaryDirectory = System.getProperty("java.io.tmpdir");
         final String separatorIfNeeded = !temporaryDirectory.endsWith(File.separator) ? File.separator : "";
-        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl.txt";
+        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl-1.txt";
 
         assertTrue(historyUtils.downloadFileFromUrl(flagUrl, filePath));
+        assertTrue(new File(filePath).exists());
+        assertTrue(new File(filePath).delete());
+    }
+
+    /**
+     * Test the downloadFileFromUrl method with an invalid URL.
+     */
+    @Test
+    public void testDownloadFileFromUrlInvalidUrl() throws Exception {
+        final HistoryUtils historyUtils = new HistoryUtils();
+        final String invalidUrl = "http://www.biomedbridges.eu/invalid/url/euflag.png";
+        final String temporaryDirectory = System.getProperty("java.io.tmpdir");
+        final String separatorIfNeeded = !temporaryDirectory.endsWith(File.separator) ? File.separator : "";
+        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl-2.txt";
+
+        assertFalse(historyUtils.downloadFileFromUrl(invalidUrl, filePath));
         assertTrue(new File(filePath).exists());
         assertTrue(new File(filePath).delete());
     }
