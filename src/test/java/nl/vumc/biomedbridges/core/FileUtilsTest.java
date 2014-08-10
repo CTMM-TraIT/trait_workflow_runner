@@ -61,4 +61,9 @@ public class FileUtilsTest {
         assertTrue(uniqueFile2.delete());
         assertTrue(uniqueFile3.delete());
     }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void testCreateFileInvalidPath() {
+        FileUtils.createFile("/this\\path/should\\be/invalid\\everywhere/<>:\"|?*.txt", "this", "should", "fail");
+    }
 }
