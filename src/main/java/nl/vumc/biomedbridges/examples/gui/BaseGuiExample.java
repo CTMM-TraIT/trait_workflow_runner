@@ -238,7 +238,7 @@ public class BaseGuiExample {
             runWorkflowButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-                    runWorkflow();
+                    runWorkflow(false);
                 }
             });
             guiPanel.add(runWorkflowButton);
@@ -513,9 +513,12 @@ public class BaseGuiExample {
 
     /**
      * Run the workflow.
+     *
+     * @param waitForWorkflowToFinish whether the method should wait for the workflow to finish.
      */
     // todo: currently only works for the RandomLinesTwice workflow.
-    private void runWorkflow() {
+    protected void runWorkflow(final boolean waitForWorkflowToFinish) {
+        // Create the thread to run the workflow.
         final Thread runWorkflowThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -527,7 +530,15 @@ public class BaseGuiExample {
                 runRandomLinesWorkflow(injector, resultsDocument);
             }
         });
+        // Run the thread.
         runWorkflowThread.start();
+        // If requested, wait for the thread to finish.
+        if (waitForWorkflowToFinish)
+            try {
+                runWorkflowThread.join();
+            } catch (final InterruptedException e) {
+                logger.error("Exception while running a workflow", e);
+            }
     }
 
     /**
@@ -568,6 +579,7 @@ public class BaseGuiExample {
      * @return the results document connected to the results text pane.
      */
     private StyledDocument adaptGuiForRunningWorkflow() {
+        // Add results text pane.
         final JTextPane resultsTextPane = new JTextPane();
         resultsTextPane.setEditable(false);
         resultsTextPane.setFont(RESULTS_FONT);
@@ -579,6 +591,7 @@ public class BaseGuiExample {
         resultsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         resultsScrollPane.setBorder(new TitledBorder("Results"));
         guiPanel.add(resultsScrollPane);
+        // Adjust step panel sizes.
         guiLayout.putConstraint(SpringLayout.NORTH, resultsScrollPane, QUAD_PAD, SpringLayout.SOUTH, runWorkflowButton);
         guiLayout.putConstraint(SpringLayout.WEST, resultsScrollPane, SMALL_PAD, SpringLayout.WEST, guiPanel);
         guiLayout.putConstraint(SpringLayout.EAST, resultsScrollPane, -SMALL_PAD, SpringLayout.EAST, guiPanel);
