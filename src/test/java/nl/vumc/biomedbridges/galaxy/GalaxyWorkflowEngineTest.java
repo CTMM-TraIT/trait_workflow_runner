@@ -101,10 +101,32 @@ public class GalaxyWorkflowEngineTest {
     }
 
     /**
-     * Test the runWorkflow method.
+     * Test the runWorkflow method with automatic downloading enabled and normal order for the output IDs.
      */
     @Test
-    public void testRunWorkflowV2() throws Exception {
+    public void testRunWorkflowAutomaticDownload() throws Exception {
+        runWorkflowTest(true, true);
+    }
+
+    /**
+     * Test the runWorkflow method with automatic downloading disabled and reversed order for the output IDs.
+     */
+    @Test
+    public void testRunWorkflowManualDownload() throws Exception {
+        runWorkflowTest(false, false);
+    }
+
+    /**
+     * Run the workflow test with two parameters.
+     *
+     * @param automaticDownload   whether the automatic download option should be enabled or disabled.
+     * @param normalOutputIdOrder whether the normal or reversed order should be used for the output IDs.
+     * @throws IOException          if reading the workflow results fails.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
+     *                              engine.
+     */
+    private void runWorkflowTest(final boolean automaticDownload, final boolean normalOutputIdOrder)
+            throws InterruptedException, IOException {
         final String historyId = "history-id";
         final String historyName = "history-name";
         final String workflowId = "workflow-id";
@@ -139,6 +161,8 @@ public class GalaxyWorkflowEngineTest {
         final HistoryDetails historyDetailsMock = Mockito.mock(HistoryDetails.class);
         final WorkflowOutputs workflowOutputsMock = Mockito.mock(WorkflowOutputs.class);
         final WorkflowDetails workflowDetailsMock = Mockito.mock(WorkflowDetails.class);
+        final Dataset datasetMock1 = Mockito.mock(Dataset.class);
+        final Dataset datasetMock2 = Mockito.mock(Dataset.class);
         final HistoryUtils historyUtilsMock = Mockito.mock(HistoryUtils.class);
 
         Mockito.when(galaxyInstanceMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
@@ -156,8 +180,19 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(workflowDetailsMock.getInputs()).thenReturn(inputDefinitionMap);
         Mockito.when(galaxyWorkflowMock.getParameters()).thenReturn(parameters);
         Mockito.when(workflowDetailsMock.getSteps()).thenReturn(workflowSteps);
-        Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(ImmutableList.of(outputId1, outputId2));
-        // todo: run this test twice; second time with output IDs swapped: (outputId2, outputId1).
+        if (normalOutputIdOrder)
+            Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(ImmutableList.of(outputId1, outputId2));
+        else
+            Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(ImmutableList.of(outputId2, outputId1));
+        Mockito.when(galaxyWorkflowMock.getAutomaticDownload()).thenReturn(automaticDownload);
+        if (automaticDownload) {
+            Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId1)))
+                    .thenReturn(datasetMock1);
+            Mockito.when(datasetMock1.getDataType()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TABULAR);
+            Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId2)))
+                    .thenReturn(datasetMock2);
+            Mockito.when(datasetMock2.getDataType()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TEXT);
+        }
         final Answer<Boolean> downloadDatasetAnswer = new Answer<Boolean>() {
             @Override
             public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -168,7 +203,7 @@ public class GalaxyWorkflowEngineTest {
                         assertTrue(outputFile.delete());
                 } else {
                     if (!outputFile.exists())
-                        FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflowV2");
+                        FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
                 }
 
                 return true;
@@ -182,7 +217,8 @@ public class GalaxyWorkflowEngineTest {
         final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyName,
                                                                              historyUtilsMock);
 
-        assertFalse(galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));
+        // Downloading fails, so we expect false if automaticDownload is true and true otherwise.
+        assertEquals(!automaticDownload, galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));
     }
 
     /**

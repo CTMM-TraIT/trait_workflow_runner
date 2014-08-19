@@ -44,6 +44,16 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
  */
 public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
+     * File type tabular.
+     */
+    public static final String FILE_TYPE_TABULAR = "tabular";
+
+    /**
+     * File type text.
+     */
+    public static final String FILE_TYPE_TEXT = "txt";
+
+    /**
      * Workflow output file path.
      */
     protected static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
@@ -92,16 +102,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * History state ok.
      */
     private static final String STATE_OK = "ok";
-
-    /**
-     * File type tabular.
-     */
-    private static final String FILE_TYPE_TABULAR = "tabular";
-
-    /**
-     * File type text.
-     */
-    private static final String FILE_TYPE_TEXT = "txt";
 
     /**
      * File extension text.
