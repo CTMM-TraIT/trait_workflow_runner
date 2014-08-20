@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.galaxy;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
+import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
@@ -20,11 +21,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,7 @@ import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
+import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -54,6 +59,13 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyWorkflowEngineTest {
+    /**
+     * The resources directory for the galaxy package.
+     */
+    private static final String CONFIGURATION_DIRECTORY = Paths.get(
+            "src", "test", "resources", "nl", "vumc", "biomedbridges", "galaxy"
+    ) + File.separator;
+
     /**
      * Test the configure method with nonsense configuration data.
      */
@@ -132,6 +144,8 @@ public class GalaxyWorkflowEngineTest {
         final String workflowId = "workflow-id";
         final String workflowName = "workflow-name";
         final String inputLabel = "input-label";
+        final Object dummyInputFile = new File(CONFIGURATION_DIRECTORY + "TestWorkflow.ga");
+        final Collection<Object> inputValues = ImmutableList.of(dummyInputFile, dummyInputFile);
         final Map<String, List<String>> stateIds = new HashMap<>();
         stateIds.put("running", new ArrayList<String>());
         stateIds.put("queued", new ArrayList<String>());
@@ -156,6 +170,9 @@ public class GalaxyWorkflowEngineTest {
         final GalaxyWorkflow galaxyWorkflowMock = Mockito.mock(GalaxyWorkflow.class);
         final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
+        final ToolsClient toolsClientMock = Mockito.mock(ToolsClient.class);
+        final ClientResponse clientResponse1 = Mockito.mock(ClientResponse.class);
+        final ClientResponse clientResponse2 = Mockito.mock(ClientResponse.class);
         final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
         final History historyMock = Mockito.mock(History.class);
         final HistoryDetails historyDetailsMock = Mockito.mock(HistoryDetails.class);
@@ -167,8 +184,14 @@ public class GalaxyWorkflowEngineTest {
 
         Mockito.when(galaxyInstanceMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
         Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
+        Mockito.when(galaxyInstanceMock.getToolsClient()).thenReturn(toolsClientMock);
         Mockito.when(historiesClientMock.create(Mockito.any(History.class))).thenReturn(historyMock);
         Mockito.when(historyMock.getId()).thenReturn(historyId);
+        Mockito.when(galaxyWorkflowMock.getAllInputValues()).thenReturn(inputValues);
+        Mockito.when(toolsClientMock.uploadRequest(Mockito.any(ToolsClient.FileUploadRequest.class)))
+                .thenReturn(clientResponse1, clientResponse2);
+        Mockito.when(clientResponse1.getStatus()).thenReturn(HttpStatus.SC_OK);
+        Mockito.when(clientResponse2.getStatus()).thenReturn(HttpStatus.SC_INSUFFICIENT_STORAGE);
         Mockito.when(historiesClientMock.showHistory(historyId)).thenReturn(historyDetailsMock);
         Mockito.when(historyDetailsMock.getStateIds()).thenReturn(stateIds);
         Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
