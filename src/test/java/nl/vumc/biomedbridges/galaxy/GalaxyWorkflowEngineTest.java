@@ -62,7 +62,7 @@ public class GalaxyWorkflowEngineTest {
     /**
      * The resources directory for the galaxy package.
      */
-    private static final String CONFIGURATION_DIRECTORY = Paths.get(
+    private static final String GALAXY_DIRECTORY = Paths.get(
             "src", "test", "resources", "nl", "vumc", "biomedbridges", "galaxy"
     ) + File.separator;
 
@@ -144,7 +144,7 @@ public class GalaxyWorkflowEngineTest {
         final String workflowId = "workflow-id";
         final String workflowName = "workflow-name";
         final String inputLabel = "input-label";
-        final Object dummyInputFile = new File(CONFIGURATION_DIRECTORY + "TestWorkflow.ga");
+        final Object dummyInputFile = new File(GALAXY_DIRECTORY + "TestWorkflow.ga");
         final Collection<Object> inputValues = ImmutableList.of(dummyInputFile, dummyInputFile);
         final Map<String, List<String>> stateIds = new HashMap<>();
         stateIds.put("running", new ArrayList<String>());
