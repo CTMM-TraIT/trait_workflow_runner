@@ -54,8 +54,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for the GalaxyWorkflowEngine class.
  *
- * todo: rewrite without PowerMock, since it interferes with JaCoCo that is determining code coverage.
- *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyWorkflowEngineTest {
@@ -274,83 +272,4 @@ public class GalaxyWorkflowEngineTest {
 
         assertFalse(galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
     }
-
-//    /**
-//     * Test the runWorkflow method.
-//     */
-//    @Ignore
-//    @Test
-//    public void testRunWorkflow() throws Exception {
-//        // to do: prepare some mocks for the Galaxy instance and the workflows client so we do not have to run an actual
-//        // to do: workflow for this test.
-//        PowerMockito.mockStatic(GalaxyInstanceFactory.class);
-//        PowerMockito.mockStatic(HistoryUtils.class);
-//        final GalaxyInstance galaxyMock = Mockito.mock(GalaxyInstance.class);
-//        final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
-//        final HistoriesClient historiesClientMock = Mockito.mock(HistoriesClient.class);
-//        final History historyMock = new History();
-//        final HistoryDetails historyDetailsRunning = new HistoryDetails();
-//        final HistoryDetails historyDetailsOK = new HistoryDetails();
-//        final WorkflowOutputs workflowOutputsMock = Mockito.mock(WorkflowOutputs.class);
-//        final Dataset datasetMock = new Dataset();
-//        final URL url = PowerMockito.mock(URL.class);
-//        final HttpURLConnection urlConnection = Mockito.mock(HttpURLConnection.class);
-//        final InputStream inputStream = new ByteArrayInputStream("testDownloadDataset".getBytes());
-//        historyDetailsRunning.setState("running");
-//        historyDetailsOK.setState("ok");
-//
-//        // to do: retrieving the workflow output file is done multiple times; this dummy file works only once.
-//        final File dummyFile = new File((String) getHiddenStaticField(GalaxyWorkflowEngine.class, "OUTPUT_FILE_PATH"));
-//        //System.out.println("dummyFile.getAbsolutePath(): " + dummyFile.getAbsolutePath());
-//        assertTrue("Create a dummy file.", dummyFile.createNewFile());
-//
-//        PowerMockito.when(GalaxyInstanceFactory.get(Mockito.anyString(), Mockito.anyString())).thenReturn(galaxyMock);
-//        Mockito.when(galaxyMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
-//        Mockito.when(galaxyMock.getHistoriesClient()).thenReturn(historiesClientMock);
-//        Mockito.when(historiesClientMock.create(Mockito.any(History.class))).thenReturn(historyMock);
-//        Mockito.when(historiesClientMock.showHistory(Mockito.anyString())).thenReturn(historyDetailsRunning);
-//        Mockito.when(historiesClientMock.showHistory(Mockito.anyString())).thenReturn(historyDetailsOK);
-//        Mockito.when(workflowsClientMock.runWorkflow(Mockito.any(WorkflowInputs.class))).thenReturn(workflowOutputsMock);
-//        PowerMockito.when(new HistoryUtils().downloadDataset(Mockito.eq(galaxyMock), Mockito.eq(historiesClientMock),
-//                                                             Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-//                                                             Mockito.anyString())).thenReturn(true);
-//        Mockito.when(historiesClientMock.showDataset(Mockito.anyString(), Mockito.anyString())).thenReturn(datasetMock);
-//        Mockito.when(galaxyMock.getGalaxyUrl()).thenReturn("http://");
-//        PowerMockito.whenNew(URL.class).withArguments(Mockito.anyString()).thenReturn(url);
-//        Mockito.when(url.openConnection()).thenReturn(urlConnection);
-//        Mockito.when(urlConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
-//        Mockito.when(urlConnection.getInputStream()).thenReturn(inputStream);
-//        Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(Arrays.asList("one item"));
-//
-//        final String configuration = new GalaxyConfiguration().buildConfiguration("GALAXY_INSTANCE_URL", "apiKey",
-//                                                                                  "HISTORY_NAME");
-//        final GalaxyInstance configurationData = new GalaxyConfiguration().determineGalaxyInstance(configuration);
-//        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(configurationData, "history-name");
-//        galaxyWorkflowEngine.configure(configuration);
-//        galaxyWorkflowEngine.runWorkflow(new GalaxyWorkflow(galaxyWorkflowEngine, "TestWorkflow"));
-//
-//        assertFalse(dummyFile.delete());
-//    }
-
-//    /**
-//     * Get a reference to a private/protected static field from a class for testing purposes.
-//     *
-//     * @param clazz     the class containing the static field.
-//     * @param fieldName the name of the field.
-//     * @return a reference to the private/protected field.
-//     * @throws IllegalAccessException if access is for some reason not allowed.
-//     * @throws NoSuchFieldException   if the field is not found.
-//     */
-//    private Object getHiddenStaticField(final Class clazz, final String fieldName)
-//            throws IllegalAccessException, NoSuchFieldException {
-//        Field field;
-//        try {
-//            field = clazz.getDeclaredField(fieldName);
-//        } catch (final NoSuchFieldException e) {
-//            // If the class does not have the field, try the super class.
-//            field = clazz.getSuperclass().getDeclaredField(fieldName);
-//        }
-//        field.setAccessible(true);
-//        return field.get(null);
-//    }
 }
