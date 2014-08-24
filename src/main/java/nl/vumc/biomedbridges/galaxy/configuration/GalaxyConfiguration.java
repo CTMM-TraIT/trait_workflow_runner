@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import nl.vumc.biomedbridges.core.Constants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,7 +285,8 @@ public class GalaxyConfiguration {
                 logger.error("The configuration file '{}' was not read successfully.", propertiesFilePath);
                 logger.error("Please ensure the following properties are available:");
             }
-            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=https://usegalaxy.org/ [or another Galaxy server]");
+            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=" + Constants.GALAXY_INSTANCE_URL
+                         + " [or another Galaxy server]");
             logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]");
             logger.error("");
             logger.error("Optional property:");

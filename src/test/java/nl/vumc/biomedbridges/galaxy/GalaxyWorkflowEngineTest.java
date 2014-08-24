@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
@@ -94,7 +95,7 @@ public class GalaxyWorkflowEngineTest {
         final String apiKey = "some-api-key";
         final String historyName = "some-history-name";
         final String configurationData = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
-                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR + "https://usegalaxy.org/"
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR + Constants.GALAXY_INSTANCE_URL
                                          + GalaxyConfiguration.PROPERTY_SEPARATOR
                                          + GalaxyConfiguration.API_KEY_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR
