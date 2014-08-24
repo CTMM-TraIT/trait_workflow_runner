@@ -10,7 +10,6 @@ import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
-import com.github.jmchilton.blend4j.galaxy.beans.History;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
@@ -64,11 +63,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(GalaxyWorkflowEngine.class);
 
     /**
-     * The default name of the history to run the workflow in.
-     */
-    private static final String DEFAULT_HISTORY_NAME = "Workflow Runner History";
-
-    /**
      * The number of milliseconds in a second.
      */
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -109,11 +103,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final String EXTENSION_TEXT = FILE_TYPE_TEXT;
 
     /**
-     * The name of the history to run the workflow in.
-     */
-    private String historyName = DEFAULT_HISTORY_NAME;
-
-    /**
      * The history utils object.
      */
     private HistoryUtils historyUtils;
@@ -134,7 +123,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private HistoriesClient historiesClient;
 
     /**
-     * The ID of the new history that is created to contain the input and output files.
+     * The ID of the history that is used for the input and output files.
      */
     private String historyId;
 
@@ -166,15 +155,15 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * Create a Galaxy workflow engine.
      *
      * @param galaxyInstance the Galaxy instance that is used.
-     * @param historyName    the history name.
+     * @param historyId      the history ID.
      * @param historyUtils   the history utils object.
      */
-    public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyName,
+    public GalaxyWorkflowEngine(final GalaxyInstance galaxyInstance, final String historyId,
                                 final HistoryUtils historyUtils) {
         this.galaxyInstance = galaxyInstance;
         this.workflowsClient = galaxyInstance != null ? galaxyInstance.getWorkflowsClient() : null;
         this.historiesClient = galaxyInstance != null ? galaxyInstance.getHistoriesClient() : null;
-        this.historyName = historyName;
+        this.historyId = historyId;
         this.historyUtils = historyUtils;
     }
 
@@ -197,10 +186,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     @Override
     public boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
         boolean result = false;
-        if (galaxyInstance != null) {
+        if (galaxyInstance != null) //noinspection SpellCheckingInspection
+        {
             logStartRunWorkflow();
 
-            // todo: separate check and/or better error message when the server is not available.
+            // todo: check whether the server is available and/or better error message when the server isn't available.
             /*
             <html>
                 <head><title>504 Gateway Time-out</title></head>
@@ -214,7 +204,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
-            historyId = createNewHistory();
             uploadInputFiles(workflow);
             final WorkflowInputs inputs = createInputsObject(workflow);
 
@@ -247,19 +236,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.info("");
         logger.info("Galaxy instance URL: {}.", galaxyInstance.getGalaxyUrl());
         logger.info("Galaxy API key: {}.", galaxyInstance.getApiKey());
-        logger.info("Galaxy history name: {}.", historyName);
+        logger.info("Galaxy history ID: {}.", historyId);
         logger.info("");
 
         logger.info("Ensure the workflow is available.");
-    }
-
-    /**
-     * Create a new history and return its ID.
-     *
-     * @return the ID of the newly created history.
-     */
-    private String createNewHistory() {
-        return historiesClient.create(new History(historyName)).getId();
     }
 
     /**

@@ -5,6 +5,9 @@
 
 package nl.vumc.biomedbridges.core;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.beans.History;
+
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
@@ -69,8 +72,10 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
             case GALAXY_TYPE:
                 if (configurationData instanceof GalaxyConfiguration) {
                     final GalaxyConfiguration galaxyConfiguration = (GalaxyConfiguration) configurationData;
-                    workflowEngine = new GalaxyWorkflowEngine(galaxyConfiguration.determineGalaxyInstance(null),
-                                                              galaxyConfiguration.getGalaxyHistoryName(), historyUtils);
+                    final GalaxyInstance galaxyInstance = galaxyConfiguration.determineGalaxyInstance(null);
+                    final History history = new History(galaxyConfiguration.getGalaxyHistoryName());
+                    final String historyId = galaxyInstance.getHistoriesClient().create(history).getId();
+                    workflowEngine = new GalaxyWorkflowEngine(galaxyInstance, historyId, historyUtils);
                 } else
                     workflowEngine = null;
                 break;

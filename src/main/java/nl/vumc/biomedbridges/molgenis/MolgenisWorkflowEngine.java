@@ -21,7 +21,7 @@ public class MolgenisWorkflowEngine implements WorkflowEngine {
 
     @Override
     public boolean configure(final String configurationData) {
-        System.out.println("MolgenisWorkflowEngine.configure...");
+        //System.out.println("MolgenisWorkflowEngine.configure...");
         return true;
     }
 
@@ -32,7 +32,7 @@ public class MolgenisWorkflowEngine implements WorkflowEngine {
 
     @Override
     public boolean runWorkflow(final Workflow workflow) {
-        System.out.println("MolgenisWorkflowEngine.runWorkflow...");
+        //System.out.println("MolgenisWorkflowEngine.runWorkflow...");
         return true;
     }
 }

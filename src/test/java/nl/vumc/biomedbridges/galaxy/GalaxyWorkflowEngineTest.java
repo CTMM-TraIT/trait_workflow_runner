@@ -25,7 +25,6 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -138,7 +137,6 @@ public class GalaxyWorkflowEngineTest {
     private void runWorkflowTest(final boolean automaticDownload, final boolean normalOutputIdOrder)
             throws InterruptedException, IOException {
         final String historyId = "history-id";
-        final String historyName = "history-name";
         final String workflowId = "workflow-id";
         final String workflowName = "workflow-name";
         final String inputLabel = "input-label";
@@ -235,7 +233,7 @@ public class GalaxyWorkflowEngineTest {
                                                       Mockito.eq(GalaxyWorkflowEngine.OUTPUT_FILE_PATH),
                                                       Mockito.anyString())).thenAnswer(downloadDatasetAnswer);
 
-        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyName,
+        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
                                                                              historyUtilsMock);
 
         // Downloading fails, so we expect false if automaticDownload is true and true otherwise.
@@ -260,15 +258,9 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
         Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId))).thenReturn(datasetMock);
 
-        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, "history-name",
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
                                                                                    historyUtilsMock);
         final Workflow workflow = galaxyWorkflowEngine.getWorkflow("workflow-name");
-
-        // Set history id.
-        // todo: use a better way (http://stackoverflow.com/questions/8995540/mocking-member-variables-of-a-class-using-mockito).
-        final Field historyIdField = GalaxyWorkflowEngine.class.getDeclaredField("historyId");
-        historyIdField.setAccessible(true);
-        historyIdField.set(galaxyWorkflowEngine, historyId);
 
         assertFalse(galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
     }
