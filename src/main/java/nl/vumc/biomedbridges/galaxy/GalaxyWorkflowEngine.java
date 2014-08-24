@@ -184,10 +184,10 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     }
 
     @Override
+    @SuppressWarnings("SpellCheckingInspection")
     public boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
         boolean result = false;
-        if (galaxyInstance != null) //noinspection SpellCheckingInspection
-        {
+        if (galaxyInstance != null) {
             logStartRunWorkflow();
 
             // todo: check whether the server is available and/or better error message when the server isn't available.
