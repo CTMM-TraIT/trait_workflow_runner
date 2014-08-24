@@ -285,8 +285,7 @@ public class GalaxyConfiguration {
                 logger.error("The configuration file '{}' was not read successfully.", propertiesFilePath);
                 logger.error("Please ensure the following properties are available:");
             }
-            logger.error(GALAXY_INSTANCE_PROPERTY_KEY + "=" + Constants.GALAXY_INSTANCE_URL
-                         + " [or another Galaxy server]");
+            logger.error("{}={} [or another Galaxy server]", GALAXY_INSTANCE_PROPERTY_KEY, Constants.GALAXY_INSTANCE_URL);
             logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]");
             logger.error("");
             logger.error("Optional property:");

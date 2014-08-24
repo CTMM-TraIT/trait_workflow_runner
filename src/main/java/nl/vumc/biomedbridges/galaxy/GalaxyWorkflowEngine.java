@@ -454,13 +454,14 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         //    workflowEngineMetadata = new GalaxyWorkflowEngineMetadata();
         //workflowEngineMetadata.getWorkflow(workflow.getName()).getSteps().get(0).getOutputs().get(0).getName();
         // todo: use dataset data type?
-        final String dataType = dataset.getDataType();
+        //final String dataType = dataset.getDataType();
         final String suffix;
         final String period = ".";
-        if (FILE_TYPE_TABULAR.equals(dataType))
-            suffix = period + EXTENSION_TEXT;
-        else
-            suffix = period + EXTENSION_TEXT;
+        suffix = period + EXTENSION_TEXT;
+        //if (FILE_TYPE_TABULAR.equals(dataType))
+        //    suffix = period + EXTENSION_TEXT;
+        //else
+        //    suffix = period + EXTENSION_TEXT;
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
             outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, suffix));
