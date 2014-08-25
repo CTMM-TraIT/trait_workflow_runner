@@ -19,6 +19,7 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * Workflow output file path.
      */
-    protected static final String OUTPUT_FILE_PATH = "WorkflowRunner-runWorkflow.txt";
+    protected static final String OUTPUT_FILE_PATH = Paths.get("tmp", "WorkflowRunner-runWorkflow.txt").toString();
 
     /**
      * The logger for this class.

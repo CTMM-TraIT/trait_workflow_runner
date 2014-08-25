@@ -8,4 +8,3 @@ src/log/
 target/
 tmp/
 WorkflowRunner.iml
-WorkflowRunner-runWorkflow.txt
