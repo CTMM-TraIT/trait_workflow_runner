@@ -10,7 +10,7 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <!--
-  -  Checkstyle configuration (suppressed checks) for the Ephrin Proteomics Project Tracking Software.
+  -  Checkstyle configuration (suppressed checks) for the Workflow Runner project.
   -  Author: Freek de Bruijn (f.debruijn@vumc.nl).
 -->
 

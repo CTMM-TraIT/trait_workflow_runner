@@ -193,8 +193,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
-                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <configLocation>src/configuration/checkstyle.xml</configLocation>
+                    <suppressionsLocation>src/configuration/checkstyle-suppressions.xml</suppressionsLocation>
                     <!--
                         Workaround for resolving the suppressions file in a Maven build: always check two
                         module levels above the current project. IDE builds should provide the config_loc
