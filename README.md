@@ -9,4 +9,4 @@ The goal of this library is to make it easy for tranSMART users to run a workflo
 
 We strive to create a group of components that will both be needed for building a specific bridge between tranSMART and Galaxy, and be useful for making bridges between other systems (like for example tranSMART-[Molgenis](http://www.molgenis.org/wiki/WikiStart) or Molgenis-Galaxy).
 
-For developers, we have a separate page with information on the development tools we use (git, GitHub, Maven, Checkstyle, FindBugs, PMD and CPD): [DevelopersInformation.md](DevelopersInformation.md).
+For developers, we have a separate page with information on the development tools we use (git, GitHub, Maven, Checkstyle, FindBugs, PMD and CPD): [DevelopersInformation.md](src/documentation/DevelopersInformation.md).

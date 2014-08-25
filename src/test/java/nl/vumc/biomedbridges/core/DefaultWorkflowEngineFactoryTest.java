@@ -11,6 +11,7 @@ import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflowEngine;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,10 @@ import static org.junit.Assert.assertNull;
 public class DefaultWorkflowEngineFactoryTest {
     /**
      * Test the getWorkflowEngine method.
+     *
+     * todo: stop ignoring when Galaxy server is available again.
      */
+    @Ignore
     @Test
     public void testGetWorkflowEngine() {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
