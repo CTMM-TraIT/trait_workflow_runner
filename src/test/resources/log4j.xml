@@ -17,7 +17,7 @@
 
     <appender name="file-appender" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="append" value="true"/>
-        <param name="file" value="log/workflow-runner.log"/>
+        <param name="file" value="src/log/workflow-runner.log"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
         <param name="threshold" value="trace"/>
         <layout class="org.apache.log4j.PatternLayout">

@@ -1,11 +1,11 @@
-/.idea/
-/data/galaxy-configuration/workflows/rna-seq-dge/edger_with_design_matrix-185effd01633.zip
-/data/galaxy-configuration/workflows/z - other/
-/data/galaxy-configuration/z - other/
-/etc/
-/lib/
-/log/
-/target/
-/tmp/
-/WorkflowRunner.iml
-/WorkflowRunner-runWorkflow.txt
+.idea/
+data/galaxy-configuration/workflows/rna-seq-dge/edger_with_design_matrix-185effd01633.zip
+data/galaxy-configuration/workflows/z - other/
+data/galaxy-configuration/z - other/
+etc/
+lib/
+src/log/
+target/
+tmp/
+WorkflowRunner.iml
+WorkflowRunner-runWorkflow.txt
