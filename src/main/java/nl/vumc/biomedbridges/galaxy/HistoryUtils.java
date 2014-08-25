@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -69,7 +70,11 @@ public class HistoryUtils {
             if (!ok)
                 logger.error("Reading from url {} is not working ok (response code: {}).", url, responseCode);
             try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
-                Files.copy(inputStream, Paths.get(fullFilePath), StandardCopyOption.REPLACE_EXISTING);
+                final Path targetPath = Paths.get(fullFilePath);
+                final boolean directoriesOk = targetPath.toFile().getParentFile().mkdirs();
+                if (!directoriesOk)
+                    logger.error("Error creating the directories for the target file path {}.", fullFilePath);
+                Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
                 success = ok;
             }
         } catch (final IOException e) {
