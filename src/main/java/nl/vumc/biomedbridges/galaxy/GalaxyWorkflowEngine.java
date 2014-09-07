@@ -40,6 +40,15 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
 /**
  * The workflow engine implementation for Galaxy.
  *
+ * todo: Galaxy workflows cannot specify which version of a tool should be used:
+ *       galaxy-dist\lib\galaxy\workflow\modules.py (lines 313-316):
+ *       """
+ *       # See if we have access to a different version of the tool.
+ *       # TO DO: If workflows are ever enhanced to use tool version
+ *       # in addition to tool id, enhance the selection process here
+ *       # to retrieve the correct version of the tool.
+ *       """
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class GalaxyWorkflowEngine implements WorkflowEngine {

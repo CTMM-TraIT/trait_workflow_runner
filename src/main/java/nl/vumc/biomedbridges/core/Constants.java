@@ -12,24 +12,13 @@ package nl.vumc.biomedbridges.core;
  */
 public class Constants {
     /**
-     * The Biomina Galaxy server (instance URL).
-     *
-     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
-     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
-     * Galaxy server and the API key together to keep them in sync.
-     */
-    public static final String BIOMINA_GALAXY_INSTANCE_URL = "http://biominavm-galaxy.biomina.be/galaxy/";
-
-    /**
      * The Galaxy server (instance URL) to use by default.
      *
      * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    // todo: revert back to usegalaxy.org when the server is working again.
-    //public static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
-    public static final String GALAXY_INSTANCE_URL = BIOMINA_GALAXY_INSTANCE_URL;
+    public static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
 
     /**
      * The SURFsara CTMM TraIT Galaxy server (instance URL).
@@ -39,6 +28,15 @@ public class Constants {
      * Galaxy server and the API key together to keep them in sync.
      */
     public static final String TRAIT_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
+
+    /**
+     * The Biomina Galaxy server (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String BIOMINA_GALAXY_INSTANCE_URL = "http://biominavm-galaxy.biomina.be/galaxy/";
 
     /**
      * The name of the concatenate test workflow.
