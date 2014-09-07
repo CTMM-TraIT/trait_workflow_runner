@@ -26,10 +26,7 @@ import static org.junit.Assert.assertNull;
 public class WorkflowEngineTest {
     /**
      * Test the getWorkflow method. This method is specified by the WorkflowEngine interface and implemented by the
-     *
-     * todo: stop ignoring when Galaxy server is available again.
      */
-    @Ignore
     @Test
     public void testGetWorkflow() {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();

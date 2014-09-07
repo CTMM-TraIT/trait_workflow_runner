@@ -26,10 +26,7 @@ import static org.junit.Assert.assertNull;
 public class DefaultWorkflowEngineFactoryTest {
     /**
      * Test the getWorkflowEngine method.
-     *
-     * todo: stop ignoring when Galaxy server is available again.
      */
-    @Ignore
     @Test
     public void testGetWorkflowEngine() {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
