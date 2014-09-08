@@ -10,6 +10,7 @@ import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -71,9 +72,12 @@ public class HistoryUtils {
                 logger.error("Reading from url {} is not working ok (response code: {}).", url, responseCode);
             try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
                 final Path targetPath = Paths.get(fullFilePath);
-                final boolean directoriesOk = targetPath.toFile().getParentFile().mkdirs();
-                if (!directoriesOk)
-                    logger.error("Error creating the directories for the target file path {}.", fullFilePath);
+                final File parentDirectory = targetPath.toFile().getParentFile();
+                if (!parentDirectory.exists()) {
+                    final boolean directoriesOk = parentDirectory.mkdirs();
+                    if (!directoriesOk)
+                        logger.error("Error creating the directories for the target file path {}.", fullFilePath);
+                }
                 Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
                 success = ok;
             }
