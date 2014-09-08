@@ -14,5 +14,7 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
 after_success:
   - mvn clean test jacoco:report coveralls:jacoco
+after_failure:
+  - cat /home/travis/builds/CTMM-TraIT/trait_workflow_runner/src/log/workflow-runner.log
 after_script:
   - "sh -e /etc/init.d/xvfb stop"

@@ -88,6 +88,11 @@ public class GalaxyConfiguration {
     private String historyName;
 
     /**
+     * Whether debugging information should be printed.
+     */
+    private boolean debug;
+
+    /**
      * Construct a Galaxy configuration object, using the default properties file.
      */
     public GalaxyConfiguration() {
@@ -138,6 +143,15 @@ public class GalaxyConfiguration {
     }
 
     /**
+     * Set whether debugging information should be printed.
+     *
+     * @param debug whether debugging information should be printed.
+     */
+    public void setDebug(final boolean debug) {
+        this.debug = debug;
+    }
+
+    /**
      * Create and configure a Galaxy instance object.
      *
      * todo: create a getGalaxyInstance method that handles the configurationData == null case? And cache the object?
@@ -161,9 +175,7 @@ public class GalaxyConfiguration {
                 logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
                              PROPERTY_SEPARATOR, apiKeyPrefix);
         }
-        // todo: use new get method with debug parameter when a blend4j release with the 2014-06-28 changes is available.
-        //return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, true) : null;
-        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey) : null;
+        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, debug) : null;
     }
 
     /**
