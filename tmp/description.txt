@@ -1,0 +1,1 @@
+This tmp directory is used for temporary files, like workflow output files.

@@ -102,29 +102,31 @@ public class GalaxyConfiguration {
     /**
      * Construct a Galaxy configuration object.
      *
-     * @param propertiesFilePath the path of the properties file.
+     * @param propertiesFilePath the path of the properties file or null to postpone reading the properties.
      */
     public GalaxyConfiguration(final String propertiesFilePath) {
-        final String defaultPropertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
-        this.propertiesFilePath = propertiesFilePath != null ? propertiesFilePath : defaultPropertiesFilePath;
-        loadProperties();
-        this.galaxyInstanceUrl = getGalaxyInstanceUrl();
-        this.apiKey = getGalaxyApiKey();
-        this.historyName = getGalaxyHistoryName();
+        if (propertiesFilePath != null) {
+            this.propertiesFilePath = propertiesFilePath;
+            loadProperties();
+            this.galaxyInstanceUrl = getGalaxyInstanceUrl();
+            this.apiKey = getGalaxyApiKey();
+            this.historyName = getGalaxyHistoryName();
+        } else
+            this.propertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
     }
 
     /**
      * Build a configuration string from a Galaxy instance URL, an API key, and a history name.
      *
      * @param galaxyInstanceUrl the Galaxy instance URL.
-     * @param galaxyApiKey      the Galaxy API key.
+     * @param galaxyApiKey      the Galaxy API key or null to retrieve the key from the properties file.
      * @param galaxyHistoryName the Galaxy history name.
      * @return the configuration string.
      */
     public String buildConfiguration(final String galaxyInstanceUrl, final String galaxyApiKey,
                                      final String galaxyHistoryName) {
         this.galaxyInstanceUrl = galaxyInstanceUrl;
-        this.apiKey = galaxyApiKey;
+        this.apiKey = (galaxyApiKey != null) ? galaxyApiKey : getGalaxyApiKey();
         this.historyName = galaxyHistoryName;
         return GALAXY_INSTANCE_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyInstanceUrl + PROPERTY_SEPARATOR
                + API_KEY_PROPERTY_KEY + KEY_VALUE_SEPARATOR + galaxyApiKey + PROPERTY_SEPARATOR
@@ -237,7 +239,14 @@ public class GalaxyConfiguration {
      * @return the Galaxy API key.
      */
     public String getGalaxyApiKey() {
-        return apiKey != null ? apiKey : getProperty(API_KEY_PROPERTY_KEY);
+        final String galaxyApiKey;
+        if (apiKey != null)
+            galaxyApiKey = apiKey;
+        else {
+            final String serverSpecificKey = getProperty(API_KEY_PROPERTY_KEY + "." + getGalaxyInstanceUrl());
+            galaxyApiKey = (serverSpecificKey != null) ? serverSpecificKey : getProperty(API_KEY_PROPERTY_KEY);
+        }
+        return galaxyApiKey;
     }
 
     /**

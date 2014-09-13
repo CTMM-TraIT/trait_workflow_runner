@@ -61,7 +61,7 @@ public class Constants {
     /**
      * The name of the RNA-Seq edgeR DGE workflow.
      */
-    public static final String WORKFLOW_RNA_SEQ_DGE = "RNA-Seq-edgeR-DGE";
+    public static final String WORKFLOW_RNA_SEQ_DGE = "EdgeR Wrapper (8-9-2014)";
 
     /**
      * The name of the "remove top and left" workflow.

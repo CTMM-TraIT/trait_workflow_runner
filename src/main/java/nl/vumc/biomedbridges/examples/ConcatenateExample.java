@@ -98,8 +98,8 @@ public class ConcatenateExample extends BaseExample {
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
-                                               HISTORY_NAME);
+        galaxyConfiguration.setDebug(true);
+        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, null, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);

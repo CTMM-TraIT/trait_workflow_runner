@@ -11,6 +11,7 @@ import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import nl.vumc.biomedbridges.molgenis.MolgenisWorkflowEngine;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +27,7 @@ public class DefaultWorkflowEngineFactoryTest {
     /**
      * Test the getWorkflowEngine method.
      */
+    @Ignore
     @Test
     public void testGetWorkflowEngine() {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();

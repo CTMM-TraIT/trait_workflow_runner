@@ -50,7 +50,6 @@ public class BaseWorkflowTest {
         final File inputFile1 = new File("input file 1");
         baseWorkflow.addInput(inputKey1, inputFile1);
         assertEquals(inputFile1, baseWorkflow.getInput(inputKey1));
-        assertEquals("should-fail", new File("").getAbsolutePath());
     }
 
     /**
