@@ -11,6 +11,7 @@ import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -33,6 +34,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class RnaSeqDgeExample extends BaseExample {
+    /**
+     * The resources directory for the examples package.
+     */
+    protected static final String EXAMPLES_DIRECTORY = Paths.get(
+            "src", "test", "resources", "nl", "vumc", "biomedbridges", "examples"
+    ) + File.separator;
+
     /**
      * The logger for this class.
      */
@@ -64,10 +72,9 @@ public class RnaSeqDgeExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RnaSeqDgeExample rnaSeqDgeExample = injector.getInstance(RnaSeqDgeExample.class);
 
-        // todo: copy test files to the repository!!!
-        final String directory = "C:\\Freek\\VUmc\\BioMedBridges\\Galaxy-API\\RNA-Seq EdgeR DGE pipeline EMC\\";
-        rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE, directory + "MCF7_featureCounts_concatenated.txt",
-                                    directory + "design_matrix.txt", "Control-E2");
+        rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+                                    EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt",
+                                    EXAMPLES_DIRECTORY + "design_matrix.txt", "Control-E2");
     }
     // CHECKSTYLE_ON: UncommentedMain
 

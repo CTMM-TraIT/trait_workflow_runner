@@ -84,11 +84,12 @@ public class HistogramExample extends BaseExample {
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
-                                               HISTORY_NAME);
+        galaxyConfiguration.setDebug(true);
+        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, null, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
+        workflow.setDownloadDirectory("tmp");
 
         workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
         final int stepNumber = 2;
@@ -126,11 +127,7 @@ public class HistogramExample extends BaseExample {
         if (output instanceof File) {
             final File outputFile = (File) output;
             final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            final boolean pdfCorrect = checkPdfContents(lines);
-            if (outputFile.delete())
-                result = pdfCorrect;
-            else
-                logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
+            result = checkPdfContents(lines);
         } else
             logger.error("There is no single output parameter of type File.");
         return result;

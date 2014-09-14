@@ -17,50 +17,33 @@ import nl.vumc.biomedbridges.core.TestGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for the ConcatenateExample class.
+ * Unit tests for the RnaSeqDgeExample class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class ConcatenateExampleTest {
+public class RnaSeqDgeExampleTest {
     /**
-     * Test the concatenate example under normal circumstances.
+     * Test the RNA-Seq differential gene expression example under normal circumstances.
      */
+    @Ignore
     @Test
-    public void testConcatenateExampleNormal() {
+    public void testRnaSeqDgeExampleNormal() {
         final String line1 = ConcatenateExample.LINE_TEST_FILE_1;
         final String line2 = ConcatenateExample.LINE_TEST_FILE_2;
-        final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
+        final RnaSeqDgeExample rnaSeqDgeExample = initializeConcatenateExample(true, line1, line2);
 
-        assertTrue(concatenateExample.runExample());
+        final String directory = RnaSeqDgeExample.EXAMPLES_DIRECTORY;
+        assertTrue(rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+                                               directory + "MCF7_featureCounts_concatenated.txt",
+                                               directory + "design_matrix.txt", "Control-E2"));
     }
 
-    /**
-     * Test the concatenate example when no output is generated.
-     */
-    @Test
-    public void testConcatenateExampleNoOutput() {
-        final ConcatenateExample concatenateExample = initializeConcatenateExample(false, null, null);
-
-        assertFalse(concatenateExample.runExample());
-    }
-
-    /**
-     * Test the concatenate example when invalid output is generated.
-     */
-    @Test
-    public void testConcatenateExampleInvalidOutput() {
-        final String line1 = ConcatenateExample.LINE_TEST_FILE_1 + " - something";
-        final String line2 = ConcatenateExample.LINE_TEST_FILE_2 + " - is wrong!";
-        final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
-
-        assertFalse(concatenateExample.runExample());
-    }
 
     /**
      * Create and initialize a concatenate example instance.
@@ -70,15 +53,15 @@ public class ConcatenateExampleTest {
      * @param line2 the second output line.
      * @return the concatenate example instance.
      */
-    private ConcatenateExample initializeConcatenateExample(final boolean generateOutput, final String line1,
+    private RnaSeqDgeExample initializeConcatenateExample(final boolean generateOutput, final String line1,
                                                             final String line2) {
         // Create a Guice injector and use it to build the ConcatenateExample object.
         final Injector injector = Guice.createInjector(new TestGuiceModule());
-        final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
+        final RnaSeqDgeExample rnaSeqDgeExample = injector.getInstance(RnaSeqDgeExample.class);
 
         if (generateOutput)
-            addOutputFilesToOutputMap(concatenateExample.workflowEngineFactory, line1, line2);
-        return concatenateExample;
+            addOutputFilesToOutputMap(rnaSeqDgeExample.workflowEngineFactory, line1, line2);
+        return rnaSeqDgeExample;
     }
 
     /**

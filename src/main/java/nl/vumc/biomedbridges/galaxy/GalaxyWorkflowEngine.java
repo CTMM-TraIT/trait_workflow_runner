@@ -108,11 +108,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final String STATE_OK = "ok";
 
     /**
-     * File extension text.
-     */
-    private static final String EXTENSION_TEXT = FILE_TYPE_TEXT;
-
-    /**
      * The history utils object.
      */
     private HistoryUtils historyUtils;
@@ -459,28 +454,18 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
         final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
         final String baseName = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
-        // todo: determine the appropriate extension (like for example pdf).
-        //if (workflowEngineMetadata == null)
-        //    workflowEngineMetadata = new GalaxyWorkflowEngineMetadata();
-        //workflowEngineMetadata.getWorkflow(workflow.getName()).getSteps().get(0).getOutputs().get(0).getName();
-        // todo: use dataset data type?
-        //final String dataType = dataset.getDataType();
+        final String dataType = dataset.getDataType();
         final String suffix;
         final String period = ".";
-        suffix = period + EXTENSION_TEXT;
-        //if (FILE_TYPE_TABULAR.equals(dataType))
-        //    suffix = period + EXTENSION_TEXT;
-        //else
-        //    suffix = period + EXTENSION_TEXT;
+        suffix = period + dataType;
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
             outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, suffix));
         else
             outputFile = File.createTempFile(baseName, suffix);
-        logger.trace("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
-        // todo: is it necessary to fill in the data type (last parameter)?
+        logger.info("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         final boolean success = historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                             outputFile.getAbsolutePath(), null);
+                                                             outputFile.getAbsolutePath(), dataType);
         workflow.addOutput(outputName, outputFile);
         return success;
     }

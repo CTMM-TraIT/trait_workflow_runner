@@ -1,8 +1,8 @@
 {
     "a_galaxy_workflow": "true", 
-    "annotation": "RNA-Seq Differential Gene Expression (EdgeR)", 
+    "annotation": "", 
     "format-version": "0.1", 
-    "name": "RNA-Seq_DGE", 
+    "name": "EdgeR Wrapper (8-9-2014)", 
     "steps": {
         "0": {
             "annotation": "", 
@@ -11,18 +11,18 @@
             "inputs": [
                 {
                     "description": "", 
-                    "name": "Expression Matrix"
+                    "name": "Input Dataset"
                 }
             ], 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
-                "left": 200, 
-                "top": 200
+                "left": 162, 
+                "top": 218.5
             }, 
             "tool_errors": null, 
             "tool_id": null, 
-            "tool_state": "{\"name\": \"Expression Matrix\"}", 
+            "tool_state": "{\"name\": \"Input Dataset\"}", 
             "tool_version": null, 
             "type": "data_input", 
             "user_outputs": []
@@ -34,18 +34,18 @@
             "inputs": [
                 {
                     "description": "", 
-                    "name": "Design Matrix"
+                    "name": "Input Dataset"
                 }
             ], 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
-                "left": 200, 
-                "top": 285
+                "left": 159, 
+                "top": 335.5
             }, 
             "tool_errors": null, 
             "tool_id": null, 
-            "tool_state": "{\"name\": \"Design Matrix\"}", 
+            "tool_state": "{\"name\": \"Input Dataset\"}", 
             "tool_version": null, 
             "type": "data_input", 
             "user_outputs": []
@@ -85,27 +85,27 @@
                 }, 
                 {
                     "name": "output_MDSplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_BCVplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_MAplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_PValue_distribution_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_hierarchical_clustering_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_heatmap_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_RData_obj", 
@@ -117,34 +117,21 @@
                 }
             ], 
             "position": {
-                "left": 428, 
-                "top": 200
+                "left": 446.5, 
+                "top": 266.5
             }, 
             "post_job_actions": {
-                "HideDatasetActionoutput_R": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_R"
-                }, 
-                "HideDatasetActionoutput_RData_obj": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_RData_obj"
-                }, 
-                "HideDatasetActionoutput_heatmap_plot": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_heatmap_plot"
-                }, 
-                "HideDatasetActionoutput_hierarchical_clustering_plot": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_hierarchical_clustering_plot"
+                "RenameDatasetActionoutput_count_edgeR": {
+                    "action_arguments": {
+                        "newname": "test_name_2"
+                    }, 
+                    "action_type": "RenameDatasetAction", 
+                    "output_name": "output_count_edgeR"
                 }
             }, 
             "tool_errors": null, 
             "tool_id": "testtoolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/1.0.0", 
-            "tool_state": "{\"__page__\": 0, \"design_matrix\": \"null\", \"outputs\": \"[\\\"make_output_raw_counts\\\", \\\"make_output_MDSplot\\\", \\\"make_output_BCVplot\\\", \\\"make_output_MAplot\\\", \\\"make_output_PValue_distribution_plot\\\"]\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
+            "tool_state": "{\"__page__\": 0, \"output_format_images\": \"\\\"png\\\"\", \"design_matrix\": \"null\", \"outputs\": \"[\\\"make_output_MDSplot\\\", \\\"make_output_PValue_distribution_plot\\\", \\\"make_output_heatmap_plot\\\"]\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
             "tool_version": "1.0.0", 
             "type": "tool", 
             "user_outputs": []
