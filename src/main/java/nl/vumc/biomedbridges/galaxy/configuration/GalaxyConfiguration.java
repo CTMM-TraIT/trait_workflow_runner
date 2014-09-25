@@ -244,7 +244,12 @@ public class GalaxyConfiguration {
             galaxyApiKey = apiKey;
         else {
             final String serverSpecificKey = getProperty(API_KEY_PROPERTY_KEY + "." + getGalaxyInstanceUrl());
-            galaxyApiKey = (serverSpecificKey != null) ? serverSpecificKey : getProperty(API_KEY_PROPERTY_KEY);
+            if (serverSpecificKey != null)
+                galaxyApiKey = serverSpecificKey;
+            else {
+                galaxyInstanceUrl = getProperty(GALAXY_INSTANCE_PROPERTY_KEY);
+                galaxyApiKey = getProperty(API_KEY_PROPERTY_KEY);
+            }
         }
         return galaxyApiKey;
     }
