@@ -14,7 +14,7 @@
                     "name": "Input Dataset"
                 }
             ], 
-            "name": "Input dataset", 
+            "name": "expression_matrix",
             "outputs": [], 
             "position": {
                 "left": 162, 
@@ -37,7 +37,7 @@
                     "name": "Input Dataset"
                 }
             ], 
-            "name": "Input dataset", 
+            "name": "design_matrix",
             "outputs": [], 
             "position": {
                 "left": 159, 
