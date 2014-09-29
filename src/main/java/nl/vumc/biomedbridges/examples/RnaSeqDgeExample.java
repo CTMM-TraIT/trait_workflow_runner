@@ -101,6 +101,9 @@ public class RnaSeqDgeExample extends BaseExample {
 
         workflow.addInput("expression_matrix", new File(expressionMatrixPathName));
         workflow.addInput("design_matrix", new File(designMatrixPathName));
+        workflow.addInput("fdr", 0.05);
+        workflow.addInput("output_format_images", "png");
+        workflow.addInput("outputs", "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", \"make_output_heatmap_plot\"]");
         final int stepNumberEdgeRDGE = 1;
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
