@@ -114,7 +114,7 @@ public class RandomLinesExample extends BaseExample {
         this.definitiveLineCount = definitiveLineCount;
         // Note: the configuration will be ignored for the demonstration workflow type.
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
+        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, galaxyConfiguration.getGalaxyApiKey(),
                                                HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());

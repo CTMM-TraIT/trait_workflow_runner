@@ -9,15 +9,19 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
+import com.sun.jersey.api.client.WebResource;
 
 import java.io.File;
 import java.util.Arrays;
 
+import nl.vumc.biomedbridges.core.FileUtils;
+
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -36,46 +40,31 @@ public class HistoryUtilsTest {
         final String historyId = "123456";
         final String datasetId = "dataset-id";
         final Dataset dataset = new Dataset();
-        final GalaxyInstance galaxyInstance = Mockito.mock(GalaxyInstance.class);
+        final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
+        final WebResource webResourceMock = Mockito.mock(WebResource.class);
         final String filePath = System.getProperty("java.io.tmpdir") + "testDownloadDataset.txt";
 
         Mockito.when(historiesClient.showDataset(Mockito.eq(historyId), Mockito.eq(datasetId))).thenReturn(dataset);
-        Mockito.when(galaxyInstance.getGalaxyUrl()).thenReturn("http://");
-        Mockito.when(historyUtilsSpy.downloadFileFromUrl(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(galaxyInstanceMock.getGalaxyUrl()).thenReturn("http://");
+        Mockito.when(galaxyInstanceMock.getWebResource()).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.path(Mockito.eq("histories"))).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.path(Mockito.eq(historyId))).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.path(Mockito.eq("contents"))).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.path(Mockito.eq(datasetId))).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.path(Mockito.eq("display"))).thenReturn(webResourceMock);
+        Mockito.when(webResourceMock.get(Mockito.eq(File.class))).thenReturn(new File(filePath));
 
-        assertTrue(historyUtilsSpy.downloadDataset(galaxyInstance, historiesClient, historyId, datasetId, filePath,
-                                                   null));
-    }
+        final Answer getFileAnswer = new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                FileUtils.createFile(filePath, "testDownloadDataset");
+                return new File(filePath);
+            }
+        };
 
-    /**
-     * Test the downloadFileFromUrl method with a valid URL.
-     */
-    @Test
-    public void testDownloadFileFromUrlValidUrl() throws Exception {
-        final HistoryUtils historyUtils = new HistoryUtils();
-        final String flagUrl = "http://www.biomedbridges.eu/sites/biomedbridges.eu/files/images/euflag.png";
-        final String temporaryDirectory = System.getProperty("java.io.tmpdir");
-        final String separatorIfNeeded = !temporaryDirectory.endsWith(File.separator) ? File.separator : "";
-        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl-1.txt";
+        Mockito.when(webResourceMock.get(Mockito.eq(File.class))).thenAnswer(getFileAnswer);
 
-        assertTrue(historyUtils.downloadFileFromUrl(flagUrl, filePath));
-        assertTrue(new File(filePath).exists());
-        assertTrue(new File(filePath).delete());
-    }
-
-    /**
-     * Test the downloadFileFromUrl method with an invalid URL.
-     */
-    @Test
-    public void testDownloadFileFromUrlInvalidUrl() throws Exception {
-        final HistoryUtils historyUtils = new HistoryUtils();
-        final String invalidUrl = "http://www.biomedbridges.eu/invalid/url/euflag.png";
-        final String temporaryDirectory = System.getProperty("java.io.tmpdir");
-        final String separatorIfNeeded = !temporaryDirectory.endsWith(File.separator) ? File.separator : "";
-        final String filePath = temporaryDirectory + separatorIfNeeded + "testDownloadFileFromUrl-2.txt";
-
-        assertFalse(historyUtils.downloadFileFromUrl(invalidUrl, filePath));
-        assertTrue(new File(filePath).exists());
+        assertTrue(historyUtilsSpy.downloadDataset(galaxyInstanceMock, historiesClient, historyId, datasetId, filePath));
         assertTrue(new File(filePath).delete());
     }
 

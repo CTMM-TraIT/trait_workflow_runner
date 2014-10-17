@@ -76,7 +76,7 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
         logger.info("Running workflow " + workflowName + "...");
         try {
             logger.info("DemonstrationWorkflowEngine.runWorkflow");
-            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(workflowName))
+            if (Constants.CONCATENATE_WORKFLOW.equals(workflowName))
                 result = runConcatenateWorkflow(workflow);
             else if (Constants.WORKFLOW_RANDOM_LINES_TWICE.equals(workflowName))
                 result = runRandomLinesWorkflow(workflow);

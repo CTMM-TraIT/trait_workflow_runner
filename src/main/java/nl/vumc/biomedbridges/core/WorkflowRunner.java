@@ -101,8 +101,8 @@ public class WorkflowRunner {
             final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType,
                                                                                           new HistoryUtils());
             workflowEngine.configure();
-            final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
-            if (Constants.TEST_WORKFLOW_CONCATENATE.equals(Constants.TEST_WORKFLOW_CONCATENATE)) {
+            final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
+            if (Constants.CONCATENATE_WORKFLOW.equals(Constants.CONCATENATE_WORKFLOW)) {
                 workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
                 workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
             } else {
@@ -115,7 +115,7 @@ public class WorkflowRunner {
             logger.info("");
             logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
         } catch (final InterruptedException | IOException | URISyntaxException e) {
-            logger.error("Exception while running workflow {}.", Constants.TEST_WORKFLOW_CONCATENATE, e);
+            logger.error("Exception while running workflow {}.", Constants.CONCATENATE_WORKFLOW, e);
             result = false;
         }
         return result;

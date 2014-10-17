@@ -83,9 +83,9 @@ public class HistogramExample extends BaseExample {
         initializeExample(logger, "HistogramExample.runExample");
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
+        //galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_INSTANCE_URL, null, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);

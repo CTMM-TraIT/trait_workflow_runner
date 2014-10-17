@@ -148,9 +148,11 @@ public class GalaxyConfiguration {
      * Set whether debugging information should be printed.
      *
      * @param debug whether debugging information should be printed.
+     * @return this Galaxy configuration (to make initialization easy).
      */
-    public void setDebug(final boolean debug) {
+    public GalaxyConfiguration setDebug(final boolean debug) {
         this.debug = debug;
+        return this;
     }
 
     /**
@@ -311,7 +313,7 @@ public class GalaxyConfiguration {
                 logger.error("The configuration file '{}' was not read successfully.", propertiesFilePath);
                 logger.error("Please ensure the following properties are available:");
             }
-            logger.error("{}={} [or another Galaxy server]", GALAXY_INSTANCE_PROPERTY_KEY, Constants.GALAXY_INSTANCE_URL);
+            logger.error("{}={} [or another Galaxy server]", GALAXY_INSTANCE_PROPERTY_KEY, Constants.CENTRAL_GALAXY_URL);
             logger.error(API_KEY_PROPERTY_KEY + "=[32hex-characters]");
             logger.error("");
             logger.error("Optional property:");

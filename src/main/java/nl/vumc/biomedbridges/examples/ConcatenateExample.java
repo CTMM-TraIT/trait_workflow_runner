@@ -95,19 +95,21 @@ public class ConcatenateExample extends BaseExample {
     public boolean runExample() {
         initializeExample(logger, "ConcatenateExample.runExample");
 
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
+        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-        //final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, null, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
-                                                                                      new HistoryUtils());
-        final Workflow workflow = workflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        final WorkflowEngine workflowEngine
+                = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration, new HistoryUtils());
+        final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
+
+        //final Workflow workflow = workflowFactory.getWorkflow(Workflow.GALAXY_TYPE, galaxyConfiguration,
+        //                                                      Constants.CONCATENATE_WORKFLOW);
 
         workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
         workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
-        boolean result = true;
+        boolean result = false;
         try {
             result = workflowEngine.runWorkflow(workflow);
             if (!result)

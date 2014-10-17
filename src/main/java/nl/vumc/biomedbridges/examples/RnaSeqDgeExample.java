@@ -94,19 +94,19 @@ public class RnaSeqDgeExample extends BaseExample {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
         galaxyConfiguration.setDebug(true);
         final String apiKey = galaxyConfiguration.getGalaxyApiKey();
-        galaxyConfiguration.buildConfiguration(Constants.TRAIT_GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RNA_SEQ_DGE);
 
         workflow.addInput("expression_matrix", new File(expressionMatrixPathName));
         workflow.addInput("design_matrix", new File(designMatrixPathName));
-        workflow.addInput("fdr", 0.05);
-        workflow.addInput("output_format_images", "png");
-        workflow.addInput("outputs", "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", \"make_output_heatmap_plot\"]");
         final int stepNumberEdgeRDGE = 1;
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
+        workflow.setParameter(stepNumberEdgeRDGE, "fdr", 0.05);
+        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
+        workflow.setParameter(stepNumberEdgeRDGE, "outputs", "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", \"make_output_heatmap_plot\"]");
 
         boolean result = true;
         try {

@@ -353,13 +353,19 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (workflow.getParameters() != null && workflow.getParameters().size() > 0) {
             final List<String> stepIds = new ArrayList<>(workflowDetails.getSteps().keySet());
             Collections.sort(stepIds);
-            for (final Object stepNumber : workflow.getParameters().keySet())
-                for (final Map.Entry<String, Object> entry : workflow.getParameters().get(stepNumber).entrySet()) {
-                    final String stepId = stepIds.get(Integer.parseInt(stepNumber.toString()) - 1);
-                    logger.trace("Set workflow step {} (id: {}) parameter {} to value {}.", stepNumber, stepId,
-                                 entry.getKey(), entry.getValue());
-                    inputs.setStepParameter(stepId, entry.getKey(), entry.getValue());
-                }
+            for (final Object stepNumber : workflow.getParameters().keySet()) {
+                final int stepIndex = Integer.parseInt(stepNumber.toString()) - 1;
+                if (stepIndex >= 0 && stepIndex < stepIds.size()) {
+                    for (final Map.Entry<String, Object> entry : workflow.getParameters().get(stepNumber).entrySet()) {
+                        final String stepId = stepIds.get(stepIndex);
+                        logger.trace("Set workflow step {} (id: {}) parameter {} to value {}.", stepNumber, stepId,
+                                     entry.getKey(), entry.getValue());
+                        inputs.setStepParameter(stepId, entry.getKey(), entry.getValue());
+                    }
+                } else
+                    logger.error("No step ID found for step number {} (should be in range 0..{})", stepNumber,
+                                 stepIds.size() - 1);
+            }
         }
         return inputs;
     }
@@ -454,10 +460,9 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final Dataset dataset = historiesClient.showDataset(historyId, outputId);
         final String outputName = dataset.getName() != null ? dataset.getName() : outputId;
         final String baseName = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
-        final String dataType = dataset.getDataType();
         final String suffix;
         final String period = ".";
-        suffix = period + dataType;
+        suffix = period + dataset.getDataType();
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
             outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, suffix));
@@ -465,7 +470,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             outputFile = File.createTempFile(baseName, suffix);
         logger.info("Downloading output {} to local file {}.", outputName, outputFile.getAbsolutePath());
         final boolean success = historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputId,
-                                                             outputFile.getAbsolutePath(), dataType);
+                                                             outputFile.getAbsolutePath());
         workflow.addOutput(outputName, outputFile);
         return success;
     }
@@ -491,8 +496,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (outputCount > 0) {
             // Freek: the last workflow output file is most likely to be the end result?
             final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
-            historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId, OUTPUT_FILE_PATH,
-                                         null);
+            historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId, OUTPUT_FILE_PATH);
             final File outputFile = new File(OUTPUT_FILE_PATH);
             if (outputFile.exists())
                 logger.info("- Output file exists.");

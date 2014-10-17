@@ -45,7 +45,7 @@ public class DemonstrationWorkflowEngineTest {
     @Before
     public void setUp() {
         demonstrationWorkflowEngine = new DemonstrationWorkflowEngine();
-        concatenateWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.TEST_WORKFLOW_CONCATENATE);
+        concatenateWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
         randomLinesWorkflow = demonstrationWorkflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
     }
 

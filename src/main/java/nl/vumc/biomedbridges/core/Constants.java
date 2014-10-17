@@ -12,13 +12,22 @@ package nl.vumc.biomedbridges.core;
  */
 public class Constants {
     /**
-     * The Galaxy server (instance URL) to use by default.
+     * The central Galaxy server (instance URL) to use by default.
      *
      * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    public static final String GALAXY_INSTANCE_URL = "https://usegalaxy.org/";
+    public static final String CENTRAL_GALAXY_URL = "https://usegalaxy.org/";
+
+    /**
+     * The Galaxy server at Vancis (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String VANCIS_GALAXY_INSTANCE_URL = "https://galaxy-act.ctmm-trait.nl/";
 
     /**
      * The SURFsara CTMM TraIT Galaxy server (instance URL).
@@ -27,7 +36,7 @@ public class Constants {
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    public static final String TRAIT_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
+    public static final String SURF_SARA_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
 
     /**
      * The Biomina Galaxy server (instance URL).
@@ -41,7 +50,7 @@ public class Constants {
     /**
      * The name of the concatenate test workflow.
      */
-    public static final String TEST_WORKFLOW_CONCATENATE = "TestWorkflowConcatenate";
+    public static final String CONCATENATE_WORKFLOW = "TestWorkflowConcatenate";
 
     /**
      * The name of the scatterplot test workflow.

@@ -31,7 +31,7 @@ public class DefaultWorkflowEngineFactoryTest {
     @Test
     public void testGetWorkflowEngine() {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(Constants.GALAXY_INSTANCE_URL, galaxyConfiguration.getGalaxyApiKey(),
+        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, galaxyConfiguration.getGalaxyApiKey(),
                                                "history name");
 
         checkEngineReturnType(DemonstrationWorkflowEngine.class, WorkflowEngineFactory.DEMONSTRATION_TYPE, null);

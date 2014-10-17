@@ -22,7 +22,7 @@ public class ConcatenateGuiExample extends BaseGuiExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new ConcatenateGuiExample().createGuiExample(Constants.TEST_WORKFLOW_CONCATENATE);
+        new ConcatenateGuiExample().createGuiExample(Constants.CONCATENATE_WORKFLOW);
     }
     // CHECKSTYLE_ON: UncommentedMain
 }

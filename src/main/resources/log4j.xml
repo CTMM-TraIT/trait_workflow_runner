@@ -33,7 +33,7 @@
     </appender>
 
     <root>
-        <priority value="info"/>
+        <priority value="trace"/>
         <appender-ref ref="file-appender"/>
         <appender-ref ref="console-appender"/>
     </root>

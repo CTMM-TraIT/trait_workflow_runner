@@ -9,16 +9,9 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
+import com.sun.jersey.api.client.WebResource;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,49 +35,34 @@ public class HistoryUtils {
      * @param historyId       the ID of the history that contains the dataset.
      * @param datasetId       the ID of the dataset.
      * @param filePath        the (base) file path to write the dataset to.
-     * @param dataType        the explicit data type of the dataset (or null to use the data type from the dataset).
      * @return whether the download was successful.
      */
     public boolean downloadDataset(final GalaxyInstance galaxyInstance, final HistoriesClient historiesClient,
-                                   final String historyId, final String datasetId, final String filePath,
-                                   final String dataType) {
+                                   final String historyId, final String datasetId, final String filePath) {
         final Dataset dataset = historiesClient.showDataset(historyId, datasetId);
-        final String toExt = (dataType != null) ? dataType : dataset.getDataType();
-        final String url = galaxyInstance.getGalaxyUrl() + "/datasets/" + dataset.getId() + "/display/?to_ext=" + toExt;
-        logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), filePath);
-        return downloadFileFromUrl(url, filePath);
-    }
-
-    /**
-     * Download a dataset from a Galaxy URL to a local file.
-     *
-     * @param url          the Galaxy url to download the dataset from.
-     * @param fullFilePath the full file path to download the dataset to.
-     * @return whether the download was successful.
-     */
-    protected boolean downloadFileFromUrl(final String url, final String fullFilePath) {
-        boolean success = false;
-        try {
-            final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            final int responseCode = connection.getResponseCode();
-            final boolean ok = responseCode == HttpURLConnection.HTTP_OK;
-            if (!ok)
-                logger.error("Reading from url {} is not working ok (response code: {}).", url, responseCode);
-            try (final InputStream inputStream = ok ? connection.getInputStream() : connection.getErrorStream()) {
-                final Path targetPath = Paths.get(fullFilePath);
-                final File parentDirectory = targetPath.toFile().getParentFile();
-                if (!parentDirectory.exists()) {
-                    final boolean directoriesOk = parentDirectory.mkdirs();
-                    if (!directoriesOk)
-                        logger.error("Error creating the directories for the target file path {}.", fullFilePath);
-                }
-                Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                success = ok;
+        final File destinationFile = new File(filePath);
+        final String destinationPath = destinationFile.getAbsolutePath();
+        logger.trace("Downloading dataset \"{}\" to local file {}.", dataset.getName(), destinationPath);
+        boolean successful = true;
+        if (destinationFile.exists()) {
+            if (destinationFile.delete())
+                logger.warn("The local file {} already existed and was removed.", destinationPath);
+            else {
+                logger.error("The local file {} already existed and could not be removed.", destinationPath);
+                successful = false;
             }
-        } catch (final IOException e) {
-            logger.error("Error downloading or writing dataset file.", e);
         }
-        return success;
+        if (successful) {
+            final WebResource historyResource = galaxyInstance.getWebResource().path("histories");
+            final WebResource contentsResource = historyResource.path(historyId).path("contents");
+            final File downloadedFile = contentsResource.path(datasetId).path("display").get(File.class);
+            logger.trace("downloadedFile.getAbsolutePath(): {}", downloadedFile.getAbsolutePath());
+            successful = downloadedFile.exists();
+            if (!successful)
+                logger.error("Exception while downloading dataset {} from history {} to local file {}.", datasetId,
+                             historyId, filePath);
+        }
+        return successful;
     }
 
     /**

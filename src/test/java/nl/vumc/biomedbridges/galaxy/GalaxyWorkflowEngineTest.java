@@ -95,7 +95,7 @@ public class GalaxyWorkflowEngineTest {
         final String apiKey = "some-api-key";
         final String historyName = "some-history-name";
         final String configurationData = GalaxyConfiguration.GALAXY_INSTANCE_PROPERTY_KEY
-                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR + Constants.GALAXY_INSTANCE_URL
+                                         + GalaxyConfiguration.KEY_VALUE_SEPARATOR + Constants.CENTRAL_GALAXY_URL
                                          + GalaxyConfiguration.PROPERTY_SEPARATOR
                                          + GalaxyConfiguration.API_KEY_PROPERTY_KEY
                                          + GalaxyConfiguration.KEY_VALUE_SEPARATOR
@@ -231,8 +231,8 @@ public class GalaxyWorkflowEngineTest {
         };
         Mockito.when(historyUtilsMock.downloadDataset(Mockito.eq(galaxyInstanceMock), Mockito.eq(historiesClientMock),
                                                       Mockito.eq(historyId), Mockito.anyString(),
-                                                      Mockito.eq(GalaxyWorkflowEngine.OUTPUT_FILE_PATH),
-                                                      Mockito.anyString())).thenAnswer(downloadDatasetAnswer);
+                                                      Mockito.eq(GalaxyWorkflowEngine.OUTPUT_FILE_PATH)))
+                .thenAnswer(downloadDatasetAnswer);
 
         final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
                                                                              historyUtilsMock);
