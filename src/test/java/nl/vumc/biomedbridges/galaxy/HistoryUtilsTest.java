@@ -12,6 +12,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 import com.sun.jersey.api.client.WebResource;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import nl.vumc.biomedbridges.core.FileUtils;
@@ -42,7 +43,7 @@ public class HistoryUtilsTest {
         final Dataset dataset = new Dataset();
         final GalaxyInstance galaxyInstanceMock = Mockito.mock(GalaxyInstance.class);
         final WebResource webResourceMock = Mockito.mock(WebResource.class);
-        final String filePath = System.getProperty("java.io.tmpdir") + "testDownloadDataset.txt";
+        final String filePath = Paths.get("tmp", "testDownloadDataset.txt").toString();
 
         Mockito.when(historiesClient.showDataset(Mockito.eq(historyId), Mockito.eq(datasetId))).thenReturn(dataset);
         Mockito.when(galaxyInstanceMock.getGalaxyUrl()).thenReturn("http://");
