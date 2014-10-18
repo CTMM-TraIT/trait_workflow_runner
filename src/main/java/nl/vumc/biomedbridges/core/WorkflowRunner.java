@@ -102,7 +102,7 @@ public class WorkflowRunner {
                                                                                           new HistoryUtils());
             workflowEngine.configure();
             final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
-            if (Constants.CONCATENATE_WORKFLOW.equals(Constants.CONCATENATE_WORKFLOW)) {
+            if (Constants.CONCATENATE_WORKFLOW.equals(workflow.getName())) {
                 workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
                 workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
             } else {
