@@ -96,7 +96,8 @@ public class ConcatenateExample extends BaseExample {
         initializeExample(logger, "ConcatenateExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        //galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final WorkflowEngine workflowEngine

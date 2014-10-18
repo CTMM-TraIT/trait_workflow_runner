@@ -27,7 +27,7 @@ public class Constants {
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    public static final String VANCIS_GALAXY_INSTANCE_URL = "https://galaxy-act.ctmm-trait.nl/";
+    public static final String VANCIS_GALAXY_URL = "https://galaxy-act.ctmm-trait.nl/";
 
     /**
      * The SURFsara CTMM TraIT Galaxy server (instance URL).

@@ -98,7 +98,7 @@ public class RnaSeqDgeExample extends BaseExample {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
         galaxyConfiguration.setDebug(true);
         final String apiKey = galaxyConfiguration.getGalaxyApiKey();
-        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_INSTANCE_URL, apiKey, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, apiKey, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RNA_SEQ_DGE);

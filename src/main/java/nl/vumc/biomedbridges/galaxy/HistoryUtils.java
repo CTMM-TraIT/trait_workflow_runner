@@ -56,7 +56,11 @@ public class HistoryUtils {
             final WebResource historyResource = galaxyInstance.getWebResource().path("histories");
             final WebResource contentsResource = historyResource.path(historyId).path("contents");
             final File downloadedFile = contentsResource.path(datasetId).path("display").get(File.class);
-            logger.trace("downloadedFile.getAbsolutePath(): {}", downloadedFile.getAbsolutePath());
+            if (downloadedFile.renameTo(destinationFile))
+                logger.trace("destinationFile.getAbsolutePath(): {}", destinationFile.getAbsolutePath());
+            else
+                logger.error("Renaming the downloaded file {} to the destination file {} failed.",
+                             downloadedFile.getAbsolutePath(), destinationFile.getAbsolutePath());
             successful = downloadedFile.exists();
             if (!successful)
                 logger.error("Exception while downloading dataset {} from history {} to local file {}.", datasetId,
