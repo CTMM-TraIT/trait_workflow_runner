@@ -41,7 +41,7 @@ public class RnaSeqDgeExampleTest {
         final String directory = RnaSeqDgeExample.EXAMPLES_DIRECTORY;
         assertTrue(rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
                                                directory + "MCF7_featureCounts_concatenated.txt",
-                                               directory + "design_matrix.txt", "Control-E2"));
+                                               directory + "design_matrix.txt", "Control-E2", 0.05));
     }
 
 

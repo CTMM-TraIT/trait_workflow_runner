@@ -100,7 +100,7 @@ public class ConcatenateExample extends BaseExample {
 
         final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final WorkflowEngine workflowEngine
-                = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration, new HistoryUtils());
+            = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration, new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
 
         //final Workflow workflow = workflowFactory.getWorkflow(Workflow.GALAXY_TYPE, galaxyConfiguration,

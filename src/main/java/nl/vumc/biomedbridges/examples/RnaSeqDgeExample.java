@@ -72,9 +72,12 @@ public class RnaSeqDgeExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RnaSeqDgeExample rnaSeqDgeExample = injector.getInstance(RnaSeqDgeExample.class);
 
-        rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
-                                    EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt",
-                                    EXAMPLES_DIRECTORY + "design_matrix.txt", "Control-E2");
+        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final String expressionMatrixPathName = EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt";
+        final String designMatrixPathName = EXAMPLES_DIRECTORY + "design_matrix.txt";
+        final String contrast = "Control-E2";
+        final double fdr = 0.05;
+        rnaSeqDgeExample.runExample(workflowType, expressionMatrixPathName, designMatrixPathName, contrast, fdr);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -85,10 +88,11 @@ public class RnaSeqDgeExample extends BaseExample {
      * @param expressionMatrixPathName the expression matrix input file.
      * @param designMatrixPathName the design matrix input file.
      * @param contrast the contrast parameter.
+     * @param fdr the false discovery rate parameter.
      * @return whether the workflow ran successfully and the output seems to be ok.
      */
     public boolean runExample(final String workflowType, final String expressionMatrixPathName,
-                              final String designMatrixPathName, final String contrast) {
+                              final String designMatrixPathName, final String contrast, final double fdr) {
         initializeExample(logger, "RnaSeqDgeExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
@@ -104,9 +108,11 @@ public class RnaSeqDgeExample extends BaseExample {
         final int stepNumberEdgeRDGE = 1;
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
-        workflow.setParameter(stepNumberEdgeRDGE, "fdr", 0.05);
+        workflow.setParameter(stepNumberEdgeRDGE, "fdr", fdr);
         workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
-        workflow.setParameter(stepNumberEdgeRDGE, "outputs", "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", \"make_output_heatmap_plot\"]");
+        final String selectedOutputs = "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", "
+                                       + "\"make_output_heatmap_plot\"]";
+        workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
 
         boolean result = true;
         try {

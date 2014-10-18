@@ -15,6 +15,7 @@ import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
+import com.github.jmchilton.blend4j.galaxy.beans.WorkflowStepDefinition;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.File;
@@ -350,24 +351,35 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             logger.trace("Add input file {} for input label {}.", fileName, inputEntry.getKey());
             WorkflowUtils.setInputByLabel(inputEntry.getKey(), workflowDetails, inputs, workflowInput);
         }
-        if (workflow.getParameters() != null && workflow.getParameters().size() > 0) {
-            final List<String> stepIds = new ArrayList<>(workflowDetails.getSteps().keySet());
-            Collections.sort(stepIds);
-            for (final Object stepNumber : workflow.getParameters().keySet()) {
-                final int stepIndex = Integer.parseInt(stepNumber.toString()) - 1;
-                if (stepIndex >= 0 && stepIndex < stepIds.size()) {
-                    for (final Map.Entry<String, Object> entry : workflow.getParameters().get(stepNumber).entrySet()) {
-                        final String stepId = stepIds.get(stepIndex);
-                        logger.trace("Set workflow step {} (id: {}) parameter {} to value {}.", stepNumber, stepId,
-                                     entry.getKey(), entry.getValue());
-                        inputs.setStepParameter(stepId, entry.getKey(), entry.getValue());
-                    }
-                } else
-                    logger.error("No step ID found for step number {} (should be in range 0..{})", stepNumber,
-                                 stepIds.size() - 1);
-            }
-        }
+        if (workflow.getParameters() != null && workflow.getParameters().size() > 0)
+            addParametersToInputsObject(workflow, inputs, workflowDetails.getSteps());
         return inputs;
+    }
+
+    /**
+     * Add workflow parameters to the inputs object.
+     *
+     * @param workflow      the workflow.
+     * @param inputs        the inputs object.
+     * @param workflowSteps the workflow steps.
+     */
+    private void addParametersToInputsObject(final Workflow workflow, final WorkflowInputs inputs,
+                                             final Map<String, WorkflowStepDefinition> workflowSteps) {
+        final List<String> stepIds = new ArrayList<>(workflowSteps.keySet());
+        Collections.sort(stepIds);
+        for (final Object stepNumber : workflow.getParameters().keySet()) {
+            final int stepIndex = Integer.parseInt(stepNumber.toString()) - 1;
+            if (stepIndex >= 0 && stepIndex < stepIds.size()) {
+                for (final Map.Entry<String, Object> entry : workflow.getParameters().get(stepNumber).entrySet()) {
+                    final String stepId = stepIds.get(stepIndex);
+                    logger.trace("Set workflow step {} (id: {}) parameter {} to value {}.", stepNumber, stepId,
+                                 entry.getKey(), entry.getValue());
+                    inputs.setStepParameter(stepId, entry.getKey(), entry.getValue());
+                }
+            } else
+                logger.error("No step ID found for step number {} (should be in range 0..{})", stepNumber,
+                             stepIds.size() - 1);
+        }
     }
 
     /**
