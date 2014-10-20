@@ -61,7 +61,7 @@ public class HistoryUtils {
             else
                 logger.error("Renaming the downloaded file {} to the destination file {} failed.",
                              downloadedFile.getAbsolutePath(), destinationFile.getAbsolutePath());
-            successful = downloadedFile.exists();
+            successful = destinationFile.exists();
             if (!successful)
                 logger.error("Exception while downloading dataset {} from history {} to local file {}.", datasetId,
                              historyId, filePath);
