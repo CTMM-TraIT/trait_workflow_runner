@@ -69,8 +69,15 @@ public class FileUtilsTest {
 
     @Test/*(expected = java.lang.RuntimeException.class)*/
     public void testCreateTemporaryFileWithPrefixInvalidPath() {
-        final String prefix = "/this\\prefix/should\\be/invalid\\everywhere/<>:\"|?*";
+        final String prefix = "/this\\prefix/should\\be/invalid\\everywhere<>:\"|?*";
         final File file = FileUtils.createTemporaryFileWithPrefix(prefix, "fail");
         assertEquals(prefix + ".txt", file.getName());
+
+/*
+Failed tests:
+  FileUtilsTest.testCreateTemporaryFileWithPrefixInvalidPath:74 expected:
+  <[/this\prefix/should\be/invalid\everywhere/<>:"|?*].txt> but was:
+  <[                                          <>:"|?*2530895165652836672].txt>
+*/
     }
 }
