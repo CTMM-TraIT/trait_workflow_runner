@@ -72,28 +72,25 @@ public class RnaSeqDgeExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RnaSeqDgeExample rnaSeqDgeExample = injector.getInstance(RnaSeqDgeExample.class);
 
-        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
         final String expressionMatrixPathName = EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt";
         final String designMatrixPathName = EXAMPLES_DIRECTORY + "design_matrix.txt";
-        final String contrast = "Control-E2";
-        final double fdr = 0.05;
-        rnaSeqDgeExample.runExample(workflowType, expressionMatrixPathName, designMatrixPathName, contrast, fdr);
+        rnaSeqDgeExample.runExample(expressionMatrixPathName, designMatrixPathName);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: todo...
      *
-     * @param workflowType the workflow (engine) type to use.
      * @param expressionMatrixPathName the expression matrix input file.
      * @param designMatrixPathName the design matrix input file.
-     * @param contrast the contrast parameter.
-     * @param fdr the false discovery rate parameter.
      * @return whether the workflow ran successfully and the output seems to be ok.
      */
-    public boolean runExample(final String workflowType, final String expressionMatrixPathName,
-                              final String designMatrixPathName, final String contrast, final double fdr) {
+    public boolean runExample(final String expressionMatrixPathName, final String designMatrixPathName) {
         initializeExample(logger, "RnaSeqDgeExample.runExample");
+
+        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final String contrast = "Control-E2";
+        final double fdr = 0.05;
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
         galaxyConfiguration.setDebug(true);

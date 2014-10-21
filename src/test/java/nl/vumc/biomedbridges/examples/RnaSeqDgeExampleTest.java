@@ -29,11 +29,9 @@ public class RnaSeqDgeExampleTest {
         final RnaSeqDgeExample rnaSeqDgeExample = initializeRnaSeqDgeExample();
 
         final String directory = RnaSeqDgeExample.EXAMPLES_DIRECTORY;
-        assertTrue(rnaSeqDgeExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
-                                               directory + "MCF7_featureCounts_concatenated.txt",
-                                               directory + "design_matrix.txt", "Control-E2", 0.05));
+        assertTrue(rnaSeqDgeExample.runExample(directory + "MCF7_featureCounts_concatenated.txt",
+                                               directory + "design_matrix.txt"));
     }
-
 
     /**
      * Create and initialize a concatenate example instance.
