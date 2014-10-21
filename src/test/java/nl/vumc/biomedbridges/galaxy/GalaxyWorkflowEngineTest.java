@@ -234,8 +234,10 @@ public class GalaxyWorkflowEngineTest {
                                                       Mockito.eq(GalaxyWorkflowEngine.OUTPUT_FILE_PATH)))
                 .thenAnswer(downloadDatasetAnswer);
 
-        final WorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
-                                                                             historyUtilsMock);
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
+                                                                                   historyUtilsMock);
+
+        galaxyWorkflowEngine.setWaitTimers(0, 0, 0);
 
         // Downloading fails, so we expect false if automaticDownload is true and true otherwise.
         assertEquals(!automaticDownload, galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));

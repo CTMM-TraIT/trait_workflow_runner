@@ -13,20 +13,20 @@ import java.io.IOException;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public interface WorkflowEngine {
-    /**
-     * Configure the workflow engine with the default settings.
-     *
-     * @return whether configuring was successful.
-     */
-    boolean configure();
-
-    /**
-     * Configure the workflow engine.
-     *
-     * @param configurationData the configuration data (or null to use the default settings).
-     * @return whether configuring was successful.
-     */
-    boolean configure(final String configurationData);
+//    /**
+//     * Configure the workflow engine with the default settings.
+//     *
+//     * @return whether configuring was successful.
+//     */
+//    boolean configure();
+//
+//    /**
+//     * Configure the workflow engine.
+//     *
+//     * @param configurationData the configuration data (or null to use the default settings).
+//     * @return whether configuring was successful.
+//     */
+//    boolean configure(final String configurationData);
 
     /**
      * Create a named workflow.

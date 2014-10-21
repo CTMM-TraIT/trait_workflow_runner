@@ -16,6 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for the BaseWorkflow class.
@@ -46,10 +48,12 @@ public class BaseWorkflowTest {
      */
     @Test
     public void testAddAndGetInput() {
+        assertEquals(0, baseWorkflow.getAllInputEntries().size());
         final String inputKey1 = "input1";
         final File inputFile1 = new File("input file 1");
         baseWorkflow.addInput(inputKey1, inputFile1);
         assertEquals(inputFile1, baseWorkflow.getInput(inputKey1));
+        assertEquals(1, baseWorkflow.getAllInputEntries().size());
     }
 
     /**
@@ -95,5 +99,15 @@ public class BaseWorkflowTest {
         baseWorkflow.addOutput(outputKey2, outputFile2);
 
         assertEquals(ImmutableMap.of(outputKey1, outputFile1, outputKey2, outputFile2), baseWorkflow.getOutputMap());
+    }
+
+    /**
+     * Test the getAutomaticDownload and setAutomaticDownload methods.
+     */
+    @Test
+    public void testAutomaticDownload() {
+        assertTrue(baseWorkflow.getAutomaticDownload());
+        baseWorkflow.setAutomaticDownload(false);
+        assertFalse(baseWorkflow.getAutomaticDownload());
     }
 }

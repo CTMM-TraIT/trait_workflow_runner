@@ -53,18 +53,6 @@ public class DemonstrationWorkflowEngine implements WorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(DemonstrationWorkflowEngine.class);
 
     @Override
-    public boolean configure() {
-        return configure(null);
-    }
-
-    @Override
-    public boolean configure(final String configurationData) {
-        logger.info("The demonstration workflow engine is not (yet) configurable. "
-                    + "The configuration data {} is not used.", configurationData);
-        return true;
-    }
-
-    @Override
     public Workflow getWorkflow(final String workflowName) {
         return new DemonstrationWorkflow(workflowName);
     }

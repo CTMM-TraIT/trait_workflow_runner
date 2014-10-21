@@ -30,7 +30,7 @@ public class BaseWorkflow implements Workflow {
     /**
      * The mapping of the input names to the actual input objects.
      */
-    private final Map<String, Object> inputsFiles = new HashMap<>();
+    private final Map<String, Object> inputFiles = new HashMap<>();
 
     /**
      * The mapping of the parameter names to the actual parameter objects. For the moment, the parameters are stored in
@@ -68,27 +68,27 @@ public class BaseWorkflow implements Workflow {
 
     @Override
     public void addInput(final String inputName, final Object inputValue) {
-        inputsFiles.put(inputName, inputValue);
+        inputFiles.put(inputName, inputValue);
     }
 
     @Override
     public Object getInput(final String inputName) {
-        return inputsFiles.get(inputName);
+        return inputFiles.get(inputName);
     }
 
     @Override
     public Collection<Object> getAllInputValues() {
-        return inputsFiles.values();
+        return inputFiles.values();
     }
 
     @Override
     public Set<Map.Entry<String, Object>> getAllInputEntries() {
-        return inputsFiles.entrySet();
+        return inputFiles.entrySet();
     }
 
     @Override
     public Map<String, Object> getInputMap() {
-        return new HashMap<>(inputsFiles);
+        return new HashMap<>(inputFiles);
     }
 
     @Override

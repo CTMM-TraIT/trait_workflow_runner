@@ -19,16 +19,6 @@ public class DummyWorkflowEngine implements WorkflowEngine {
     private Workflow dummyWorkflow;
 
     @Override
-    public boolean configure() {
-        return true;
-    }
-
-    @Override
-    public boolean configure(final String configurationData) {
-        return true;
-    }
-
-    @Override
     public Workflow getWorkflow(final String workflowName) {
         if (dummyWorkflow == null)
             dummyWorkflow = new BaseWorkflow(workflowName != null ? workflowName : "test workflow");

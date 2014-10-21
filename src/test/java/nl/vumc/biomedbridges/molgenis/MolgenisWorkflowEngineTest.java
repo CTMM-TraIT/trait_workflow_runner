@@ -16,14 +16,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class MolgenisWorkflowEngineTest {
     /**
-     * Test the configure method.
-     */
-    @Test
-    public void testConfigure() {
-        assertTrue(new MolgenisWorkflowEngine().configure(null));
-    }
-
-    /**
      * Test the runWorkflow method.
      */
     @Test

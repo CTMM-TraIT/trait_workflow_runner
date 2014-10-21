@@ -91,7 +91,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     /**
      * The number of milliseconds to wait after the upload has finished.
      */
-    private static final int WAIT_AFTER_UPLOAD_MILLISECONDS = 2000;
+    private static final int WAIT_AFTER_UPLOAD_SECONDS = 2;
 
     /**
      * The maximum number of times to wait for the workflow to finish.
@@ -143,19 +143,25 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private Map<String, String> outputNameToIdsMap;
 
+    /**
+     * The number of seconds to wait for the upload to finish (for each wait cycle).
+     */
+    private int uploadWaitSeconds;
+
+    /**
+     * The number of milliseconds to wait after the upload has finished.
+     */
+    private int waitAfterUploadSeconds;
+
+    /**
+     * The number of seconds to wait for the workflow to finish (for each wait cycle).
+     */
+    private int workflowWaitSeconds;
+
     ///**
     // * The metadata for the workflow engine.
     // */
     //private GalaxyWorkflowEngineMetadata workflowEngineMetadata;
-
-    /**
-     * Create a Galaxy workflow engine.
-     *
-     * @deprecated todo: this constructor will be removed later.
-     */
-    @Deprecated
-    public GalaxyWorkflowEngine() {
-    }
 
     /**
      * Create a Galaxy workflow engine.
@@ -171,22 +177,28 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         this.historiesClient = galaxyInstance != null ? galaxyInstance.getHistoriesClient() : null;
         this.historyId = historyId;
         this.historyUtils = historyUtils;
-    }
-
-    // todo: remove the configure methods from the interface and the implementing classes?
-    @Override
-    public boolean configure() {
-        return configure(null);
-    }
-
-    @Override
-    public boolean configure(final String configurationData) {
-        return true;
+        this.uploadWaitSeconds = UPLOAD_WAIT_SECONDS;
+        this.waitAfterUploadSeconds = WAIT_AFTER_UPLOAD_SECONDS;
+        this.workflowWaitSeconds = WORKFLOW_WAIT_SECONDS;
     }
 
     @Override
     public Workflow getWorkflow(final String workflowName) {
         return new GalaxyWorkflow(this, workflowName);
+    }
+
+    /**
+     * Change the wait timers from their default value to something else; useful for testing.
+     *
+     * @param uploadWaitSeconds      the number of seconds to wait for the upload to finish (for each wait cycle).
+     * @param waitAfterUploadSeconds the number of milliseconds to wait after the upload has finished.
+     * @param workflowWaitSeconds    the number of seconds to wait for the workflow to finish (for each wait cycle).
+     */
+    protected void setWaitTimers(final int uploadWaitSeconds, final int waitAfterUploadSeconds,
+                                 final int workflowWaitSeconds) {
+        this.uploadWaitSeconds = uploadWaitSeconds;
+        this.waitAfterUploadSeconds = waitAfterUploadSeconds;
+        this.workflowWaitSeconds = workflowWaitSeconds;
     }
 
     @Override
@@ -295,8 +307,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         boolean finished = false;
         int waitCount = 0;
         while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
-            logger.info("  + Now waiting for {} seconds...", UPLOAD_WAIT_SECONDS);
-            Thread.sleep(UPLOAD_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
+            logger.info("  + Now waiting for {} seconds...", uploadWaitSeconds);
+            Thread.sleep(uploadWaitSeconds * MILLISECONDS_PER_SECOND);
             finished = isHistoryReady(historyId);
             waitCount++;
         }
@@ -310,7 +322,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             logger.error("History upload no longer running, but not in 'ok' state. State is: '{}'.", state);
             logger.error(stateIdsMessage);
         }
-        Thread.sleep(WAIT_AFTER_UPLOAD_MILLISECONDS);
+        Thread.sleep(waitAfterUploadSeconds * MILLISECONDS_PER_SECOND);
     }
 
     /**
@@ -409,16 +421,16 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         boolean finished = false;
         int waitCount = 0;
         while (!finished && waitCount < WORKFLOW_WAIT_MAX_WAIT_BLOCKS) {
-            logger.info("- Now waiting for {} seconds...", WORKFLOW_WAIT_SECONDS);
-            Thread.sleep(WORKFLOW_WAIT_SECONDS * MILLISECONDS_PER_SECOND);
+            logger.info("- Now waiting for {} seconds...", workflowWaitSeconds);
+            Thread.sleep(workflowWaitSeconds * MILLISECONDS_PER_SECOND);
             finished = isHistoryReady(historyId);
             waitCount++;
         }
         if (finished)
-            logger.info("Workflow seems to be finished after roughly {} seconds.", waitCount * WORKFLOW_WAIT_SECONDS);
+            logger.info("Workflow seems to be finished after roughly {} seconds.", waitCount * workflowWaitSeconds);
         else
             logger.warn("Stopped waiting for the workflow to finish after {} seconds.",
-                        WORKFLOW_WAIT_MAX_WAIT_BLOCKS * WORKFLOW_WAIT_SECONDS);
+                        WORKFLOW_WAIT_MAX_WAIT_BLOCKS * workflowWaitSeconds);
         final Map<String, List<String>> stateIds = historiesClient.showHistory(historyId).getStateIds();
         logger.debug("History state IDs after execute: {}.", stateIds);
         logger.debug("There are {} output file(s) ready for download.", stateIds.get(STATE_OK).size());

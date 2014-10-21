@@ -50,15 +50,6 @@ public class DemonstrationWorkflowEngineTest {
     }
 
     /**
-     * Test the configure method.
-     */
-    @Test
-    public void testConfigure() {
-        assertTrue(demonstrationWorkflowEngine.configure());
-        assertTrue(demonstrationWorkflowEngine.configure(null));
-    }
-
-    /**
      * Test the runWorkflow method with an invalid parameter.
      */
     @Test

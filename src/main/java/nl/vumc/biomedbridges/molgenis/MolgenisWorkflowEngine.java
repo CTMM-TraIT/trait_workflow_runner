@@ -15,17 +15,6 @@ import nl.vumc.biomedbridges.core.WorkflowEngine;
  */
 public class MolgenisWorkflowEngine implements WorkflowEngine {
     @Override
-    public boolean configure() {
-        return configure(null);
-    }
-
-    @Override
-    public boolean configure(final String configurationData) {
-        //System.out.println("MolgenisWorkflowEngine.configure...");
-        return true;
-    }
-
-    @Override
     public Workflow getWorkflow(final String workflowName) {
         return new MolgenisWorkflow(workflowName);
     }

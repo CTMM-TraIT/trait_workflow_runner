@@ -66,4 +66,9 @@ public class FileUtilsTest {
     public void testCreateFileInvalidPath() {
         FileUtils.createFile("/this\\path/should\\be/invalid\\everywhere/<>:\"|?*.txt", "this", "should", "fail");
     }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void testCreateTemporaryFileWithPrefixInvalidPath() {
+        FileUtils.createTemporaryFileWithPrefix("/this\\path/should\\be/invalid\\everywhere/<>:\"|?*.txt", "fail");
+    }
 }

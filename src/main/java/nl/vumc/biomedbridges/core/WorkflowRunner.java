@@ -5,7 +5,6 @@
 
 package nl.vumc.biomedbridges.core;
 
-import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -98,9 +97,11 @@ public class WorkflowRunner {
             logger.info("WorkflowRunner.runWorkflowRunner has started.");
 
             final long startTime = System.currentTimeMillis();
+
+            // todo: creating a Galaxy workflow engine requires a GalaxyConfiguration object; this call returns null.
             final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType,
                                                                                           new HistoryUtils());
-            workflowEngine.configure();
+            //workflowEngine.configure();
             final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
             if (Constants.CONCATENATE_WORKFLOW.equals(workflow.getName())) {
                 workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
@@ -131,10 +132,6 @@ public class WorkflowRunner {
         final Object output = workflow.getOutput("output");
         if (output instanceof File) {
             final File outputFile = (File) output;
-            if (workflow.getName().equals(Constants.TEST_WORKFLOW_SCATTERPLOT)) {
-                logger.debug("Create pdf file for workflow {}.", Constants.TEST_WORKFLOW_SCATTERPLOT);
-                Files.copy(outputFile, new File("/tmp/HackathonHappiness.pdf"));
-            }
             if (!outputFile.delete())
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
