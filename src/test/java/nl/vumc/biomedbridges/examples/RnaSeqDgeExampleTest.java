@@ -9,7 +9,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import nl.vumc.biomedbridges.core.TestGuiceModule;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 
 import org.junit.Test;
 
