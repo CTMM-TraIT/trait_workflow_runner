@@ -16,7 +16,7 @@ public class DummyWorkflowEngine implements WorkflowEngine {
     /**
      * The workflow.
      */
-    private final Workflow dummyWorkflow = new BaseWorkflow("test workflow");
+    private Workflow dummyWorkflow;
 
     @Override
     public boolean configure() {
@@ -30,11 +30,16 @@ public class DummyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public Workflow getWorkflow(final String workflowName) {
+        if (dummyWorkflow == null)
+            dummyWorkflow = new BaseWorkflow(workflowName != null ? workflowName : "test workflow");
         return dummyWorkflow;
     }
 
     @Override
     public boolean runWorkflow(final Workflow workflow) throws InterruptedException, IOException {
+        if (Constants.WORKFLOW_RNA_SEQ_DGE.equals(workflow.getName()))
+            for (int outputIndex = 0; outputIndex < 7; outputIndex++)
+                workflow.addOutput("dummy-output-" + (outputIndex + 1), "dummy");
         return true;
     }
 }
