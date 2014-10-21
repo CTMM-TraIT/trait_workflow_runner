@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -62,22 +63,27 @@ public class FileUtilsTest {
         assertTrue(uniqueFile3.delete());
     }
 
+    /**
+     * Test the createFile method with an invalid path. An exception will be thrown for Linux and Windows.
+     */
     @Test(expected = java.lang.RuntimeException.class)
     public void testCreateFileInvalidPath() {
         FileUtils.createFile("/this\\path/should\\be/invalid\\everywhere/<>:\"|?*.txt", "this", "should", "fail");
     }
 
-    @Test/*(expected = java.lang.RuntimeException.class)*/
+    /**
+     * Test the createTemporaryFileWithPrefix method with an invalid path. On Linux, a file is created successfully; on
+     * Windows, an exception will be thrown.
+     */
+    @Test
     public void testCreateTemporaryFileWithPrefixInvalidPath() {
-        final String prefix = "/this\\prefix/should\\be/invalid\\everywhere<>:\"|?*";
-        final File file = FileUtils.createTemporaryFileWithPrefix(prefix, "fail");
-        assertEquals(prefix + ".txt", file.getName());
-
-/*
-Failed tests:
-  FileUtilsTest.testCreateTemporaryFileWithPrefixInvalidPath:74 expected:
-  <[/this\prefix/should\be/invalid\everywhere/<>:"|?*].txt> but was:
-  <[                                          <>:"|?*2530895165652836672].txt>
-*/
+        final boolean onWindows = System.getProperty("os.name").startsWith("Windows");
+        final String prefix = "/this\\prefix/should\\be/invalid\\everywhere/<>:\"|?*";
+        try {
+            FileUtils.createTemporaryFileWithPrefix(prefix, "fail");
+            assertFalse(onWindows);
+        } catch (final RuntimeException e) {
+            assertTrue(onWindows);
+        }
     }
 }
