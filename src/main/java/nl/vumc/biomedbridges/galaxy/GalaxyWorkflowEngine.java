@@ -33,6 +33,7 @@ import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 
 import org.apache.http.HttpStatus;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +185,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
     @Override
     public Workflow getWorkflow(final String workflowName) {
-        return new GalaxyWorkflow(this, workflowName);
+        return new GalaxyWorkflow(workflowName, this, new JSONParser());
     }
 
     /**

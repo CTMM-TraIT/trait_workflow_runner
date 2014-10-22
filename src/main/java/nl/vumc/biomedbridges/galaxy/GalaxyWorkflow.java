@@ -46,6 +46,11 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     private final GalaxyWorkflowEngine workflowEngine;
 
     /**
+     * The JSON parser (for parsing the workflow definition).
+     */
+    private final JSONParser jsonParser;
+
+    /**
      * The inputs metadata from the Galaxy workflow JSON file.
      */
     private List<Map<String, String>> inputsMetadata;
@@ -58,12 +63,14 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     /**
      * Construct a Galaxy workflow.
      *
+     * @param name           the name of the workflow.
      * @param workflowEngine the workflow engine (for downloading output files).
-     * @param name the name of the workflow.
+     * @param jsonParser     the JSON parser to use.
      */
-    protected GalaxyWorkflow(final GalaxyWorkflowEngine workflowEngine, final String name) {
+    protected GalaxyWorkflow(final String name, final GalaxyWorkflowEngine workflowEngine, final JSONParser jsonParser) {
         super(name);
         this.workflowEngine = workflowEngine;
+        this.jsonParser = jsonParser;
         parseJson();
     }
 
@@ -146,7 +153,7 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
             outputsMetadata = new ArrayList<>();
             final String jsonContent = getJsonContent();
             if (jsonContent != null) {
-                final JSONObject workflowJson = (JSONObject) new JSONParser().parse(jsonContent);
+                final JSONObject workflowJson = (JSONObject) jsonParser.parse(jsonContent);
                 final JSONObject stepsMapJson = (JSONObject) workflowJson.get("steps");
                 logger.info("This workflow contains " + stepsMapJson.size() + " step"
                             + (stepsMapJson.size() != 1 ? "s" : "") + ":");
@@ -232,12 +239,15 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
 
     @Override
     public Object getOutput(final String outputName) {
-        // todo: check whether an output file has been downloaded; if not: do it now and add to map.
+        // Check whether an output file has been downloaded; if not: do it now and add to map.
         if (!getAutomaticDownload() && !outputFiles.containsKey(outputName)) {
             try {
-                workflowEngine.downloadOutputFile(this, workflowEngine.getOutputIdForOutputName(outputName));
+                if (!workflowEngine.downloadOutputFile(this, workflowEngine.getOutputIdForOutputName(outputName)))
+                    logger.error("Error downloading a workflow output file (workflow: {}; output name: {}).", getName(),
+                                 outputName);
             } catch (final IOException e) {
-                logger.error("Error downloading a workflow output file.", e);
+                logger.error("Exception downloading a workflow output file (workflow: {}; output name: {}).", e,
+                             getName(), outputName);
             }
         }
         return outputFiles.get(outputName);

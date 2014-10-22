@@ -78,7 +78,7 @@ public class FileUtilsTest {
     @Test
     public void testCreateTemporaryFileWithPrefixInvalidPath() {
         final boolean onWindows = System.getProperty("os.name").startsWith("Windows");
-        final String prefix = "/this\\prefix/should\\be/invalid\\everywhere/<>:\"|?*";
+        final String prefix = "/this\\prefix/should\\only/be\\invalid/on\\Windows/<>:\"|?*";
         try {
             FileUtils.createTemporaryFileWithPrefix(prefix, "fail");
             assertFalse(onWindows);
