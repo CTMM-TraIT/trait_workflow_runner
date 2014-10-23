@@ -456,7 +456,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 for (final HistoryContents historyContents : historiesClient.showHistoryContents(historyId))
                     outputNameToIdsMap.put(historyContents.getName(), historyContents.getId());
             }
-        } catch (final IllegalArgumentException | IOException | SecurityException e) {
+        } catch (final IOException e) {
             logger.error("Error downloading a workflow output file.", e);
             success = false;
         }

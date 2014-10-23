@@ -11,6 +11,7 @@ import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.Dataset;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
+import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
@@ -63,6 +64,11 @@ public class GalaxyWorkflowEngineTest {
     private static final String GALAXY_DIRECTORY = Paths.get(
             "src", "test", "resources", "nl", "vumc", "biomedbridges", "galaxy"
     ) + File.separator;
+
+    /**
+     * Workflow output file path.
+     */
+    private static final String TMP_DIRECTORY = Paths.get("tmp").toString();
 
     /**
      * Test the configure method with nonsense configuration data.
@@ -184,6 +190,8 @@ public class GalaxyWorkflowEngineTest {
         final Dataset datasetMock2 = Mockito.mock(Dataset.class);
         final HistoryUtils historyUtilsMock = Mockito.mock(HistoryUtils.class);
 
+        if (automaticDownload)
+            Mockito.when(galaxyWorkflowMock.getDownloadDirectory()).thenReturn(TMP_DIRECTORY);
         Mockito.when(galaxyInstanceMock.getWorkflowsClient()).thenReturn(workflowsClientMock);
         Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
         Mockito.when(galaxyInstanceMock.getToolsClient()).thenReturn(toolsClientMock);
@@ -207,6 +215,8 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(workflowDetailsMock.getSteps()).thenReturn(workflowSteps);
         final List<String> workflowOutputIds = getWorkflowOutputIds(outputIdCount, normalOutputIdOrder, outputId1, outputId2);
         Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(workflowOutputIds);
+        final List<HistoryContents> historyContentsList = getHistoryContentsList(workflowOutputIds);
+        Mockito.when(historiesClientMock.showHistoryContents(Mockito.eq(historyId))).thenReturn(historyContentsList);
         Mockito.when(galaxyWorkflowMock.getAutomaticDownload()).thenReturn(automaticDownload);
         if (automaticDownload) {
             Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId1)))
@@ -271,6 +281,23 @@ public class GalaxyWorkflowEngineTest {
                 workflowOutputIds = ImmutableList.of(outputId2, outputId1);
         }
         return workflowOutputIds;
+    }
+
+    /**
+     * Get the history contents list that corresponds to the workflow output IDs.
+     *
+     * @param workflowOutputIds the workflow output IDs.
+     * @return the history contents list.
+     */
+    private List<HistoryContents> getHistoryContentsList(final List<String> workflowOutputIds) {
+        final List<HistoryContents> historyContentsList = new ArrayList<>();
+        for (final String workflowOutputId : workflowOutputIds) {
+            final HistoryContents historyContents = new HistoryContents();
+            historyContents.setHid(workflowOutputId.hashCode());
+            historyContents.setName("name-for-" + workflowOutputId);
+            historyContentsList.add(historyContents);
+        }
+        return historyContentsList;
     }
 
     /**
