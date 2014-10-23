@@ -232,11 +232,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
 
             final boolean checkResults;
             if (workflowFinished)
-                checkResults = checkWorkflowResults();
+                checkResults = checkWorkflowResults(workflow);
             else {
                 logger.info("Timeout while waiting for workflow output file(s).");
                 // Freek: test the output anyway to generate some logging for debugging/analysis.
-                checkResults = checkWorkflowResults();
+                checkResults = checkWorkflowResults(workflow);
             }
             logger.trace("workflowFinished: " + workflowFinished);
             logger.trace("downloadsSuccessful: " + downloadsSuccessful);
@@ -505,33 +505,42 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      *
      * todo: is this still necessary? only if automatic download is on? last output file is downloaded twice?
      *
+     * @param workflow the workflow.
      * @return whether the workflow results appear to be valid.
      * @throws IOException if reading the workflow results fails.
      */
-    private boolean checkWorkflowResults() throws IOException {
+    private boolean checkWorkflowResults(final Workflow workflow) throws IOException {
         boolean valid = true;
         logger.info("Check outputs.");
         for (final String outputId : workflowOutputs.getOutputIds())
             logger.info("- Workflow output ID: {}.", outputId);
         final int outputCount = workflowOutputs.getOutputIds().size();
-        if (outputCount == 0)
-            logger.warn("No workflow output found.");
-        else if (outputCount > 1)
-            logger.warn("More than one workflow outputs found ({}).", outputCount);
-        if (outputCount > 0) {
-            // Freek: the last workflow output file is most likely to be the end result?
-            final String outputDatasetId = workflowOutputs.getOutputIds().get(outputCount - 1);
-            historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId, OUTPUT_FILE_PATH);
-            final File outputFile = new File(OUTPUT_FILE_PATH);
-            if (outputFile.exists())
-                logger.info("- Output file exists.");
-            else {
-                valid = false;
-                logger.error("- Output file does not exist!");
-            }
-            if (outputFile.length() == 0)
-                logger.warn("- Output file is empty.");
-        }
+        if (outputCount != 1)
+            logger.warn((outputCount == 0) ? "No workflow output found."
+                                           : "More than one workflow outputs found ({}).", outputCount);
+        if (outputCount > 0 && workflow.getAutomaticDownload())
+            valid = checkDownloadingWorks();
+        return valid;
+    }
+
+    /**
+     * Check whether downloading an output file works.
+     *
+     * @return whether downloading an output file works.
+     */
+    private boolean checkDownloadingWorks() {
+        boolean valid;
+        // The last workflow output file is most likely to be the end result.
+        final String outputDatasetId = workflowOutputs.getOutputIds().get(workflowOutputs.getOutputIds().size() - 1);
+        historyUtils.downloadDataset(galaxyInstance, historiesClient, historyId, outputDatasetId, OUTPUT_FILE_PATH);
+        final File outputFile = new File(OUTPUT_FILE_PATH);
+        valid = outputFile.exists();
+        if (valid)
+            logger.info("- Output file exists.");
+        else
+            logger.error("- Output file does not exist!");
+        if (outputFile.length() == 0)
+            logger.warn("- Output file is empty.");
         return valid;
     }
 }

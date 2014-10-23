@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ import java.util.Set;
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.apache.http.HttpStatus;
@@ -115,7 +115,8 @@ public class GalaxyWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowAutomaticDownload() throws Exception {
-        runWorkflowTest(true, true);
+        for (int outputIdCount = 0; outputIdCount < 3; outputIdCount++)
+            runWorkflowTest(true, true, outputIdCount, true);
     }
 
     /**
@@ -123,19 +124,23 @@ public class GalaxyWorkflowEngineTest {
      */
     @Test
     public void testRunWorkflowManualDownload() throws Exception {
-        runWorkflowTest(false, false);
+        for (int outputIdCount = 0; outputIdCount < 3; outputIdCount++)
+            runWorkflowTest(false, false, outputIdCount, false);
     }
 
     /**
      * Run the workflow test with two parameters.
      *
      * @param automaticDownload   whether the automatic download option should be enabled or disabled.
+     * @param historyReady        whether uploading files and workflow running finishes within the time limits.
+     * @param outputIdCount       the number of output IDs the workflow should produce.
      * @param normalOutputIdOrder whether the normal or reversed order should be used for the output IDs.
      * @throws IOException          if reading the workflow results fails.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
      *                              engine.
      */
-    private void runWorkflowTest(final boolean automaticDownload, final boolean normalOutputIdOrder)
+    private void runWorkflowTest(final boolean automaticDownload, final boolean historyReady, final int outputIdCount,
+                                 final boolean normalOutputIdOrder)
             throws InterruptedException, IOException {
         final String historyId = "history-id";
         final String workflowId = "workflow-id";
@@ -144,7 +149,7 @@ public class GalaxyWorkflowEngineTest {
         final Object dummyInputFile = new File(GALAXY_DIRECTORY + "TestWorkflow.ga");
         final Collection<Object> inputValues = ImmutableList.of(dummyInputFile, dummyInputFile);
         final Map<String, List<String>> stateIds = new HashMap<>();
-        stateIds.put("running", new ArrayList<String>());
+        stateIds.put("running", historyReady ? new ArrayList<String>() : Arrays.asList("some-dataset-id"));
         stateIds.put("queued", new ArrayList<String>());
         stateIds.put("ok", new ArrayList<String>());
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow
@@ -200,10 +205,8 @@ public class GalaxyWorkflowEngineTest {
         Mockito.when(workflowDetailsMock.getInputs()).thenReturn(inputDefinitionMap);
         Mockito.when(galaxyWorkflowMock.getParameters()).thenReturn(parameters);
         Mockito.when(workflowDetailsMock.getSteps()).thenReturn(workflowSteps);
-        if (normalOutputIdOrder)
-            Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(ImmutableList.of(outputId1, outputId2));
-        else
-            Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(ImmutableList.of(outputId2, outputId1));
+        final List<String> workflowOutputIds = getWorkflowOutputIds(outputIdCount, normalOutputIdOrder, outputId1, outputId2);
+        Mockito.when(workflowOutputsMock.getOutputIds()).thenReturn(workflowOutputIds);
         Mockito.when(galaxyWorkflowMock.getAutomaticDownload()).thenReturn(automaticDownload);
         if (automaticDownload) {
             Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId1)))
@@ -213,6 +216,7 @@ public class GalaxyWorkflowEngineTest {
                     .thenReturn(datasetMock2);
             Mockito.when(datasetMock2.getDataType()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TEXT);
         }
+
         final Answer<Boolean> downloadDatasetAnswer = new Answer<Boolean>() {
             @Override
             public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -225,7 +229,6 @@ public class GalaxyWorkflowEngineTest {
                     if (!outputFile.exists())
                         FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
                 }
-
                 return true;
             }
         };
@@ -237,10 +240,37 @@ public class GalaxyWorkflowEngineTest {
         final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(galaxyInstanceMock, historyId,
                                                                                    historyUtilsMock);
 
+        // Set all timers to zero to make the test as quick as possible.
         galaxyWorkflowEngine.setWaitTimers(0, 0, 0);
 
-        // Downloading fails, so we expect false if automaticDownload is true and true otherwise.
-        assertEquals(!automaticDownload, galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));
+        // Downloading fails, so we expect the result to be false if automaticDownload is true and true otherwise.
+        final boolean expectedResult = historyReady && (!automaticDownload || outputIdCount == 0);
+        assertEquals(expectedResult, galaxyWorkflowEngine.runWorkflow(galaxyWorkflowMock));
+    }
+
+    /**
+     * Get the workflow output IDs for a specific test scenario.
+     *
+     * @param outputIdCount       the number of output IDs to return.
+     * @param normalOutputIdOrder whether to use normal or reversed order.
+     * @param outputId1           the first output ID.
+     * @param outputId2           the second output ID.
+     * @return the workflow output IDs.
+     */
+    private List<String> getWorkflowOutputIds(final int outputIdCount, final boolean normalOutputIdOrder,
+                                              final String outputId1, final String outputId2) {
+        final List<String> workflowOutputIds;
+        if (outputIdCount == 0)
+            workflowOutputIds = new ArrayList<>();
+        else if (outputIdCount == 1)
+            workflowOutputIds = ImmutableList.of(normalOutputIdOrder ? outputId1 : outputId2);
+        else {
+            if (normalOutputIdOrder)
+                workflowOutputIds = ImmutableList.of(outputId1, outputId2);
+            else
+                workflowOutputIds = ImmutableList.of(outputId2, outputId1);
+        }
+        return workflowOutputIds;
     }
 
     /**
@@ -266,5 +296,23 @@ public class GalaxyWorkflowEngineTest {
         final Workflow workflow = galaxyWorkflowEngine.getWorkflow("workflow-name");
 
         assertFalse(galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
+    }
+
+    /**
+     * Test the getOutputIdForOutputName method.
+     */
+    @Test
+    public void testGetOutputIdForOutputName() {
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(null, null, null);
+        assertNull(galaxyWorkflowEngine.getOutputIdForOutputName(null));
+    }
+
+    /**
+     * Test the runWorkflow method with a null Galaxy instance.
+     */
+    @Test
+    public void testRunWorkflowGalaxyNull() throws IOException, InterruptedException {
+        final GalaxyWorkflowEngine galaxyWorkflowEngine = new GalaxyWorkflowEngine(null, null, null);
+        assertFalse(galaxyWorkflowEngine.runWorkflow(null));
     }
 }
