@@ -18,6 +18,7 @@ import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -88,7 +89,7 @@ public class RnaSeqDgeExample extends BaseExample {
     public boolean runExample(final String expressionMatrixPathName, final String designMatrixPathName) {
         initializeExample(logger, "RnaSeqDgeExample.runExample");
 
-        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final WorkflowType workflowType = WorkflowType.GALAXY;
         final String contrast = "Control-E2";
         final double fdr = 0.05;
 

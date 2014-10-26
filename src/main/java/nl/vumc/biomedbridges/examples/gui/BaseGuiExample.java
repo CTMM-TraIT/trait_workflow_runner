@@ -40,7 +40,7 @@ import javax.swing.text.StyledDocument;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.examples.RandomLinesExample;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInput;
 import nl.vumc.biomedbridges.galaxy.metadata.GalaxyStepInputConnection;
@@ -550,8 +550,8 @@ public class BaseGuiExample {
     private void runRandomLinesWorkflow(final Injector injector, final StyledDocument resultsDocument) {
         final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
         final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
-        //final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
-        final String workflowType = WorkflowEngineFactory.DEMONSTRATION_TYPE;
+        //final WorkflowType workflowType = WorkflowType.GALAXY;
+        final WorkflowType workflowType = WorkflowType.DEMONSTRATION;
 
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
         final List<String> outputLines = randomLinesExample.runExample(workflowType, initialLineCount,

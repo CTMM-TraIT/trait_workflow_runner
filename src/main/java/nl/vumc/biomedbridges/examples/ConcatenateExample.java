@@ -23,6 +23,7 @@ import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -96,10 +97,9 @@ public class ConcatenateExample extends BaseExample {
         initializeExample(logger, "ConcatenateExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        //galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
         galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
 
-        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final WorkflowType workflowType = WorkflowType.GALAXY;
         final WorkflowEngine workflowEngine
             = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration, new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);

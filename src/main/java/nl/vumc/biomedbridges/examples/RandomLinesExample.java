@@ -21,6 +21,7 @@ import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -95,7 +96,7 @@ public class RandomLinesExample extends BaseExample {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
 
-        randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
+        randomLinesExample.runExample(WorkflowType.GALAXY, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -107,7 +108,8 @@ public class RandomLinesExample extends BaseExample {
      * @param definitiveLineCount the definitive line count the input file is limited to.
      * @return the output lines if the workflow ran successfully or else null.
      */
-    public List<String> runExample(final String workflowType, final int initialLineCount, final int definitiveLineCount) {
+    public List<String> runExample(final WorkflowType workflowType, final int initialLineCount,
+                                   final int definitiveLineCount) {
         List<String> outputLines = null;
         initializeExample(logger, "RandomLinesExample.runExample");
 

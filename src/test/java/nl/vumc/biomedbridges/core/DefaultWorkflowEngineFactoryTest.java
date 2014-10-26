@@ -42,11 +42,11 @@ public class DefaultWorkflowEngineFactoryTest {
         Mockito.when(galaxyInstanceMock.getHistoriesClient()).thenReturn(historiesClientMock);
         Mockito.when(historiesClientMock.create(Mockito.any(History.class))).thenReturn(historyMock);
 
-        checkEngineReturnType(WorkflowEngineFactory.DEMONSTRATION_TYPE, null, DemonstrationWorkflowEngine.class);
-        checkEngineReturnType(WorkflowEngineFactory.GALAXY_TYPE, galaxyConfigurationMock, GalaxyWorkflowEngine.class);
-        checkEngineReturnType(WorkflowEngineFactory.GALAXY_TYPE, null, null);
-        checkEngineReturnType(WorkflowEngineFactory.MOLGENIS_TYPE, null, MolgenisWorkflowEngine.class);
-        checkEngineReturnType("unknown workflow (engine) type", null, null);
+        checkEngineReturnType(WorkflowType.DEMONSTRATION, null, DemonstrationWorkflowEngine.class);
+        checkEngineReturnType(WorkflowType.GALAXY, galaxyConfigurationMock, GalaxyWorkflowEngine.class);
+        checkEngineReturnType(WorkflowType.GALAXY, null, null);
+        checkEngineReturnType(WorkflowType.MOLGENIS, null, MolgenisWorkflowEngine.class);
+        checkEngineReturnType(WorkflowType.UNKNOWN, null, null);
     }
 
     /**
@@ -56,7 +56,7 @@ public class DefaultWorkflowEngineFactoryTest {
      * @param configurationData the configuration data (if necessary) or null.
      * @param returnType the expected return type.
      */
-    private void checkEngineReturnType(final String workflowType, final Object configurationData,
+    private void checkEngineReturnType(final WorkflowType workflowType, final Object configurationData,
                                        final Class<? extends WorkflowEngine> returnType) {
         final WorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData,

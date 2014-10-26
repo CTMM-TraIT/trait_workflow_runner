@@ -24,6 +24,6 @@ public class WorkflowRunnerTest {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final WorkflowRunner workflowRunner = injector.getInstance(WorkflowRunner.class);
 
-        assertTrue(workflowRunner.runWorkflowRunner(WorkflowEngineFactory.DEMONSTRATION_TYPE));
+        assertTrue(workflowRunner.runWorkflowRunner(WorkflowType.DEMONSTRATION));
     }
 }

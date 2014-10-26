@@ -16,6 +16,7 @@ import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNotNull(randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+        assertNotNull(randomLinesExample.runExample(WorkflowType.GALAXY,
                                                     RandomLinesExample.INITIAL_LINE_COUNT,
                                                     definitiveLineCount));
     }
@@ -48,7 +49,7 @@ public class RandomLinesExampleTest {
     public void testRandomLinesExampleNoOutput() {
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(false, 0);
 
-        assertNull(randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+        assertNull(randomLinesExample.runExample(WorkflowType.GALAXY,
                                                  RandomLinesExample.INITIAL_LINE_COUNT,
                                                  RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }
@@ -61,7 +62,7 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT + 6;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNull(randomLinesExample.runExample(WorkflowEngineFactory.GALAXY_TYPE,
+        assertNull(randomLinesExample.runExample(WorkflowType.GALAXY,
                                                  RandomLinesExample.INITIAL_LINE_COUNT,
                                                  RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }

@@ -20,12 +20,12 @@ public class DummyWorkflowEngineFactory implements WorkflowEngineFactory {
     private final DummyWorkflowEngine dummyWorkflowEngine = new DummyWorkflowEngine();
 
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils) {
+    public WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final HistoryUtils historyUtils) {
         return dummyWorkflowEngine;
     }
 
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+    public WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final Object configurationData,
                                             final HistoryUtils historyUtils) {
         return dummyWorkflowEngine;
     }

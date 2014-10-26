@@ -74,7 +74,7 @@ public class WorkflowRunner {
         final Injector injector = Guice.createInjector(new DefaultGuiceModule());
         final WorkflowRunner workflowRunner = injector.getInstance(WorkflowRunner.class);
 
-        workflowRunner.runWorkflowRunner(WorkflowEngineFactory.GALAXY_TYPE);
+        workflowRunner.runWorkflowRunner(WorkflowType.GALAXY);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -89,7 +89,7 @@ public class WorkflowRunner {
      * @param workflowType the workflow (engine) type.
      * @return whether the workflow ran successfully.
      */
-    protected boolean runWorkflowRunner(final String workflowType) {
+    protected boolean runWorkflowRunner(final WorkflowType workflowType) {
         boolean result;
         try {
             DOMConfigurator.configure(WorkflowRunner.class.getClassLoader().getResource("log4j.xml"));

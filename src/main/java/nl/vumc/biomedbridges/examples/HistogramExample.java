@@ -21,6 +21,7 @@ import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
@@ -82,7 +83,7 @@ public class HistogramExample extends BaseExample {
     public boolean runExample() {
         initializeExample(logger, "HistogramExample.runExample");
 
-        final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+        final WorkflowType workflowType = WorkflowType.GALAXY;
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
         //galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
         galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);

@@ -14,28 +14,13 @@ import nl.vumc.biomedbridges.galaxy.HistoryUtils;
  */
 public interface WorkflowEngineFactory {
     /**
-     * Demonstration workflow (engine) type.
-     */
-    String DEMONSTRATION_TYPE = "demonstration";
-
-    /**
-     * Galaxy workflow (engine) type.
-     */
-    String GALAXY_TYPE = "galaxy";
-
-    /**
-     * Molgenis workflow (engine) type.
-     */
-    String MOLGENIS_TYPE = "molgenis";
-
-    /**
      * Create a workflow engine based on the workflow (engine) type.
      *
      * @param workflowType the workflow (engine) type.
      * @param historyUtils the history utils object (for Galaxy).
      * @return the new workflow engine (or null if the type was not recognized).
      */
-    WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils);
+    WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final HistoryUtils historyUtils);
 
     /**
      * Create a workflow engine based on the workflow (engine) type.
@@ -45,6 +30,6 @@ public interface WorkflowEngineFactory {
      * @param historyUtils      the history utils object (for Galaxy).
      * @return the new workflow engine (or null if the type was not recognized).
      */
-    WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+    WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final Object configurationData,
                                      final HistoryUtils historyUtils);
 }

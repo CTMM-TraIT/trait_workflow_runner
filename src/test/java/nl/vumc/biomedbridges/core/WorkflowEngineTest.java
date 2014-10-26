@@ -34,12 +34,12 @@ public class WorkflowEngineTest {
         galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, galaxyConfiguration.getGalaxyApiKey(),
                                                "history name");
 
-        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowEngineFactory.DEMONSTRATION_TYPE, null);
-        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowEngineFactory.GALAXY_TYPE, galaxyConfiguration);
-        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowEngineFactory.MOLGENIS_TYPE, null);
+        checkWorkflowReturnType(DemonstrationWorkflow.class, WorkflowType.DEMONSTRATION, null);
+        checkWorkflowReturnType(GalaxyWorkflow.class, WorkflowType.GALAXY, galaxyConfiguration);
+        checkWorkflowReturnType(MolgenisWorkflow.class, WorkflowType.MOLGENIS, null);
     }
 
-    private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final String workflowType,
+    private void checkWorkflowReturnType(final Class<? extends Workflow> workflowClass, final WorkflowType workflowType,
                                          final Object configurationData) {
         final WorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, configurationData,

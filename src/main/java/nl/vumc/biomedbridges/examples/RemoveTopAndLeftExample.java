@@ -67,7 +67,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
 //        try {
 //            initializeExample(logger, "RemoveTopAndLeftExample.main");
 //
-//            final String workflowType = WorkflowEngineFactory.GALAXY_TYPE;
+//            final String workflowType = WorkflowType.GALAXY;
 //            final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
 //            galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, galaxyConfiguration.getGalaxyApiKey(), HISTORY_NAME);
 //            final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration);

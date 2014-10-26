@@ -49,7 +49,7 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
      * @return the new workflow engine (or null if the type was not recognized).
      */
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final HistoryUtils historyUtils) {
+    public WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final HistoryUtils historyUtils) {
         return getWorkflowEngine(workflowType, null, historyUtils);
     }
 
@@ -62,14 +62,14 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
      * @return the new workflow engine (or null if the type was not recognized).
      */
     @Override
-    public WorkflowEngine getWorkflowEngine(final String workflowType, final Object configurationData,
+    public WorkflowEngine getWorkflowEngine(final WorkflowType workflowType, final Object configurationData,
                                             final HistoryUtils historyUtils) {
         final WorkflowEngine workflowEngine;
         switch (workflowType) {
-            case DEMONSTRATION_TYPE:
+            case DEMONSTRATION:
                 workflowEngine = new DemonstrationWorkflowEngine();
                 break;
-            case GALAXY_TYPE:
+            case GALAXY:
                 if (configurationData instanceof GalaxyConfiguration) {
                     final GalaxyConfiguration galaxyConfiguration = (GalaxyConfiguration) configurationData;
                     final GalaxyInstance galaxyInstance = galaxyConfiguration.determineGalaxyInstance(null);
@@ -79,7 +79,7 @@ public class DefaultWorkflowEngineFactory implements WorkflowEngineFactory {
                 } else
                     workflowEngine = null;
                 break;
-            case MOLGENIS_TYPE:
+            case MOLGENIS:
                 workflowEngine = new MolgenisWorkflowEngine();
                 break;
             default:
