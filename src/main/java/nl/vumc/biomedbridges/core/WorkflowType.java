@@ -11,8 +11,23 @@ package nl.vumc.biomedbridges.core;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public enum WorkflowType {
+    /**
+     * Galaxy workflow (engine) type.
+     */
     GALAXY,
+
+    /**
+     * Demonstration workflow (engine) type.
+     */
     DEMONSTRATION,
+
+    /**
+     * Molgenis workflow (engine) type.
+     */
     MOLGENIS,
+
+    /**
+     * Unknown workflow (engine) type.
+     */
     UNKNOWN
 }
