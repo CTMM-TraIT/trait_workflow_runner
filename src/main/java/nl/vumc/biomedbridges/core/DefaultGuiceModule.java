@@ -16,5 +16,6 @@ public class DefaultGuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(WorkflowEngineFactory.class).to(DefaultWorkflowEngineFactory.class);
+        bind(WorkflowFactory.class).to(DefaultWorkflowFactory.class);
     }
 }

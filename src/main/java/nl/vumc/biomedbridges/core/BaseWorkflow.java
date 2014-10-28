@@ -5,6 +5,7 @@
 
 package nl.vumc.biomedbridges.core;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,5 +140,10 @@ public class BaseWorkflow implements Workflow {
     @Override
     public Map<Object, Map<String, Object>> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public boolean run() throws IOException, InterruptedException {
+        return true;
     }
 }

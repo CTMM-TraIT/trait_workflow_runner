@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.examples;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
@@ -23,6 +24,11 @@ public class BaseExample {
     protected final WorkflowEngineFactory workflowEngineFactory;
 
     /**
+     * The workflow factory to use.
+     */
+    protected final WorkflowFactory workflowFactory;
+
+    /**
      * The start time of this example (in milliseconds).
      */
     private long startTime;
@@ -37,8 +43,22 @@ public class BaseExample {
      *
      * @param workflowEngineFactory the workflow engine factory to use.
      */
+    // todo: remove this old constructor later.
+    //@Deprecated
     public BaseExample(final WorkflowEngineFactory workflowEngineFactory) {
         this.workflowEngineFactory = workflowEngineFactory;
+        this.workflowFactory = null;
+    }
+
+    /**
+     * Construct a base example object.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory       the workflow factory to use.
+     */
+    public BaseExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
+        this.workflowEngineFactory = workflowEngineFactory;
+        this.workflowFactory = workflowFactory;
     }
 
     /**

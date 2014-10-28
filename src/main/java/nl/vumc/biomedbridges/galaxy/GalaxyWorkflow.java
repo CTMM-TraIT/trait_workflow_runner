@@ -238,6 +238,11 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     }
 
     @Override
+    public boolean run() throws IOException, InterruptedException {
+        return workflowEngine.runWorkflow(this);
+    }
+
+    @Override
     public Object getOutput(final String outputName) {
         // Check whether an output file has been downloaded; if not: do it now and add to map.
         if (!getAutomaticDownload() && !outputFiles.containsKey(outputName)) {

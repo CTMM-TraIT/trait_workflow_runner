@@ -21,10 +21,9 @@ import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngine;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
-import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -66,10 +65,11 @@ public class ConcatenateExample extends BaseExample {
      * Construct the concatenate example.
      *
      * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory       the workflow factory to use.
      */
     @Inject
-    public ConcatenateExample(final WorkflowEngineFactory workflowEngineFactory) {
-        super(workflowEngineFactory);
+    public ConcatenateExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
+        super(workflowEngineFactory, workflowFactory);
     }
 
     /**
@@ -99,20 +99,15 @@ public class ConcatenateExample extends BaseExample {
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
         galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
 
-        final WorkflowType workflowType = WorkflowType.GALAXY;
-        final WorkflowEngine workflowEngine
-            = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration, new HistoryUtils());
-        final Workflow workflow = workflowEngine.getWorkflow(Constants.CONCATENATE_WORKFLOW);
-
-        //final Workflow workflow = workflowFactory.getWorkflow(Workflow.GALAXY_TYPE, galaxyConfiguration,
-        //                                                      Constants.CONCATENATE_WORKFLOW);
+        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
+                                                              Constants.CONCATENATE_WORKFLOW);
 
         workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
         workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
         boolean result = false;
         try {
-            result = workflowEngine.runWorkflow(workflow);
+            result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
             result &= checkWorkflowOutput(workflow);

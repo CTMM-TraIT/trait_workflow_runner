@@ -16,5 +16,6 @@ public class TestGuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(WorkflowEngineFactory.class).to(DummyWorkflowEngineFactory.class);
+        bind(WorkflowFactory.class).to(DummyWorkflowFactory.class);
     }
 }

@@ -12,10 +12,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 
 import org.junit.Test;
 
@@ -77,24 +78,23 @@ public class ConcatenateExampleTest {
         final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
 
         if (generateOutput)
-            addOutputFilesToOutputMap(concatenateExample.workflowEngineFactory, line1, line2);
+            addOutputFilesToOutputMap(concatenateExample.workflowFactory, line1, line2);
         return concatenateExample;
     }
 
     /**
      * Add a temporary output file to the output map of the dummy workflow.
      *
-     * @param workflowEngineFactory the dummy workflow engine factory.
+     * @param workflowFactory the workflow factory.
      * @param line1 the first output line.
      * @param line2 the second output line.
      */
-    private void addOutputFilesToOutputMap(final WorkflowEngineFactory workflowEngineFactory, final String line1,
-                                           final String line2) {
+    private void addOutputFilesToOutputMap(final WorkflowFactory workflowFactory, final String line1, final String line2) {
         final List<String> dummyLines = new ArrayList<>();
         dummyLines.add(line1);
         dummyLines.add(line2);
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null, null).getWorkflow(null);
+        final Workflow workflow = workflowFactory.getWorkflow(null, null, Constants.CONCATENATE_WORKFLOW);
         workflow.addOutput(ConcatenateExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

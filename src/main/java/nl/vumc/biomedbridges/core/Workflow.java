@@ -5,6 +5,7 @@
 
 package nl.vumc.biomedbridges.core;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -129,4 +130,14 @@ public interface Workflow {
      */
     // todo: make parameter handling independent of Galaxy?
     Map<Object, Map<String, Object>> getParameters();
+
+    /**
+     * Run the workflow on the corresponding workflow engine.
+     *
+     * @return whether the workflow ran successfully.
+     * @throws java.io.IOException  if reading the workflow results fails.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
+     *                              engine.
+     */
+    boolean run() throws IOException, InterruptedException;
 }
