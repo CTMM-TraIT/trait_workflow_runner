@@ -41,7 +41,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Plugin versions. -->
-        <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
+        <coveralls-maven-plugin.version>3.0.1</coveralls-maven-plugin.version>
         <findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
         <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.12.1</maven-checkstyle-plugin.version>
