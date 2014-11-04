@@ -70,12 +70,11 @@ public class RnaSeqDgeExample extends BaseExample {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         // Create a Guice injector and use it to build the RandomLinesExample object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final RnaSeqDgeExample rnaSeqDgeExample = injector.getInstance(RnaSeqDgeExample.class);
+        final RnaSeqDgeExample example = Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class);
 
         final String expressionMatrixPathName = EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt";
         final String designMatrixPathName = EXAMPLES_DIRECTORY + "design_matrix.txt";
-        rnaSeqDgeExample.runExample(expressionMatrixPathName, designMatrixPathName);
+        example.runExample(expressionMatrixPathName, designMatrixPathName);
     }
     // CHECKSTYLE_ON: UncommentedMain
 

@@ -7,7 +7,6 @@ package nl.vumc.biomedbridges.core;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,11 +69,7 @@ public class WorkflowRunner {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        // Create a Guice injector and use it to build the WorkflowRunner object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final WorkflowRunner workflowRunner = injector.getInstance(WorkflowRunner.class);
-
-        workflowRunner.runWorkflowRunner(WorkflowType.GALAXY);
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(WorkflowRunner.class).runWorkflowRunner(WorkflowType.GALAXY);
     }
     // CHECKSTYLE_ON: UncommentedMain
 

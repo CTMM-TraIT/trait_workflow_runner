@@ -10,7 +10,6 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,12 +78,7 @@ public class ConcatenateExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        // Create a Guice injector and use it to build the ConcatenateExample object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
-
-        concatenateExample.runExample();
-        //System.exit(0);
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(ConcatenateExample.class).runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 

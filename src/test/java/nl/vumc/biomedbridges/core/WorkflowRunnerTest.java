@@ -21,9 +21,8 @@ public class WorkflowRunnerTest {
     @Test
     public void testWorkflowRunner() {
         // Create a Guice injector and use it to build the WorkflowRunner object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final WorkflowRunner workflowRunner = injector.getInstance(WorkflowRunner.class);
+        final WorkflowRunner runner = Guice.createInjector(new DefaultGuiceModule()).getInstance(WorkflowRunner.class);
 
-        assertTrue(workflowRunner.runWorkflowRunner(WorkflowType.DEMONSTRATION));
+        assertTrue(runner.runWorkflowRunner(WorkflowType.DEMONSTRATION));
     }
 }

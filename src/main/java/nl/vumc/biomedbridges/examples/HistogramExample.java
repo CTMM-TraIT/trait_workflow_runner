@@ -9,7 +9,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,11 +66,7 @@ public class HistogramExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        // Create a Guice injector and use it to build the HistogramExample object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
-
-        histogramExample.runExample();
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(HistogramExample.class).runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -85,8 +80,7 @@ public class HistogramExample extends BaseExample {
 
         final WorkflowType workflowType = WorkflowType.GALAXY;
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        //galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
-        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
         final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
                                                                                       new HistoryUtils());
         final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);

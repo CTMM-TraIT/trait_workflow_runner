@@ -6,7 +6,6 @@
 package nl.vumc.biomedbridges.examples;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import nl.vumc.biomedbridges.core.TestGuiceModule;
 
@@ -39,7 +38,6 @@ public class RnaSeqDgeExampleTest {
      */
     private RnaSeqDgeExample initializeRnaSeqDgeExample() {
         // Create a Guice injector and use it to build the RnaSeqDgeExample object.
-        final Injector injector = Guice.createInjector(new TestGuiceModule());
-        return injector.getInstance(RnaSeqDgeExample.class);
+        return Guice.createInjector(new TestGuiceModule()).getInstance(RnaSeqDgeExample.class);
     }
 }

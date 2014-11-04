@@ -6,7 +6,6 @@
 package nl.vumc.biomedbridges.examples;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,11 +75,10 @@ public class RandomLinesExampleTest {
      */
     private RandomLinesExample initializeRandomLinesExample(final boolean generateOutput, final int definitiveLineCount) {
         // Create a Guice injector and use it to build the RandomLinesExample object.
-        final Injector injector = Guice.createInjector(new TestGuiceModule());
-        final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+        final RandomLinesExample example = Guice.createInjector(new TestGuiceModule()).getInstance(RandomLinesExample.class);
         if (generateOutput)
-            addOutputFileToOutputMap(randomLinesExample.workflowEngineFactory, definitiveLineCount);
-        return randomLinesExample;
+            addOutputFileToOutputMap(example.workflowEngineFactory, definitiveLineCount);
+        return example;
     }
 
     /**

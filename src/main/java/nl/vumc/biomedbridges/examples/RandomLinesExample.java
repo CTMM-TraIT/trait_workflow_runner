@@ -93,10 +93,9 @@ public class RandomLinesExample extends BaseExample {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         // Create a Guice injector and use it to build the RandomLinesExample object.
-        final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-        final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
+        final RandomLinesExample example = Guice.createInjector(new DefaultGuiceModule()).getInstance(RandomLinesExample.class);
 
-        randomLinesExample.runExample(WorkflowType.GALAXY, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
+        example.runExample(WorkflowType.GALAXY, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
     }
     // CHECKSTYLE_ON: UncommentedMain
 

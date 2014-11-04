@@ -523,11 +523,7 @@ public class BaseGuiExample {
             @Override
             public void run() {
                 final StyledDocument resultsDocument = adaptGuiForRunningWorkflow();
-
-                // Create a Guice injector.
-                final Injector injector = Guice.createInjector(new DefaultGuiceModule());
-
-                runRandomLinesWorkflow(injector, resultsDocument);
+                runRandomLinesWorkflow(Guice.createInjector(new DefaultGuiceModule()), resultsDocument);
             }
         });
         // Run the thread.
