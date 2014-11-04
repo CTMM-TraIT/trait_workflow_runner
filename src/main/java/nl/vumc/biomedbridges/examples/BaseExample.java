@@ -41,13 +41,11 @@ public class BaseExample {
     /**
      * Construct a base example object.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
-    // todo: remove this old constructor later.
-    //@Deprecated
-    public BaseExample(final WorkflowEngineFactory workflowEngineFactory) {
-        this.workflowEngineFactory = workflowEngineFactory;
-        this.workflowFactory = null;
+    public BaseExample(final WorkflowFactory workflowFactory) {
+        this.workflowEngineFactory = null;
+        this.workflowFactory = workflowFactory;
     }
 
     /**
@@ -59,6 +57,18 @@ public class BaseExample {
     public BaseExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
         this.workflowEngineFactory = workflowEngineFactory;
         this.workflowFactory = workflowFactory;
+    }
+
+    /**
+     * Construct a base example object.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
+     */
+    // todo: remove this old constructor later.
+    //@Deprecated
+    public BaseExample(final WorkflowEngineFactory workflowEngineFactory) {
+        this.workflowEngineFactory = workflowEngineFactory;
+        this.workflowFactory = null;
     }
 
     /**

@@ -18,10 +18,8 @@ import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
-import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -52,11 +50,11 @@ public class HistogramExample extends BaseExample {
     /**
      * Construct the histogram example.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
     @Inject
-    protected HistogramExample(final WorkflowEngineFactory workflowEngineFactory) {
-        super(workflowEngineFactory);
+    protected HistogramExample(final WorkflowFactory workflowFactory) {
+        super(workflowFactory);
     }
 
     /**
@@ -78,12 +76,9 @@ public class HistogramExample extends BaseExample {
     public boolean runExample() {
         initializeExample(logger, "HistogramExample.runExample");
 
-        final WorkflowType workflowType = WorkflowType.GALAXY;
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
-                                                                                      new HistoryUtils());
-        final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_HISTOGRAM);
+        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(true);
+        configuration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, configuration, Constants.WORKFLOW_HISTOGRAM);
         workflow.setDownloadDirectory("tmp");
 
         workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
@@ -96,9 +91,9 @@ public class HistogramExample extends BaseExample {
         workflow.setParameter(stepNumber, "density", true);
         workflow.setParameter(stepNumber, "frequency", false);
 
-        boolean result = true;
+        boolean result = false;
         try {
-            result = workflowEngine.runWorkflow(workflow);
+            result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
             result &= checkWorkflowOutput(workflow);
