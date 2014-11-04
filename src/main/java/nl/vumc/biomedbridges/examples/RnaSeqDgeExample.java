@@ -7,7 +7,6 @@ package nl.vumc.biomedbridges.examples;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import java.io.File;
 import java.io.IOException;
