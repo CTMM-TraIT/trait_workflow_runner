@@ -47,9 +47,7 @@ public class HistogramExampleTest {
      */
     @Test
     public void testHistogramExampleReturningFalse() {
-        DummyWorkflow.setReturnedResult(false);
-        DummyWorkflow.setThrowException(false);
-        testHistogramExample(true, true, 496, false);
+        testHistogramExample(false, false, true, true, 496, false);
     }
 
     /**
@@ -57,9 +55,7 @@ public class HistogramExampleTest {
      */
     @Test
     public void testHistogramExampleThrowingException() {
-        DummyWorkflow.setReturnedResult(true);
-        DummyWorkflow.setThrowException(true);
-        testHistogramExample(true, true, 496, false);
+        testHistogramExample(true, true, true, true, 496, false);
     }
 
     /**
@@ -72,11 +68,29 @@ public class HistogramExampleTest {
      */
     private void testHistogramExample(final boolean withOutput, final boolean withHeader, final int lineCount,
                                       final boolean expectedResult) {
+        testHistogramExample(true, false, withOutput, withHeader, lineCount, expectedResult);
+    }
+
+    /**
+     * Test the histogram example.
+     *
+     * @param returnedResult the value that will be returned by the run method.
+     * @param throwException whether an exception should be thrown by the run method.
+     * @param withOutput     whether an output file should be generated to simulate the workflow result.
+     * @param withHeader     whether the output file should contain a pdf header line.
+     * @param lineCount      the total number of lines to add to the file.
+     * @param expectedResult the result expected from running the example.
+     */
+    private void testHistogramExample(final boolean returnedResult, final boolean throwException, final boolean withOutput,
+                                      final boolean withHeader, final int lineCount, final boolean expectedResult) {
         // Create a Guice injector and use it to build the HistogramExample object.
         final Injector injector = Guice.createInjector(new TestGuiceModule());
         final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
         if (withOutput)
             addPdfToOutputMap(histogramExample.workflowFactory, withHeader, lineCount);
+        DummyWorkflow.clear();
+        DummyWorkflow.setReturnedResult(returnedResult);
+        DummyWorkflow.setThrowException(throwException);
         assertEquals(expectedResult, histogramExample.runExample());
     }
 

@@ -42,6 +42,14 @@ public class DummyWorkflow extends BaseWorkflow {
     }
 
     /**
+     * Clear the special flags: the run method will return true without throwing an exception.
+     */
+    public static void clear() {
+        setReturnedResult(true);
+        setThrowException(false);
+    }
+
+    /**
      * Create a dummy workflow.
      *
      * @param name the workflow name.
@@ -52,12 +60,6 @@ public class DummyWorkflow extends BaseWorkflow {
 
     @Override
     public boolean run() throws IOException, InterruptedException {
-        // todo: can this be moved to the test (see HistogramExampleTest)?
-        if (Constants.WORKFLOW_RNA_SEQ_DGE.equals(getName()))
-            for (int outputIndex = 0; outputIndex < 7; outputIndex++)
-                addOutput("dummy-output-" + (outputIndex + 1), "dummy");
-        // todo: can this be moved to the test (see HistogramExampleTest)?
-
         if (throwException)
             throw new IOException("DummyWorkflow.run");
 

@@ -15,10 +15,8 @@ import java.nio.file.Paths;
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
-import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -47,18 +45,28 @@ public class RnaSeqDgeExample extends BaseExample {
     private static final Logger logger = LoggerFactory.getLogger(RnaSeqDgeExample.class);
 
     /**
+     * The file path to the expression matrix.
+     */
+    private static final String EXPRESSION_MATRIX_PATH_NAME = EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt";
+
+    /**
+     * The file path to the design matrix.
+     */
+    private static final String DESIGN_MATRIX_PATH_NAME = EXAMPLES_DIRECTORY + "design_matrix.txt";
+
+    /**
      * The name of the Galaxy history.
      */
     private static final String HISTORY_NAME = Constants.WORKFLOW_RNA_SEQ_DGE + " History";
 
     /**
-     * Construct the random lines example.
+     * Construct the [...] example.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
     @Inject
-    protected RnaSeqDgeExample(final WorkflowEngineFactory workflowEngineFactory) {
-        super(workflowEngineFactory);
+    protected RnaSeqDgeExample(final WorkflowFactory workflowFactory) {
+        super(workflowFactory);
     }
 
     /**
@@ -68,39 +76,28 @@ public class RnaSeqDgeExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        // Create a Guice injector and use it to build the RandomLinesExample object.
-        final RnaSeqDgeExample example = Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class);
-
-        final String expressionMatrixPathName = EXAMPLES_DIRECTORY + "MCF7_featureCounts_concatenated.txt";
-        final String designMatrixPathName = EXAMPLES_DIRECTORY + "design_matrix.txt";
-        example.runExample(expressionMatrixPathName, designMatrixPathName);
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class).runExample();
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: todo...
      *
-     * @param expressionMatrixPathName the expression matrix input file.
-     * @param designMatrixPathName the design matrix input file.
      * @return whether the workflow ran successfully and the output seems to be ok.
      */
-    public boolean runExample(final String expressionMatrixPathName, final String designMatrixPathName) {
+    public boolean runExample() {
         initializeExample(logger, "RnaSeqDgeExample.runExample");
 
-        final WorkflowType workflowType = WorkflowType.GALAXY;
         final String contrast = "Control-E2";
         final double fdr = 0.05;
 
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.setDebug(true);
-        final String apiKey = galaxyConfiguration.getGalaxyApiKey();
-        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, apiKey, HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
-                                                                                      new HistoryUtils());
-        final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RNA_SEQ_DGE);
+        final GalaxyConfiguration configuration = new GalaxyConfiguration();
+        configuration.setDebug(true);
+        configuration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
+        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, configuration, Constants.WORKFLOW_RNA_SEQ_DGE);
 
-        workflow.addInput("expression_matrix", new File(expressionMatrixPathName));
-        workflow.addInput("design_matrix", new File(designMatrixPathName));
+        workflow.addInput("expression_matrix", new File(EXPRESSION_MATRIX_PATH_NAME));
+        workflow.addInput("design_matrix", new File(DESIGN_MATRIX_PATH_NAME));
         final int stepNumberEdgeRDGE = 1;
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
@@ -110,9 +107,9 @@ public class RnaSeqDgeExample extends BaseExample {
                                        + "\"make_output_heatmap_plot\"]";
         workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
 
-        boolean result = true;
+        boolean result = false;
         try {
-            result = workflowEngine.runWorkflow(workflow);
+            result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
             result &= checkWorkflowOutput(workflow);

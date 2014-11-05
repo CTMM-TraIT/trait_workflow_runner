@@ -67,8 +67,8 @@ public class ConcatenateExampleTest {
      * Create and initialize a concatenate example instance.
      *
      * @param generateOutput whether an output file should be generated.
-     * @param line1 the first output line.
-     * @param line2 the second output line.
+     * @param line1          the first output line.
+     * @param line2          the second output line.
      * @return the concatenate example instance.
      */
     private ConcatenateExample initializeConcatenateExample(final boolean generateOutput, final String line1,
