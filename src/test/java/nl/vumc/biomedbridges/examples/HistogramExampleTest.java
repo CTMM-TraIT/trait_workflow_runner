@@ -88,7 +88,6 @@ public class HistogramExampleTest {
         final HistogramExample histogramExample = injector.getInstance(HistogramExample.class);
         if (withOutput)
             addPdfToOutputMap(histogramExample.workflowFactory, withHeader, lineCount);
-        DummyWorkflow.clear();
         DummyWorkflow.setReturnedResult(returnedResult);
         DummyWorkflow.setThrowException(throwException);
         assertEquals(expectedResult, histogramExample.runExample());

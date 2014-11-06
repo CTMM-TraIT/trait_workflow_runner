@@ -29,8 +29,11 @@ public class DummyWorkflowFactory implements WorkflowFactory {
      * @return the dummy workflow.
      */
     private Workflow getWorkflow(final String workflowName) {
-        if (dummyWorkflow == null)
+        if (dummyWorkflow == null) {
             dummyWorkflow = new DummyWorkflow(workflowName != null ? workflowName : "test workflow");
+            // Clear the special flags after creating this dummy workflow.
+            DummyWorkflow.clear();
+        }
         return dummyWorkflow;
     }
 }

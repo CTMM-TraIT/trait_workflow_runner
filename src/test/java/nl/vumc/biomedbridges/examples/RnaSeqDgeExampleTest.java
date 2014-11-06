@@ -14,7 +14,6 @@ import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -26,14 +25,6 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class RnaSeqDgeExampleTest {
-    /**
-     * Initialize the dummy workflow.
-     */
-    @Before
-    public void setUp() {
-        DummyWorkflow.clear();
-    }
-
     /**
      * Test the RNA-Seq differential gene expression example under normal circumstances.
      */
