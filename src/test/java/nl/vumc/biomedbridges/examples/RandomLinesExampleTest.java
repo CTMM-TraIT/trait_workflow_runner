@@ -11,10 +11,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.DummyWorkflow;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.TestGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
 
 import org.junit.Test;
@@ -36,7 +38,7 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNotNull(randomLinesExample.runExample(WorkflowType.GALAXY,
+        assertNotNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
                                                     RandomLinesExample.INITIAL_LINE_COUNT,
                                                     definitiveLineCount));
     }
@@ -48,7 +50,7 @@ public class RandomLinesExampleTest {
     public void testRandomLinesExampleNoOutput() {
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(false, 0);
 
-        assertNull(randomLinesExample.runExample(WorkflowType.GALAXY,
+        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
                                                  RandomLinesExample.INITIAL_LINE_COUNT,
                                                  RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }
@@ -61,7 +63,35 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT + 6;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNull(randomLinesExample.runExample(WorkflowType.GALAXY,
+        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
+                                                 RandomLinesExample.INITIAL_LINE_COUNT,
+                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+    }
+
+    /**
+     * Test the random lines example with a workflow returning false.
+     */
+    @Test
+    public void testRandomLinesExampleReturningFalse() {
+        final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT + 6;
+        final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
+
+        DummyWorkflow.setReturnedResult(false);
+        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
+                                                 RandomLinesExample.INITIAL_LINE_COUNT,
+                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+    }
+
+    /**
+     * Test the random lines example with a workflow throwing an exception.
+     */
+    @Test
+    public void testRandomLinesExampleThrowingException() {
+        final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT + 6;
+        final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
+
+        DummyWorkflow.setThrowException(true);
+        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
                                                  RandomLinesExample.INITIAL_LINE_COUNT,
                                                  RandomLinesExample.DEFINITIVE_LINE_COUNT));
     }
@@ -77,23 +107,24 @@ public class RandomLinesExampleTest {
         // Create a Guice injector and use it to build the RandomLinesExample object.
         final RandomLinesExample example = Guice.createInjector(new TestGuiceModule()).getInstance(RandomLinesExample.class);
         if (generateOutput)
-            addOutputFileToOutputMap(example.workflowEngineFactory, definitiveLineCount);
+            addOutputFileToOutputMap(example.workflowFactory, definitiveLineCount);
         return example;
     }
 
     /**
      * Add a temporary output file to the output map of the dummy workflow.
      *
-     * @param workflowEngineFactory the dummy workflow engine factory.
+     * @param workflowFactory     the dummy workflow factory.
      * @param definitiveLineCount the number of lines to put in the output file.
      */
-    private void addOutputFileToOutputMap(final WorkflowEngineFactory workflowEngineFactory,
+    private void addOutputFileToOutputMap(final WorkflowFactory workflowFactory,
                                           final int definitiveLineCount) {
         final List<String> dummyLines = new ArrayList<>();
         for (int lineIndex = 0; lineIndex < definitiveLineCount; lineIndex++)
             dummyLines.add("");
         final File temporaryOutputFile = FileUtils.createTemporaryFile(dummyLines.toArray(new String[dummyLines.size()]));
-        final Workflow workflow = workflowEngineFactory.getWorkflowEngine(null, null).getWorkflow(null);
+        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.DEMONSTRATION, null,
+                                                              Constants.WORKFLOW_RANDOM_LINES_TWICE);
         workflow.addOutput(RandomLinesExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

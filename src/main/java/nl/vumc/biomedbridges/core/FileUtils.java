@@ -83,8 +83,8 @@ public class FileUtils {
      * Create a file with some lines.
      *
      * todo: compare to createTemporaryFile.
+     * todo: eliminate workflow parameter.
      * todo: make filenamePrefix a parameter?
-     * todo: use variable number of arguments (String... lines) instead of list.
      *
      * @param workflow the workflow where this output file is created for.
      * @param lines    the lines to write to the output file.

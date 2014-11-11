@@ -522,8 +522,7 @@ public class BaseGuiExample {
         final Thread runWorkflowThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final StyledDocument resultsDocument = adaptGuiForRunningWorkflow();
-                runRandomLinesWorkflow(Guice.createInjector(new DefaultGuiceModule()), resultsDocument);
+                runRandomLinesWorkflow(Guice.createInjector(new DefaultGuiceModule()), adaptGuiForRunningWorkflow());
             }
         });
         // Run the thread.

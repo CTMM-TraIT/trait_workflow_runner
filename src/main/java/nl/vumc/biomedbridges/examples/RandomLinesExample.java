@@ -18,10 +18,8 @@ import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngine;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
+import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
-import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -77,11 +75,11 @@ public class RandomLinesExample extends BaseExample {
     /**
      * Construct the random lines example.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
     @Inject
-    protected RandomLinesExample(final WorkflowEngineFactory workflowEngineFactory) {
-        super(workflowEngineFactory);
+    protected RandomLinesExample(final WorkflowFactory workflowFactory) {
+        super(workflowFactory);
     }
 
     /**
@@ -112,13 +110,11 @@ public class RandomLinesExample extends BaseExample {
         initializeExample(logger, "RandomLinesExample.runExample");
 
         this.definitiveLineCount = definitiveLineCount;
-        // Note: the configuration will be ignored for the demonstration workflow type.
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration();
-        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, galaxyConfiguration.getGalaxyApiKey(),
-                                               HISTORY_NAME);
-        final WorkflowEngine workflowEngine = workflowEngineFactory.getWorkflowEngine(workflowType, galaxyConfiguration,
-                                                                                      new HistoryUtils());
-        final Workflow workflow = workflowEngine.getWorkflow(Constants.WORKFLOW_RANDOM_LINES_TWICE);
+        // Note: the configuration will be ignored if the demonstration workflow type is used (depends on parameter).
+        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(true);
+        configuration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        final Workflow workflow = workflowFactory.getWorkflow(workflowType, configuration,
+                                                              Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
         workflow.addInput(INPUT_NAME, FileUtils.createTemporaryFile("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
         final int stepNumberFirstFilter = 2;
@@ -126,9 +122,9 @@ public class RandomLinesExample extends BaseExample {
         workflow.setParameter(stepNumberFirstFilter, LINE_COUNT_PARAMETER_NAME, initialLineCount);
         workflow.setParameter(stepNumberSecondFilter, LINE_COUNT_PARAMETER_NAME, definitiveLineCount);
 
-        boolean result = true;
+        boolean result = false;
         try {
-            result = workflowEngine.runWorkflow(workflow);
+            result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
             outputLines = checkWorkflowOutput(workflow);
