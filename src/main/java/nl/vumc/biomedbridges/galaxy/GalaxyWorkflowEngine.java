@@ -42,6 +42,8 @@ import static com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowI
 /**
  * The workflow engine implementation for Galaxy.
  *
+ * todo [high priority]: improve error messages, for example when incorrect names for input files are used.
+ *
  * todo: Galaxy workflows cannot specify which version of a tool should be used:
  *       galaxy-dist\lib\galaxy\workflow\modules.py (lines 313-316):
  *       """

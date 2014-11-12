@@ -10,8 +10,6 @@ import java.lang.reflect.Modifier;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.FileUtils;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
-import nl.vumc.biomedbridges.core.WorkflowRunner;
 import nl.vumc.biomedbridges.galaxy.WorkflowUtils;
 import nl.vumc.biomedbridges.utilities.JsonUtilities;
 
@@ -35,9 +33,6 @@ public class HiddenConstructorsTest {
         testPrivateConstructor(FileUtils.class);
         testPrivateConstructor(JsonUtilities.class);
         testPrivateConstructor(WorkflowUtils.class);
-
-        testConstructor(WorkflowRunner.class, Modifier.PROTECTED, new Class[]{WorkflowEngineFactory.class},
-                        new Object[]{null});
     }
 
     /**
