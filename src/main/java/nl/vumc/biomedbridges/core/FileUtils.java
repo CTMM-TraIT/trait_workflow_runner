@@ -10,10 +10,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,11 @@ public class FileUtils {
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+
+    /**
+     * File name prefix for files that are created.
+     */
+    private static final String FILE_NAME_PREFIX = "workflow-runner";
 
     /**
      * File name suffix for files that are created.
@@ -91,7 +98,7 @@ public class FileUtils {
      * @return the test file.
      */
     public static File createOutputFile(final Workflow workflow, final String... lines) {
-        final String filenamePrefix = cleanFileName("workflow-runner-" + workflow.getName().toLowerCase() + "-output");
+        final String filenamePrefix = cleanFileName(FILE_NAME_PREFIX + "-" + workflow.getName().toLowerCase() + "-output");
         return createTemporaryFileWithPrefix(filenamePrefix, lines);
     }
 
@@ -102,7 +109,24 @@ public class FileUtils {
      * @return the test file.
      */
     public static File createTemporaryFile(final String... lines) {
-        return createTemporaryFileWithPrefix("workflow-runner", lines);
+        return createTemporaryFileWithPrefix(FILE_NAME_PREFIX, lines);
+    }
+
+    /**
+     * Create a temporary file from the contents of a URL.
+     *
+     * @param url the URL to read from.
+     * @return the test file.
+     */
+    public static File createTemporaryFileFromURL(final URL url) {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile(FILE_NAME_PREFIX, FILE_NAME_SUFFIX);
+            Files.copy(url.openStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return tempFile;
     }
 
     /**

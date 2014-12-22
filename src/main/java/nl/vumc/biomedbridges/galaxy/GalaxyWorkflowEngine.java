@@ -211,7 +211,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         if (galaxyInstance != null) {
             logStartRunWorkflow();
 
-            // todo: check whether the server is available and/or better error message when the server isn't available.
+            // todo: check whether the server is available and/or give a better error message when it isn't available.
             /*
             <html>
                 <head><title>504 Gateway Time-out</title></head>
@@ -222,6 +222,8 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
                 </body>
             </html>
              */
+
+            logger.info("Ensure the workflow is available.");
             ((GalaxyWorkflow) workflow).ensureWorkflowIsOnServer(workflowsClient);
 
             logger.info("Prepare the input files.");
@@ -259,8 +261,6 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.info("Galaxy API key: {}.", galaxyInstance.getApiKey());
         logger.info("Galaxy history ID: {}.", historyId);
         logger.info("");
-
-        logger.info("Ensure the workflow is available.");
     }
 
     /**
@@ -489,7 +489,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         final String baseName = FileUtils.cleanFileName(String.format("workflow-runner-%s-%s-", historyId, outputName));
         final String suffix;
         final String period = ".";
-        suffix = period + dataset.getDataType();
+        suffix = period + dataset.getDataTypeExt();
         final File outputFile;
         if (workflow.getDownloadDirectory() != null)
             outputFile = new File(FileUtils.createUniqueFilePath(workflow.getDownloadDirectory(), baseName, suffix));

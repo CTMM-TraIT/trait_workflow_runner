@@ -52,6 +52,11 @@ public class Constants {
      */
     public static final String CONCATENATE_WORKFLOW = "TestWorkflowConcatenate";
 
+    /**
+     * The name of the line, word, and character count workflow.
+     */
+    public static final String LINE_COUNT_WORKFLOW = "LineCount";
+
 //    /**
 //     * The name of the scatterplot test workflow.
 //     */
