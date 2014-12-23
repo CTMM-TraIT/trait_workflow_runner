@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.FileUtils;
 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -58,7 +59,7 @@ public class GalaxyWorkflowTest {
         final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, null, new JSONParser());
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
-                = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
+            = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
         Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(Arrays.asList(blend4jWorkflowMock));
         Mockito.when(blend4jWorkflowMock.getName()).thenReturn(Constants.CONCATENATE_WORKFLOW);
         assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
@@ -72,12 +73,12 @@ public class GalaxyWorkflowTest {
         final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, null, new JSONParser());
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock1
-                = getBlend4jWorkflowMock("dummy");
+            = getBlend4jWorkflowMock("dummy");
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock2
-                = getBlend4jWorkflowMock(Constants.CONCATENATE_WORKFLOW);
+            = getBlend4jWorkflowMock(Constants.CONCATENATE_WORKFLOW);
         final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList1 = new ArrayList<>();
         final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList2
-                = Arrays.asList(blend4jWorkflowMock1, blend4jWorkflowMock2);
+            = Arrays.asList(blend4jWorkflowMock1, blend4jWorkflowMock2);
         //noinspection unchecked
         Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(workflowList1, workflowList2);
         assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
@@ -85,9 +86,29 @@ public class GalaxyWorkflowTest {
 
     private com.github.jmchilton.blend4j.galaxy.beans.Workflow getBlend4jWorkflowMock(final String name) {
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
-                = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
+            = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
         Mockito.when(blend4jWorkflowMock.getName()).thenReturn(name);
         return blend4jWorkflowMock;
+    }
+
+    /**
+     * Test the run method.
+     */
+    @Test
+    public void testRun() throws IOException {
+        final GalaxyWorkflowEngine workflowEngineMock = Mockito.mock(GalaxyWorkflowEngine.class);
+        final GalaxyWorkflow workflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, workflowEngineMock,
+                                                           new JSONParser());
+        workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile("file 1 - test line"));
+        workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile("file 2 - test line"));
+
+        try {
+            Mockito.when(workflowEngineMock.runWorkflow(Mockito.eq(workflow))).thenReturn(true);
+
+            assertTrue(workflow.run());
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -96,34 +117,34 @@ public class GalaxyWorkflowTest {
     @Test
     public void testGetOutput() throws IOException {
         final GalaxyWorkflowEngine workflowEngineMock = Mockito.mock(GalaxyWorkflowEngine.class);
-        final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, workflowEngineMock,
-                                                                      new JSONParser());
+        final GalaxyWorkflow workflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, workflowEngineMock,
+                                                           new JSONParser());
         final String outputName = "test";
         final String outputId = "9876543210";
         final BigInteger dummyOutput = new BigInteger("12345678901234567890");
         final File outputFile = new File("does not exist.txt");
 
-        assertNull(concatenateWorkflow.getOutput(outputName));
+        assertNull(workflow.getOutput(outputName));
 
         // Test whether downloading is handled correctly.
-        concatenateWorkflow.setAutomaticDownload(false);
+        workflow.setAutomaticDownload(false);
         Mockito.when(workflowEngineMock.getOutputIdForOutputName(Mockito.eq(outputName))).thenReturn(outputId);
         final Answer<Boolean> downloadOutputFileAnswer = new Answer<Boolean>() {
             @Override
             public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                concatenateWorkflow.addOutput(outputName, outputFile);
+                workflow.addOutput(outputName, outputFile);
                 return true;
             }
         };
-        Mockito.when(workflowEngineMock.downloadOutputFile(Mockito.eq(concatenateWorkflow), Mockito.eq(outputId)))
+        Mockito.when(workflowEngineMock.downloadOutputFile(Mockito.eq(workflow), Mockito.eq(outputId)))
             .thenAnswer(downloadOutputFileAnswer);
-        assertEquals(outputFile, concatenateWorkflow.getOutput(outputName));
+        assertEquals(outputFile, workflow.getOutput(outputName));
 
-        concatenateWorkflow.addOutput(outputName, dummyOutput);
-        assertEquals(dummyOutput, concatenateWorkflow.getOutput(outputName));
+        workflow.addOutput(outputName, dummyOutput);
+        assertEquals(dummyOutput, workflow.getOutput(outputName));
 
-        concatenateWorkflow.addOutput(outputName, outputFile);
-        assertEquals(outputFile, concatenateWorkflow.getOutput(outputName));
+        workflow.addOutput(outputName, outputFile);
+        assertEquals(outputFile, workflow.getOutput(outputName));
     }
 
     /**
