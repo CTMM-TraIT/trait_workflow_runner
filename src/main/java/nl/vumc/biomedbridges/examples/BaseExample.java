@@ -5,12 +5,22 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import nl.vumc.biomedbridges.core.Constants;
+import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains shared functionality for the workflow running examples.
@@ -18,6 +28,11 @@ import org.slf4j.Logger;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class BaseExample {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
+
     /**
      * The workflow engine factory to use.
      */
@@ -83,6 +98,41 @@ public class BaseExample {
         logger.info(name + " has started.");
 
         startTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Check the single output after running the workflow.
+     *
+     * @param workflow      the workflow that has been executed.
+     * @param outputName    the name of the single output to check.
+     * @param expectedLines the lines that are expected in the output file.
+     * @return whether the workflow output is correct.
+     * @throws IOException if reading the output file fails.
+     */
+    public boolean checkWorkflowSingleOutput(final Workflow workflow, final String outputName,
+                                             final List<String> expectedLines) throws IOException {
+        boolean result = false;
+        final Object output = workflow.getOutput(outputName);
+        if (output instanceof File) {
+            final File outputFile = (File) output;
+            final List<String> actualLines = Files.readLines(outputFile, Charsets.UTF_8);
+            final String lineSeparator = " | ";
+            if (expectedLines.equals(actualLines)) {
+                result = true;
+                logger.info("- The output file contains the lines we expected!!!");
+                logger.info("  actual: " + Joiner.on(lineSeparator).join(actualLines));
+            } else {
+                logger.error("- The output file does not contain the lines we expected!");
+                logger.error("  expected: " + Joiner.on(lineSeparator).join(expectedLines));
+                logger.error("  actual:   " + Joiner.on(lineSeparator).join(actualLines));
+            }
+            final boolean deleteResult = outputFile.delete();
+            result &= deleteResult;
+            if (!deleteResult)
+                logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
+        } else
+            logger.error("There is no output file named {}.", outputName);
+        return result;
     }
 
     /**

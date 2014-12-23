@@ -5,16 +5,11 @@
 
 package nl.vumc.biomedbridges.examples;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -104,44 +99,12 @@ public class ConcatenateExample extends BaseExample {
             result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowOutput(workflow);
+            result &= checkWorkflowSingleOutput(workflow, OUTPUT_NAME, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
         finishExample(logger);
-        return result;
-    }
-
-    /**
-     * Check the output after running the workflow.
-     *
-     * @param workflow the workflow that has been executed.
-     * @return whether the workflow output is correct.
-     * @throws IOException if reading an output file fails.
-     */
-    private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
-        boolean result = false;
-        final Object output = workflow.getOutput(OUTPUT_NAME);
-        if (output instanceof File) {
-            final File outputFile = (File) output;
-            final List<String> lines = Files.readLines(outputFile, Charsets.UTF_8);
-            final String lineSeparator = " | ";
-            if (Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2).equals(lines)) {
-                result = true;
-                logger.info("- Concatenated file contains the lines we expected!!!");
-                logger.info("  actual: " + Joiner.on(lineSeparator).join(lines));
-            } else {
-                logger.error("- Concatenated file does not contain the lines we expected!");
-                logger.error("  expected: " + LINE_TEST_FILE_1 + lineSeparator + LINE_TEST_FILE_2);
-                logger.error("  actual:   " + Joiner.on(lineSeparator).join(lines));
-            }
-            final boolean deleteResult = outputFile.delete();
-            result &= deleteResult;
-            if (!deleteResult)
-                logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
-        } else
-            logger.error("There is no output file named {}.", OUTPUT_NAME);
         return result;
     }
 }
