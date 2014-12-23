@@ -98,7 +98,8 @@ public class FileUtils {
      * @return the test file.
      */
     public static File createOutputFile(final Workflow workflow, final String... lines) {
-        final String filenamePrefix = cleanFileName(FILE_NAME_PREFIX + "-" + workflow.getName().toLowerCase() + "-output");
+        final String filenamePrefix = cleanFileName(String.format("%s-%s-output", FILE_NAME_PREFIX,
+                                                                  workflow.getName().toLowerCase()));
         return createTemporaryFileWithPrefix(filenamePrefix, lines);
     }
 

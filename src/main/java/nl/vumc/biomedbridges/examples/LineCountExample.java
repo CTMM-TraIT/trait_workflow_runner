@@ -120,6 +120,7 @@ public class LineCountExample extends BaseExample {
      *
      * @param workflow the workflow that has been executed.
      * @return whether the workflow output is correct.
+     * @throws IOException if reading the output file fails.
      */
     private static boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         boolean result = false;
