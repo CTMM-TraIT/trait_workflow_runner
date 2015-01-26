@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.examples;
 
 import java.io.IOException;
 import java.util.Arrays;
+
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.DefaultWorkflowFactory;
@@ -16,6 +17,7 @@ import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,8 @@ public class GrepExample extends BaseExample {
         galaxyConfiguration.buildConfiguration(Constants.THE_HYVE_GALAXY_URL, null, workflowName);
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration, workflowName);
 
-        workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144"));
+        final String matchingLine = "10\t55";
+        workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", matchingLine, "11\t89", "12\t144"));
         workflow.setParameter(2, "pattern", "5[0-9]");
 
         boolean result = false;
@@ -74,7 +77,7 @@ public class GrepExample extends BaseExample {
             result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowSingleOutput(workflow, "Select on data 1", Arrays.asList("10\t55"));
+            result &= checkWorkflowSingleOutput(workflow, "Select on data 1", Arrays.asList(matchingLine));
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }

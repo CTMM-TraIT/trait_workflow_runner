@@ -1,8 +1,8 @@
 {
     "a_galaxy_workflow": "true", 
-    "annotation": "RNA-Seq Differential Gene Expression (EdgeR)", 
+1    "annotation": "",
     "format-version": "0.1", 
-    "name": "RNA-Seq_DGE", 
+    "name": "RNA-Seq-edgeR-DGE", 
     "steps": {
         "0": {
             "annotation": "", 
@@ -11,18 +11,18 @@
             "inputs": [
                 {
                     "description": "", 
-                    "name": "Expression Matrix"
+                    "name": "expression_matrix"
                 }
             ], 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
-                "left": 200, 
-                "top": 200
+                "left": 316, 
+                "top": 234.5
             }, 
             "tool_errors": null, 
             "tool_id": null, 
-            "tool_state": "{\"name\": \"Expression Matrix\"}", 
+            "tool_state": "{\"name\": \"expression_matrix\"}", 
             "tool_version": null, 
             "type": "data_input", 
             "user_outputs": []
@@ -34,18 +34,18 @@
             "inputs": [
                 {
                     "description": "", 
-                    "name": "Design Matrix"
+                    "name": "design_matrix"
                 }
             ], 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
-                "left": 200, 
-                "top": 285
+                "left": 314, 
+                "top": 317.5
             }, 
             "tool_errors": null, 
             "tool_id": null, 
-            "tool_state": "{\"name\": \"Design Matrix\"}", 
+            "tool_state": "{\"name\": \"design_matrix\"}", 
             "tool_version": null, 
             "type": "data_input", 
             "user_outputs": []
@@ -64,6 +64,14 @@
                 }
             }, 
             "inputs": [
+                {
+                    "description": "runtime parameter for tool edgeR: Differential Gene(Expression) Analysis", 
+                    "name": "output_format_images"
+                }, 
+                {
+                    "description": "runtime parameter for tool edgeR: Differential Gene(Expression) Analysis", 
+                    "name": "outputs"
+                }, 
                 {
                     "description": "runtime parameter for tool edgeR: Differential Gene(Expression) Analysis", 
                     "name": "contrast"
@@ -85,27 +93,27 @@
                 }, 
                 {
                     "name": "output_MDSplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_BCVplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_MAplot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_PValue_distribution_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_hierarchical_clustering_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_heatmap_plot", 
-                    "type": "pdf"
+                    "type": "png"
                 }, 
                 {
                     "name": "output_RData_obj", 
@@ -117,37 +125,17 @@
                 }
             ], 
             "position": {
-                "left": 428, 
-                "top": 200
+                "left": 553.5, 
+                "top": 217.5
             }, 
-            "post_job_actions": {
-                "HideDatasetActionoutput_R": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_R"
-                }, 
-                "HideDatasetActionoutput_RData_obj": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_RData_obj"
-                }, 
-                "HideDatasetActionoutput_heatmap_plot": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_heatmap_plot"
-                }, 
-                "HideDatasetActionoutput_hierarchical_clustering_plot": {
-                    "action_arguments": {}, 
-                    "action_type": "HideDatasetAction", 
-                    "output_name": "output_hierarchical_clustering_plot"
-                }
-            }, 
+            "post_job_actions": {}, 
             "tool_errors": null, 
-            "tool_id": "testtoolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/1.0.0", 
-            "tool_state": "{\"__page__\": 0, \"design_matrix\": \"null\", \"outputs\": \"[\\\"make_output_raw_counts\\\", \\\"make_output_MDSplot\\\", \\\"make_output_BCVplot\\\", \\\"make_output_MAplot\\\", \\\"make_output_PValue_distribution_plot\\\"]\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
-            "tool_version": "1.0.0", 
+            "tool_id": "testtoolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/3.0.3-latest.a", 
+            "tool_state": "{\"__page__\": 0, \"output_format_images\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\", \"design_matrix\": \"null\", \"outputs\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
+            "tool_version": "3.0.3-latest.a", 
             "type": "tool", 
             "user_outputs": []
         }
-    }
+    }, 
+    "uuid": "8a9ce8b3-865b-469b-aab3-e9d7b3cc474f"
 }
