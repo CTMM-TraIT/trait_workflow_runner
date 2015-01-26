@@ -91,9 +91,8 @@ public class RnaSeqDgeExample extends BaseExample {
         final String contrast = "Control-E2";
         final double fdr = 0.05;
 
-        final GalaxyConfiguration configuration = new GalaxyConfiguration();
-        configuration.setDebug(true);
-        configuration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(true);
+        configuration.buildConfiguration(Constants.THE_HYVE_GALAXY_URL, null, HISTORY_NAME);
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, configuration, Constants.WORKFLOW_RNA_SEQ_DGE);
 
         workflow.addInput("expression_matrix", new File(EXPRESSION_MATRIX_PATH_NAME));

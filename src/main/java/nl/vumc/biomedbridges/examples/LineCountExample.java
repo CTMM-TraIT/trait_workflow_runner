@@ -84,7 +84,7 @@ public class LineCountExample extends BaseExample {
         initializeExample(logger, "LineCountExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.VANCIS_GALAXY_URL, null, HISTORY_NAME);
+        galaxyConfiguration.buildConfiguration(Constants.VANCIS_PRO_GALAXY_URL, null, HISTORY_NAME);
 
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
                                                               Constants.LINE_COUNT_WORKFLOW);

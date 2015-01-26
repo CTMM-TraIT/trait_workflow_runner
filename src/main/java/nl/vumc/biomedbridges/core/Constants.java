@@ -21,13 +21,31 @@ public class Constants {
     public static final String CENTRAL_GALAXY_URL = "https://usegalaxy.org/";
 
     /**
-     * The Galaxy server at Vancis (instance URL).
+     * The acceptation Galaxy server at Vancis (instance URL).
      *
      * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    public static final String VANCIS_GALAXY_URL = "https://galaxy-act.ctmm-trait.nl/";
+    public static final String VANCIS_PRO_GALAXY_URL = "https://galaxy.ctmm-trait.nl/";
+
+    /**
+     * The acceptation Galaxy server at Vancis (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String VANCIS_ACC_GALAXY_URL = "https://galaxy-act.ctmm-trait.nl/";
+
+    /**
+     * The Galaxy server at The Hyve (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String THE_HYVE_GALAXY_URL = "http://galaxy.thehyve.net/";
 
 //    /**
 //     * The SURFsara CTMM TraIT Galaxy server (instance URL).
@@ -37,15 +55,6 @@ public class Constants {
 //     * Galaxy server and the API key together to keep them in sync.
 //     */
 //    public static final String SURF_SARA_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
-
-//    /**
-//     * The Biomina Galaxy server (instance URL).
-//     *
-//     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
-//     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
-//     * Galaxy server and the API key together to keep them in sync.
-//     */
-//    public static final String BIOMINA_GALAXY_INSTANCE_URL = "http://biominavm-galaxy.biomina.be/galaxy/";
 
     /**
      * The name of the concatenate test workflow.

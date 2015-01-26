@@ -117,12 +117,13 @@ public class BaseExample {
             final File outputFile = (File) output;
             final List<String> actualLines = Files.readLines(outputFile, Charsets.UTF_8);
             final String lineSeparator = " | ";
+            final String partialMessage = "the line" + (expectedLines.size() > 1 ? "s" : "") + " we expected!";
             if (expectedLines.equals(actualLines)) {
                 result = true;
-                logger.info("- The output file contains the lines we expected!!!");
+                logger.info("- The output file contains " + partialMessage + "!!");
                 logger.info("  actual: " + Joiner.on(lineSeparator).join(actualLines));
             } else {
-                logger.error("- The output file does not contain the lines we expected!");
+                logger.error("- The output file does not contain " + partialMessage);
                 logger.error("  expected: " + Joiner.on(lineSeparator).join(expectedLines));
                 logger.error("  actual:   " + Joiner.on(lineSeparator).join(actualLines));
             }
