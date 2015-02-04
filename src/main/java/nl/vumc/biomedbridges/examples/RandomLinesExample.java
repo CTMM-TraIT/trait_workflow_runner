@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class RandomLinesExample extends BaseExample {
+public class RandomLinesExample extends AbstractBaseExample {
     /**
      * The name of the output dataset.
      */

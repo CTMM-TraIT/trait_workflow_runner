@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public abstract class BaseExample {
+public abstract class AbstractBaseExample {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(BaseExample.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractBaseExample.class);
 
     /**
      * The workflow engine factory to use.
@@ -62,7 +62,7 @@ public abstract class BaseExample {
      *
      * @param workflowFactory the workflow factory to use.
      */
-    public BaseExample(final WorkflowFactory workflowFactory) {
+    public AbstractBaseExample(final WorkflowFactory workflowFactory) {
         this.workflowEngineFactory = null;
         this.workflowFactory = workflowFactory;
     }
@@ -73,7 +73,7 @@ public abstract class BaseExample {
      * @param workflowEngineFactory the workflow engine factory to use.
      * @param workflowFactory       the workflow factory to use.
      */
-    public BaseExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
+    public AbstractBaseExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
         this.workflowEngineFactory = workflowEngineFactory;
         this.workflowFactory = workflowFactory;
     }
@@ -85,7 +85,7 @@ public abstract class BaseExample {
      */
     // todo: remove this old constructor later.
     //@Deprecated
-    public BaseExample(final WorkflowEngineFactory workflowEngineFactory) {
+    public AbstractBaseExample(final WorkflowEngineFactory workflowEngineFactory) {
         this.workflowEngineFactory = workflowEngineFactory;
         this.workflowFactory = null;
     }

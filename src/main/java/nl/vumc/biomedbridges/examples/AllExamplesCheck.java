@@ -20,6 +20,8 @@ import nl.vumc.biomedbridges.core.WorkflowFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.varia.LevelRangeFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class checks all of (working) examples on a number of servers and reports the results.
@@ -27,6 +29,17 @@ import org.apache.log4j.varia.LevelRangeFilter;
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class AllExamplesCheck {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(AllExamplesCheck.class);
+
+    /**
+     * Hidden constructor. Only the main method of this class is meant to be used.
+     */
+    private AllExamplesCheck() {
+    }
+
     /**
      * Main method.
      *
@@ -38,22 +51,17 @@ public class AllExamplesCheck {
     }
     // CHECKSTYLE_ON: UncommentedMain
 
+    /**
+     * Run all examples on all Galaxy servers.
+     */
     // todo: restore SpellCheckingInspection later.
     @SuppressWarnings("SpellCheckingInspection")
     private void checkAllExamples() {
-//        System.out.println("console-appender filter: " + LogManager.getRootLogger().getAppender("console-appender").getFilter());
+        LogManager.getRootLogger().getAppender("console-appender").addFilter(createAppenderFilter());
 
-        final LevelRangeFilter logAppenderFilter = new LevelRangeFilter();
-        logAppenderFilter.setAcceptOnMatch(true);
-        logAppenderFilter.setLevelMin(Level.WARN);
-        logAppenderFilter.setLevelMax(Level.FATAL);
-
-        LogManager.getRootLogger().getAppender("console-appender").addFilter(logAppenderFilter);
-        System.out.println("console-appender filter: " + LogManager.getRootLogger().getAppender("console-appender").getFilter());
-
-        final List<Class<? extends BaseExample>> exampleClasses = Arrays.asList(
-                ConcatenateExample.class, GrepExample.class, HistogramExample.class, LineCountExample.class//,
-                //RandomLinesExample.class, RemoveTopAndLeftExample.class, RnaSeqDgeExample.class
+        final List<Class<? extends AbstractBaseExample>> exampleClasses = Arrays.asList(
+                ConcatenateExample.class, GrepExample.class, HistogramExample.class, LineCountExample.class
+                //, RandomLinesExample.class, RemoveTopAndLeftExample.class, RnaSeqDgeExample.class
         );
 
 //      todo: self signed certificate for Vancis servers? Error when trying to use the Galaxy API:
@@ -63,57 +71,85 @@ public class AllExamplesCheck {
 //      + "The problem appears when your server has self signed certificate. To workaround it you can add this certificate to
 //        the list of trusted certificates of your JVM."
 
-        final List<String> serverUrls = Arrays.asList(/*Constants.CENTRAL_GALAXY_URL, Constants.VANCIS_PRO_GALAXY_URL,
-                                                      Constants.VANCIS_ACC_GALAXY_URL,*/ Constants.THE_HYVE_GALAXY_URL);
+        final List<String> serverUrls = Arrays.asList(
+//                Constants.CENTRAL_GALAXY_URL,
+//                Constants.VANCIS_PRO_GALAXY_URL, Constants.VANCIS_ACC_GALAXY_URL,
+                Constants.THE_HYVE_GALAXY_URL
+        );
 
         for (final String serverUrl : serverUrls) {
-            boolean serverOnline = false;
-            try {
-                final StringBuilder content = new StringBuilder();
-                final InputStream inputStream = new URL(serverUrl).openStream();
-                int nextByte;
-                while ((nextByte = inputStream.read()) != -1)
-                    content.append((char) nextByte);
-                System.out.println("content.length() = " + content.length());
-                serverOnline = content.length() > 64;
-//                final Object content = new URL(serverUrl).getContent();
-//                System.out.println("content = " + content);
-//                if (content instanceof String) {
-//                    System.out.println("Content length: " + ((String) content).length());
-//                    serverOnline = ((String) content).length() > 64;
-//                }
-            } catch (final IOException e) {
-                // Empty.
-            }
+            final boolean hopefullyOnline = getGalaxyServerOnline(serverUrl) || serverUrl.contains(".ctmm-trait.nl/");
+            logger.warn("Galaxy server " + serverUrl + " is {}.", hopefullyOnline ? "hopefully online" : "not available");
+            if (hopefullyOnline)
+                runExamplesOnServer(serverUrl, exampleClasses);
+            logger.warn("");
+            logger.warn("");
+        }
+    }
 
-            if (serverOnline || serverUrl.contains(".ctmm-trait.nl/")) {
-                System.out.println("Galaxy server " + serverUrl + " is " + (serverOnline ? "" : "hopefully ") + "online.");
-                System.out.println("Running examples:");
-                for (final Class<? extends BaseExample> exampleClass : exampleClasses) {
-                    final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
-                    final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
-                    try {
-                        System.out.println("- The example " + exampleClass.getName() + " is running...");
-                        final BaseExample example = exampleClass
-                                .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
-                                .newInstance(workflowEngineFactory, workflowFactory);
-                        example.setHttpLogging(false);
-//                        LogManager.getRootLogger().getAppender("console-appender").addFilter(logAppenderFilter);
-                        final boolean result = example.runExample(serverUrl);
-                        System.out.println("- The example " + exampleClass.getName() + " ran " + (result ? "" : "un")
-                                           + "successfully.");
-                        System.out.println();
-//                        System.out.println("console-appender filter: "
-//                                           + LogManager.getRootLogger().getAppender("console-appender").getFilter());
-                    } catch (final ReflectiveOperationException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                System.out.println("Galaxy server " + serverUrl + " is not available.");
+    /**
+     * Create a filter to limit logging messages.
+     *
+     * @return the appender filter.
+     */
+    private LevelRangeFilter createAppenderFilter() {
+        final LevelRangeFilter logAppenderFilter = new LevelRangeFilter();
+        logAppenderFilter.setAcceptOnMatch(true);
+        logAppenderFilter.setLevelMin(Level.WARN);
+        logAppenderFilter.setLevelMax(Level.FATAL);
+
+        return logAppenderFilter;
+    }
+
+    /**
+     * Determine whether a Galaxy server appears to be online.
+     *
+     * @param serverUrl the URL of the Galaxy server.
+     * @return whether it appears to be online.
+     */
+    private boolean getGalaxyServerOnline(final String serverUrl) {
+        boolean serverOnline;
+        final int minimumExpectedContentLength = 64;
+
+        try {
+            final StringBuilder content = new StringBuilder();
+            final InputStream inputStream = new URL(serverUrl).openStream();
+            int nextByte;
+            while ((nextByte = inputStream.read()) != -1)
+                content.append((char) nextByte);
+            logger.debug("AllExamplesCheck.getGalaxyServerOnline - content length: {}", content.length());
+            serverOnline = content.length() > minimumExpectedContentLength;
+        } catch (final IOException e) {
+            serverOnline = false;
+        }
+
+        return serverOnline;
+    }
+
+    /**
+     * Run all examples on a specific Galaxy server.
+     *
+     * @param serverUrl      the URL of the Galaxy server.
+     * @param exampleClasses the example classes to run.
+     */
+    private void runExamplesOnServer(final String serverUrl,
+                                     final List<Class<? extends AbstractBaseExample>> exampleClasses) {
+        logger.warn("Running examples:");
+        for (final Class<? extends AbstractBaseExample> exampleClass : exampleClasses) {
+            final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
+            final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
+            try {
+                logger.warn("- The example {} is running...", exampleClass.getName());
+                final AbstractBaseExample example = exampleClass
+                        .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
+                        .newInstance(workflowEngineFactory, workflowFactory);
+                example.setHttpLogging(false);
+                final boolean result = example.runExample(serverUrl);
+                logger.warn("- The example {} ran " + (result ? "" : "un") + "successfully.", exampleClass.getName());
+                logger.warn("");
+            } catch (final ReflectiveOperationException e) {
+                e.printStackTrace();
             }
-            System.out.println();
-            System.out.println();
         }
     }
 }

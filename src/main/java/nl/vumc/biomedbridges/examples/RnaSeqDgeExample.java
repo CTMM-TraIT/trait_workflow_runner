@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class RnaSeqDgeExample extends BaseExample {
+public class RnaSeqDgeExample extends AbstractBaseExample {
     /**
      * The resources directory for the examples package.
      */

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class HistogramExample extends BaseExample {
+public class HistogramExample extends AbstractBaseExample {
     /**
      * The name of the output dataset.
      */

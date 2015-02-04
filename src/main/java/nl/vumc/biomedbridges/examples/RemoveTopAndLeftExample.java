@@ -18,7 +18,7 @@ import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class RemoveTopAndLeftExample extends BaseExample {
+public class RemoveTopAndLeftExample extends AbstractBaseExample {
 //    /**
 //     * The logger for this class.
 //     */
@@ -45,7 +45,7 @@ public class RemoveTopAndLeftExample extends BaseExample {
     }
 
     @Override
-    public boolean runExample(String galaxyInstanceUrl) {
+    public boolean runExample(final String galaxyInstanceUrl) {
         return false;
     }
 

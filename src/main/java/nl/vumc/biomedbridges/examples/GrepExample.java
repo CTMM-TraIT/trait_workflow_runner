@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class GrepExample extends BaseExample {
+public class GrepExample extends AbstractBaseExample {
     /**
      * The logger for this class.
      */

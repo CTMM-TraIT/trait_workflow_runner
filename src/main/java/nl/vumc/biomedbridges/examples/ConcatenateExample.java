@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class ConcatenateExample extends BaseExample {
+public class ConcatenateExample extends AbstractBaseExample {
     /**
      * The name of the Galaxy history.
      */
