@@ -38,7 +38,7 @@ public class ConcatenateExampleTest {
         final String line2 = ConcatenateExample.LINE_TEST_FILE_2;
         final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
 
-        assertTrue(concatenateExample.runExample());
+        assertTrue(concatenateExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -48,7 +48,7 @@ public class ConcatenateExampleTest {
     public void testConcatenateExampleNoOutput() {
         final ConcatenateExample concatenateExample = initializeConcatenateExample(false, null, null);
 
-        assertFalse(concatenateExample.runExample());
+        assertFalse(concatenateExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -60,7 +60,7 @@ public class ConcatenateExampleTest {
         final String line2 = ConcatenateExample.LINE_TEST_FILE_2 + " - is wrong!";
         final ConcatenateExample concatenateExample = initializeConcatenateExample(true, line1, line2);
 
-        assertFalse(concatenateExample.runExample());
+        assertFalse(concatenateExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**

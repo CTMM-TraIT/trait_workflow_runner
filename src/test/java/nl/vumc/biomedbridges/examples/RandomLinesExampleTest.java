@@ -21,8 +21,8 @@ import nl.vumc.biomedbridges.core.WorkflowType;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for the RandomLinesExample class.
@@ -38,9 +38,7 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNotNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
-                                                    RandomLinesExample.INITIAL_LINE_COUNT,
-                                                    definitiveLineCount));
+        assertTrue(randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -50,9 +48,7 @@ public class RandomLinesExampleTest {
     public void testRandomLinesExampleNoOutput() {
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(false, 0);
 
-        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
-                                                 RandomLinesExample.INITIAL_LINE_COUNT,
-                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+        assertFalse(randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -63,9 +59,7 @@ public class RandomLinesExampleTest {
         final int definitiveLineCount = RandomLinesExample.DEFINITIVE_LINE_COUNT + 6;
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
-        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
-                                                 RandomLinesExample.INITIAL_LINE_COUNT,
-                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+        assertFalse(randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -77,9 +71,7 @@ public class RandomLinesExampleTest {
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
         DummyWorkflow.setReturnedResult(false);
-        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
-                                                 RandomLinesExample.INITIAL_LINE_COUNT,
-                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+        assertFalse(randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**
@@ -91,9 +83,7 @@ public class RandomLinesExampleTest {
         final RandomLinesExample randomLinesExample = initializeRandomLinesExample(true, definitiveLineCount);
 
         DummyWorkflow.setThrowException(true);
-        assertNull(randomLinesExample.runExample(WorkflowType.DEMONSTRATION,
-                                                 RandomLinesExample.INITIAL_LINE_COUNT,
-                                                 RandomLinesExample.DEFINITIVE_LINE_COUNT));
+        assertFalse(randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL));
     }
 
     /**

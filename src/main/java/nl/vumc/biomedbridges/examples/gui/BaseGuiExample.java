@@ -545,12 +545,12 @@ public class BaseGuiExample {
     private void runRandomLinesWorkflow(final Injector injector, final StyledDocument resultsDocument) {
         final int initialLineCount = Integer.parseInt(parameterTextFieldsMap.get("1-num_lines").getText());
         final int definitiveLineCount = Integer.parseInt(parameterTextFieldsMap.get("2-num_lines").getText());
-        //final WorkflowType workflowType = WorkflowType.GALAXY;
-        final WorkflowType workflowType = WorkflowType.DEMONSTRATION;
 
         final RandomLinesExample randomLinesExample = injector.getInstance(RandomLinesExample.class);
-        final List<String> outputLines = randomLinesExample.runExample(workflowType, initialLineCount,
-                                                                       definitiveLineCount);
+        randomLinesExample.setWorkflowType(WorkflowType.DEMONSTRATION);
+        randomLinesExample.setLineCounts(initialLineCount, definitiveLineCount);
+        final boolean result = randomLinesExample.runExample(Constants.CENTRAL_GALAXY_URL);
+        final List<String> outputLines = result ? randomLinesExample.getOutputLines() : null;
 
         if (outputLines != null) {
             final List<String> resultLines = new ArrayList<>();

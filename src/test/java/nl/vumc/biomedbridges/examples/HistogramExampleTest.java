@@ -90,7 +90,7 @@ public class HistogramExampleTest {
             addPdfToOutputMap(histogramExample.workflowFactory, withHeader, lineCount);
         DummyWorkflow.setReturnedResult(returnedResult);
         DummyWorkflow.setThrowException(throwException);
-        assertEquals(expectedResult, histogramExample.runExample());
+        assertEquals(expectedResult, histogramExample.runExample(Constants.THE_HYVE_GALAXY_URL));
     }
 
     /**

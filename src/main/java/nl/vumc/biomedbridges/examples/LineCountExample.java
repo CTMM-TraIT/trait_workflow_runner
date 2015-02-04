@@ -71,20 +71,17 @@ public class LineCountExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        Guice.createInjector(new DefaultGuiceModule()).getInstance(LineCountExample.class).runExample();
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(LineCountExample.class)
+                .runExample(Constants.VANCIS_PRO_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
-    /**
-     * Run this example workflow: count lines, words, and characters in the input file.
-     *
-     * @return whether the workflow ran successfully.
-     */
-    public boolean runExample() {
+    @Override
+    public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "LineCountExample.runExample");
 
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.VANCIS_PRO_GALAXY_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
+        galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
 
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
                                                               Constants.LINE_COUNT_WORKFLOW);

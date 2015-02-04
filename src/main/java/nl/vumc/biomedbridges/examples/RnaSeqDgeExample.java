@@ -80,23 +80,20 @@ public class RnaSeqDgeExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class).runExample();
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class)
+                .runExample(Constants.THE_HYVE_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
-    /**
-     * Run this example workflow: todo...
-     *
-     * @return whether the workflow ran successfully and the output seems to be ok.
-     */
-    public boolean runExample() {
+    @Override
+    public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "RnaSeqDgeExample.runExample");
 
         final String contrast = "Control-E2";
         final double fdr = 0.05;
 
-        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(true);
-        configuration.buildConfiguration(Constants.THE_HYVE_GALAXY_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(httpLogging);
+        configuration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, configuration, Constants.WORKFLOW_RNA_SEQ_DGE);
 
         workflow.addInput("expression_matrix", new File(EXPRESSION_MATRIX_PATH_NAME));

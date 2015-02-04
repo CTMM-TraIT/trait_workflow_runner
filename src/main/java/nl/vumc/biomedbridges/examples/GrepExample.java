@@ -50,22 +50,18 @@ public class GrepExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        //Guice.createInjector(new DefaultGuiceModule()).getInstance(GrepExample.class).runExample();
-        new GrepExample(new DefaultWorkflowEngineFactory(), new DefaultWorkflowFactory()).runExample();
+        new GrepExample(new DefaultWorkflowEngineFactory(), new DefaultWorkflowFactory())
+                .runExample(Constants.THE_HYVE_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
-    /**
-     * Run this example workflow: search for a pattern in the input file.
-     *
-     * @return whether the workflow ran successfully.
-     */
-    public boolean runExample() {
+    @Override
+    public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "GrepExample.runExample");
 
         final String workflowName = "Grep";
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.THE_HYVE_GALAXY_URL, null, workflowName);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
+        galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, workflowName);
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration, workflowName);
 
         final String matchingLine = "10\t55";

@@ -32,7 +32,7 @@ public class RnaSeqDgeExampleTest {
     public void testRnaSeqDgeExampleNormal() {
         final RnaSeqDgeExample example = Guice.createInjector(new TestGuiceModule()).getInstance(RnaSeqDgeExample.class);
         addDummyOutput(example.workflowFactory, 7);
-        assertTrue(example.runExample());
+        assertTrue(example.runExample(Constants.THE_HYVE_GALAXY_URL));
     }
 
     /**
@@ -43,7 +43,7 @@ public class RnaSeqDgeExampleTest {
         final RnaSeqDgeExample example = Guice.createInjector(new TestGuiceModule()).getInstance(RnaSeqDgeExample.class);
         addDummyOutput(example.workflowFactory, 0);
         DummyWorkflow.setReturnedResult(false);
-        assertFalse(example.runExample());
+        assertFalse(example.runExample(Constants.THE_HYVE_GALAXY_URL));
     }
 
     /**
@@ -54,7 +54,7 @@ public class RnaSeqDgeExampleTest {
         final RnaSeqDgeExample example = Guice.createInjector(new TestGuiceModule()).getInstance(RnaSeqDgeExample.class);
         addDummyOutput(example.workflowFactory, 7);
         DummyWorkflow.setThrowException(true);
-        assertFalse(example.runExample());
+        assertFalse(example.runExample(Constants.THE_HYVE_GALAXY_URL));
     }
 
     /**

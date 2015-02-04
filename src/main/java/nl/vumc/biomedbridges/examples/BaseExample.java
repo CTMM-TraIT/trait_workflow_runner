@@ -18,7 +18,6 @@ import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +26,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class BaseExample {
+public abstract class BaseExample {
     /**
      * The logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseExample.class);
 
     /**
      * The workflow engine factory to use.
@@ -42,6 +41,11 @@ public class BaseExample {
      * The workflow factory to use.
      */
     protected final WorkflowFactory workflowFactory;
+
+    /**
+     * Whether the HTTP messages should be logged or not.
+     */
+    protected boolean httpLogging = true;
 
     /**
      * The start time of this example (in milliseconds).
@@ -87,18 +91,34 @@ public class BaseExample {
     }
 
     /**
+     * Select whether the HTTP messages should be logged or not.
+     *
+     * @param httpLogging whether the HTTP messages should be logged or not.
+     */
+    public void setHttpLogging(final boolean httpLogging) {
+        this.httpLogging = httpLogging;
+    }
+
+    /**
      * Initialize running an example by configuring the logging and storing the start time.
      *
      * @param logger the logger to use.
      * @param name   the name of the example.
      */
     public void initializeExample(final Logger logger, final String name) {
-        DOMConfigurator.configure(BaseExample.class.getClassLoader().getResource("log4j.xml"));
         logger.info("========================================");
         logger.info(name + " has started.");
 
         startTime = System.currentTimeMillis();
     }
+
+    /**
+     * Run this example workflow and return the result. Should be implemented by sub classes.
+     *
+     * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
+     * @return whether the workflow ran successfully.
+     */
+    public abstract boolean runExample(final String galaxyInstanceUrl);
 
     /**
      * Check the single output after running the workflow.

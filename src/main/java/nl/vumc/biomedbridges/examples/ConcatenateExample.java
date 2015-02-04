@@ -38,7 +38,7 @@ public class ConcatenateExample extends BaseExample {
     /**
      * The name of the output dataset.
      */
-    protected static final String OUTPUT_NAME = "Concatenate datasets on data 2 and data 1";
+    protected static final String OUTPUT_NAME = "Concatenate datasets on data 1 and data 2";
 
     /**
      * Line for test file 1.
@@ -73,20 +73,23 @@ public class ConcatenateExample extends BaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        Guice.createInjector(new DefaultGuiceModule()).getInstance(ConcatenateExample.class).runExample();
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(ConcatenateExample.class)
+                .runExample(Constants.CENTRAL_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
      * Run this example workflow: combine two input files into one output file.
      *
+     * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
      * @return whether the workflow ran successfully.
      */
-    public boolean runExample() {
+    @Override
+    public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "ConcatenateExample.runExample");
 
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
-        galaxyConfiguration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
+        galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
 
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
                                                               Constants.CONCATENATE_WORKFLOW);

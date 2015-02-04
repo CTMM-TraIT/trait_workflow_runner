@@ -68,9 +68,24 @@ public class RandomLinesExample extends BaseExample {
     private static final String LINE_COUNT_PARAMETER_NAME = "num_lines";
 
     /**
+     * The initial line count the input file is limited to.
+     */
+    private int initialLineCount = INITIAL_LINE_COUNT;
+
+    /**
      * The definitive line count the input file is limited to.
      */
-    private int definitiveLineCount;
+    private int definitiveLineCount = DEFINITIVE_LINE_COUNT;
+
+    /**
+     * The workflow type to use.
+     */
+    private WorkflowType workflowType = WorkflowType.GALAXY;
+
+    /**
+     * The output lines if the workflow output is correct or else null.
+     */
+    private List<String> outputLines;
 
     /**
      * Construct the random lines example.
@@ -78,7 +93,7 @@ public class RandomLinesExample extends BaseExample {
      * @param workflowFactory the workflow factory to use.
      */
     @Inject
-    protected RandomLinesExample(final WorkflowFactory workflowFactory) {
+    public RandomLinesExample(final WorkflowFactory workflowFactory) {
         super(workflowFactory);
     }
 
@@ -90,29 +105,38 @@ public class RandomLinesExample extends BaseExample {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         // Create a Guice injector and use it to build the RandomLinesExample object.
-        final RandomLinesExample example = Guice.createInjector(new DefaultGuiceModule()).getInstance(RandomLinesExample.class);
-
-        example.runExample(WorkflowType.GALAXY, INITIAL_LINE_COUNT, DEFINITIVE_LINE_COUNT);
+        Guice.createInjector(new DefaultGuiceModule()).getInstance(RandomLinesExample.class)
+                .runExample(Constants.CENTRAL_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
     /**
-     * Run this example workflow: randomly select a number of lines from an input file twice.
+     * Set the initial and definitive line count.
      *
-     * @param workflowType the workflow (engine) type to use.
-     * @param initialLineCount the initial line count the input file is limited to.
+     * @param initialLineCount    the initial line count the input file is limited to.
      * @param definitiveLineCount the definitive line count the input file is limited to.
-     * @return the output lines if the workflow ran successfully or else null.
      */
-    public List<String> runExample(final WorkflowType workflowType, final int initialLineCount,
-                                   final int definitiveLineCount) {
-        List<String> outputLines = null;
+    public void setLineCounts(final int initialLineCount, final int definitiveLineCount) {
+        this.initialLineCount = initialLineCount;
+        this.definitiveLineCount = definitiveLineCount;
+    }
+
+    /**
+     * Set the workflow type to use.
+     *
+     * @param workflowType the workflow type to use.
+     */
+    public void setWorkflowType(final WorkflowType workflowType) {
+        this.workflowType = workflowType;
+    }
+
+    @Override
+    public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "RandomLinesExample.runExample");
 
-        this.definitiveLineCount = definitiveLineCount;
         // Note: the configuration will be ignored if the demonstration workflow type is used (depends on parameter).
-        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(true);
-        configuration.buildConfiguration(Constants.CENTRAL_GALAXY_URL, null, HISTORY_NAME);
+        final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(httpLogging);
+        configuration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
         final Workflow workflow = workflowFactory.getWorkflow(workflowType, configuration,
                                                               Constants.WORKFLOW_RANDOM_LINES_TWICE);
 
@@ -133,7 +157,8 @@ public class RandomLinesExample extends BaseExample {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
         finishExample(logger);
-        return result ? outputLines : null;
+
+        return result;
     }
 
     /**
@@ -164,5 +189,14 @@ public class RandomLinesExample extends BaseExample {
         } else
             logger.error("There is no output parameter {} of type file.", OUTPUT_NAME);
         return result;
+    }
+
+    /**
+     * Return the output lines of the workflow.
+     *
+     * @return the output lines if the workflow output is correct or else null.
+     */
+    public List<String> getOutputLines() {
+        return outputLines;
     }
 }

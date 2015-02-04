@@ -43,7 +43,13 @@ public class RemoveTopAndLeftExample extends BaseExample {
     protected RemoveTopAndLeftExample(final WorkflowEngineFactory workflowEngineFactory) {
         super(workflowEngineFactory);
     }
-//
+
+    @Override
+    public boolean runExample(String galaxyInstanceUrl) {
+        return false;
+    }
+
+    //
 //    /**
 //     * Main method.
 //     *
