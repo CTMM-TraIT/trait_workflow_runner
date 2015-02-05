@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 /**
  * This class checks all of (working) examples on a number of servers and reports the results.
  *
+ * You can run all examples using the following Maven command:
+ * mvn compile exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.AllExamplesCheck"
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class AllExamplesCheck {

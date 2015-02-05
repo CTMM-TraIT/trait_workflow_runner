@@ -8,6 +8,7 @@ package nl.vumc.biomedbridges.examples;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -36,9 +37,14 @@ public class ConcatenateExample extends AbstractBaseExample {
     protected static final String HISTORY_NAME = "Concatenate History";
 
     /**
-     * The name of the output dataset.
+     * The name of the output dataset (alternative A).
      */
-    protected static final String OUTPUT_NAME = "Concatenate datasets on data 1 and data 2";
+    protected static final String OUTPUT_NAME_12 = "Concatenate datasets on data 1 and data 2";
+
+    /**
+     * The name of the output dataset (alternative B).
+     */
+    private static final String OUTPUT_NAME_21 = "Concatenate datasets on data 2 and data 1";
 
     /**
      * Line for test file 1.
@@ -102,7 +108,8 @@ public class ConcatenateExample extends AbstractBaseExample {
             result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowSingleOutput(workflow, OUTPUT_NAME, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));
+            final String outputName = workflow.getOutput(OUTPUT_NAME_12) instanceof File ? OUTPUT_NAME_12 : OUTPUT_NAME_21;
+            result &= checkWorkflowSingleOutput(workflow, outputName, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }

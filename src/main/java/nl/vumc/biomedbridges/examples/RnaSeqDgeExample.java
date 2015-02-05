@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * The tool for this workflow can be found in this tool shed:
  * https://testtoolshed.g2.bx.psu.edu/view/yhoogstrate/edger_with_design_matrix
  *
- * You can run this example using the Maven command:
+ * You can run this example using the following Maven command:
  * mvn compile exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.RnaSeqDgeExample"
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
