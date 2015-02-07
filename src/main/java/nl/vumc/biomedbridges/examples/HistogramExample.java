@@ -84,7 +84,7 @@ public class HistogramExample extends AbstractBaseExample {
         final int stepNumber = 2;
         final int barCount = 6;
         workflow.setParameter(stepNumber, "title", "A histogram example");
-        workflow.setParameter(stepNumber, "numerical_column", 1);
+        workflow.setParameter(stepNumber, "numerical_column", 2);
         workflow.setParameter(stepNumber, "breaks", barCount);
         workflow.setParameter(stepNumber, "xlab", "Number");
         workflow.setParameter(stepNumber, "density", true);

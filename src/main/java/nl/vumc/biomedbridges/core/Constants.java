@@ -57,6 +57,15 @@ public class Constants {
 //    public static final String SURF_SARA_GALAXY_INSTANCE_URL = "http://galaxy.trait-ctmm.cloudlet.sara.nl/";
 
     /**
+     * The local Galaxy server (instance URL).
+     *
+     * Note: the API key is read from the .blend.properties file to keep the API key out of the GitHub repository. See
+     * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
+     * Galaxy server and the API key together to keep them in sync.
+     */
+    public static final String LOCAL_HOST_GALAXY_INSTANCE_URL = "http://localhost:8080/";
+
+    /**
      * The name of the concatenate test workflow.
      */
     public static final String CONCATENATE_WORKFLOW = "TestWorkflowConcatenate";

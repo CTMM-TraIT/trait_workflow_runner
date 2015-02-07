@@ -43,15 +43,14 @@ public class LineCountExample extends AbstractBaseExample {
     protected static final String OUTPUT_NAME = "Line/Word/Character count on data 1";
 
     /**
-     * Expected lines for the output file.
-     */
-    private static final List<String> EXPECTED_OUTPUT_LINES = Arrays.asList("#lines\twords\tcharacters",
-                                                                            "13052\t107533\t594916");
-
-    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
+
+    /**
+     * todo: on some Galaxy servers, the character count is slightly different; for the moment, this flag tries to fix it.
+     */
+    private boolean fixExpectedOutput;
 
     /**
      * Construct the line count example.
@@ -76,6 +75,15 @@ public class LineCountExample extends AbstractBaseExample {
     }
     // CHECKSTYLE_ON: UncommentedMain
 
+    /**
+     * Set the fix flag for the expected output.
+     *
+     * @param fixExpectedOutput the fix flag for the expected output.
+     */
+    public void setFixExpectedOutput(final boolean fixExpectedOutput) {
+        this.fixExpectedOutput = fixExpectedOutput;
+    }
+
     @Override
     public boolean runExample(final String galaxyInstanceUrl) {
         initializeExample(logger, "LineCountExample.runExample");
@@ -96,12 +104,21 @@ public class LineCountExample extends AbstractBaseExample {
             result = workflow.run();
             if (!result)
                 logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowSingleOutput(workflow, OUTPUT_NAME, EXPECTED_OUTPUT_LINES);
+            result &= checkWorkflowSingleOutput(workflow, OUTPUT_NAME, getExpectedLines());
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
         finishExample(logger);
         return result;
+    }
+
+    /**
+     * Get the expected output lines.
+     *
+     * @return the expected output lines.
+     */
+    private List<String> getExpectedLines() {
+        return Arrays.asList("#lines\twords\tcharacters", "13052\t107533\t5949" + (fixExpectedOutput ? "16" : "33"));
     }
 }

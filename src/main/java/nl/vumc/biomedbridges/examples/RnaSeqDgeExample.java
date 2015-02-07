@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
 import nl.vumc.biomedbridges.core.Workflow;
+import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
@@ -64,13 +65,14 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
     private static final String HISTORY_NAME = Constants.WORKFLOW_RNA_SEQ_DGE + " History";
 
     /**
-     * Construct the [...] example.
+     * Construct the RNA-Seq example.
      *
-     * @param workflowFactory the workflow factory to use.
+     * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory       the workflow factory to use.
      */
     @Inject
-    protected RnaSeqDgeExample(final WorkflowFactory workflowFactory) {
-        super(workflowFactory);
+    public RnaSeqDgeExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
+        super(workflowEngineFactory, workflowFactory);
     }
 
     /**

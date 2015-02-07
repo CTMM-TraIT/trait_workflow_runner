@@ -5,6 +5,9 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyResponseException;
+import com.google.common.collect.ImmutableMap;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -62,11 +65,6 @@ public class AllExamplesCheck {
     private void checkAllExamples() {
         LogManager.getRootLogger().getAppender("console-appender").addFilter(createAppenderFilter());
 
-        final List<Class<? extends AbstractBaseExample>> exampleClasses = Arrays.asList(
-                ConcatenateExample.class, GrepExample.class, HistogramExample.class, LineCountExample.class
-                //, RandomLinesExample.class, RemoveTopAndLeftExample.class, RnaSeqDgeExample.class
-        );
-
 //      todo: self signed certificate for Vancis servers? Error when trying to use the Galaxy API:
 //      - PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid
 //        certification path to requested target
@@ -75,16 +73,34 @@ public class AllExamplesCheck {
 //        the list of trusted certificates of your JVM."
 
         final List<String> serverUrls = Arrays.asList(
-//                Constants.CENTRAL_GALAXY_URL,
-//                Constants.VANCIS_PRO_GALAXY_URL, Constants.VANCIS_ACC_GALAXY_URL,
-                Constants.THE_HYVE_GALAXY_URL
+//            Constants.CENTRAL_GALAXY_URL,
+//            Constants.VANCIS_PRO_GALAXY_URL, Constants.VANCIS_ACC_GALAXY_URL,
+            Constants.THE_HYVE_GALAXY_URL
+//            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
         );
+
+        final List<Class<? extends AbstractBaseExample>> exampleClasses = Arrays.asList(
+            ConcatenateExample.class,
+//            GrepExample.class, HistogramExample.class, LineCountExample.class,
+//            RandomLinesExample.class,
+//            RemoveTopAndLeftExample.class,
+            RnaSeqDgeExample.class
+        ).subList(1, 2);
+
+        final ImmutableMap<String, List<Class<? extends AbstractBaseExample>>> skipExamples =
+            ImmutableMap.of(
+                // todo: the histogram tool does not work as expected on the central Galaxy server.
+                Constants.CENTRAL_GALAXY_URL, Arrays.asList(HistogramExample.class, AbstractBaseExample.class),
+                // The histogram tool is not available on the Galaxy server at The Hyve.
+                Constants.THE_HYVE_GALAXY_URL, Arrays.asList(HistogramExample.class, AbstractBaseExample.class),
+                Constants.LOCAL_HOST_GALAXY_INSTANCE_URL, Arrays.asList(HistogramExample.class, AbstractBaseExample.class)
+            );
 
         for (final String serverUrl : serverUrls) {
             final boolean hopefullyOnline = getGalaxyServerOnline(serverUrl) || serverUrl.contains(".ctmm-trait.nl/");
             logger.warn("Galaxy server " + serverUrl + " is {}.", hopefullyOnline ? "hopefully online" : "not available");
             if (hopefullyOnline)
-                runExamplesOnServer(serverUrl, exampleClasses);
+                runExamplesOnServer(serverUrl, exampleClasses, skipExamples);
             logger.warn("");
             logger.warn("");
         }
@@ -134,25 +150,59 @@ public class AllExamplesCheck {
      *
      * @param serverUrl      the URL of the Galaxy server.
      * @param exampleClasses the example classes to run.
+     * @param skipExamples   the examples to skip for specific servers.
      */
     private void runExamplesOnServer(final String serverUrl,
-                                     final List<Class<? extends AbstractBaseExample>> exampleClasses) {
+                                     final List<Class<? extends AbstractBaseExample>> exampleClasses,
+                                     final ImmutableMap<String, List<Class<? extends AbstractBaseExample>>> skipExamples) {
         logger.warn("Running examples:");
+        int successCount = 0;
+        int skipCount = 0;
         for (final Class<? extends AbstractBaseExample> exampleClass : exampleClasses) {
-            final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
-            final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
-            try {
-                logger.warn("- The example {} is running...", exampleClass.getName());
-                final AbstractBaseExample example = exampleClass
-                        .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
-                        .newInstance(workflowEngineFactory, workflowFactory);
-                example.setHttpLogging(false);
-                final boolean result = example.runExample(serverUrl);
-                logger.warn("- The example {} ran " + (result ? "" : "un") + "successfully.", exampleClass.getName());
-                logger.warn("");
-            } catch (final ReflectiveOperationException e) {
-                e.printStackTrace();
+            if (!skipExamples.containsKey(serverUrl) || !skipExamples.get(serverUrl).contains(exampleClass))
+                successCount += runExampleOnServer(serverUrl, exampleClass);
+            else {
+                logger.warn("- The example {} is skipped for server {}.", exampleClass.getName(), serverUrl);
+                skipCount++;
             }
         }
+        logger.warn("");
+        logger.warn("Success: {}/{}.", successCount, exampleClasses.size() - skipCount);
+        logger.warn("");
+        logger.warn("");
+    }
+
+    /**
+     * Run an example on a specific Galaxy server.
+     *
+     * @param serverUrl    the URL of the Galaxy server.
+     * @param exampleClass the example class to run.
+     * @return 1 if the example ran successfully or 0 otherwise.
+     */
+    private int runExampleOnServer(final String serverUrl, final Class<? extends AbstractBaseExample> exampleClass) {
+        int resultCode = 0;
+        final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
+        final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
+
+        try {
+            logger.warn("");
+            logger.warn("- The example {} is running...", exampleClass.getName());
+            final AbstractBaseExample example = exampleClass
+                    .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
+                    .newInstance(workflowEngineFactory, workflowFactory);
+            example.setHttpLogging(true);
+            if (Constants.THE_HYVE_GALAXY_URL.equals(serverUrl) && exampleClass == LineCountExample.class)
+                ((LineCountExample) example).setFixExpectedOutput(true);
+            try {
+                resultCode = example.runExample(serverUrl) ? 1 : 0;
+            } catch (final GalaxyResponseException e) {
+                logger.error("Galaxy response exception while running an example.", e);
+            }
+            logger.warn("- The example {} ran " + (resultCode == 1 ? "" : "un") + "successfully.", exampleClass.getName());
+        } catch (final ReflectiveOperationException e) {
+            logger.error("Exception while running an example.", e);
+        }
+
+        return resultCode;
     }
 }

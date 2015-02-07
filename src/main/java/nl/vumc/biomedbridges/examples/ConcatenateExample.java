@@ -44,7 +44,7 @@ public class ConcatenateExample extends AbstractBaseExample {
     /**
      * The name of the output dataset (alternative B).
      */
-    private static final String OUTPUT_NAME_21 = "Concatenate datasets on data 2 and data 1";
+    protected static final String OUTPUT_NAME_21 = "Concatenate datasets on data 2 and data 1";
 
     /**
      * Line for test file 1.
