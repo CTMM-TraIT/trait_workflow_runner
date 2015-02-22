@@ -110,7 +110,8 @@ public class RandomLinesGuiExampleTest {
 
             final StyledDocument document = textPane.getStyledDocument();
             final String results = document.getText(0, document.getLength());
-            assertTrue("Results " + results.replaceAll("\n", "|") + " should match the pattern.",
+            assertTrue("Results " + results.replaceAll("\n", "|") + " should match the pattern " +
+                       expectedRegularExpression + ".",
                        Pattern.compile(expectedRegularExpression).matcher(results).matches());
         }
     }

@@ -104,7 +104,14 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
         workflow.setParameter(stepNumberEdgeRDGE, "fdr", fdr);
-        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
+        // todo: the Vancis production server seems to have a problem converting pdf files to png. Is GraphicsMagick installed?
+        // Converting PDF figures to PNG
+        // /opt/tmp/331/command.sh: line 35: gm: command not found
+        // mv: cannot stat ‘/opt/tmp/331/outputs/dataset_380.dat.png’: No such file or directory
+        // /opt/tmp/331/command.sh: line 35: gm: command not found
+        // mv: cannot stat ‘/opt/tmp/
+//        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
+        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "pdf");
         final String selectedOutputs = "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", "
                                        + "\"make_output_heatmap_plot\"]";
         workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
