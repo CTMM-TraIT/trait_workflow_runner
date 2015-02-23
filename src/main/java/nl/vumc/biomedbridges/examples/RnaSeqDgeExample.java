@@ -83,7 +83,8 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         Guice.createInjector(new DefaultGuiceModule()).getInstance(RnaSeqDgeExample.class)
-                .runExample(Constants.THE_HYVE_GALAXY_URL);
+                .runExample(Constants.VANCIS_PRO_GALAXY_URL);
+//                .runExample(Constants.THE_HYVE_GALAXY_URL);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -112,8 +113,9 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
         // mv: cannot stat ‘/opt/tmp/
 //        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
         workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "pdf");
-        final String selectedOutputs = "[\"make_output_MDSplot\", \"make_output_PValue_distribution_plot\", "
-                                       + "\"make_output_heatmap_plot\"]";
+        final String selectedOutputs = "[\"make_output_MDSplot\"," +
+                                       " \"make_output_PValue_distribution_plot\"," +
+                                       " \"make_output_heatmap_plot\"]";
         workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
 
         boolean result = false;

@@ -54,9 +54,9 @@ public class AllExamplesCheck {
      * The list of all Galaxy servers to check.
      */
     private static final List<String> ALL_GALAXY_SERVER_URLS = Arrays.asList(
-            Constants.CENTRAL_GALAXY_URL,
-            Constants.VANCIS_PRO_GALAXY_URL,
-            Constants.VANCIS_ACC_GALAXY_URL,
+//            Constants.CENTRAL_GALAXY_URL,
+//            Constants.VANCIS_PRO_GALAXY_URL
+//            Constants.VANCIS_ACC_GALAXY_URL,
             Constants.THE_HYVE_GALAXY_URL
 //            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
     );
@@ -66,13 +66,13 @@ public class AllExamplesCheck {
      */
     private static final List<Class<? extends AbstractBaseExample>> ALL_EXAMPLE_CLASSES = Arrays.asList(
             ConcatenateExample.class,
-            GrepExample.class,
-            HistogramExample.class,
-            LineCountExample.class,
-//            RandomLinesExample.class,
-//            RemoveTopAndLeftExample.class,
+//            GrepExample.class,
+//            HistogramExample.class,
+//            LineCountExample.class,
+////            RandomLinesExample.class,
+////            RemoveTopAndLeftExample.class,
             RnaSeqDgeExample.class
-    );
+    ).subList(1, 2);
 
     /**
      * These example classes will be skipped on all Vancis servers, because the required tools are not available.
@@ -91,7 +91,7 @@ public class AllExamplesCheck {
             // todo: the histogram tool does not work as expected on the central Galaxy server.
             Constants.CENTRAL_GALAXY_URL, Arrays.asList(HistogramExample.class, RnaSeqDgeExample.class),
             // The histogram tool is not available on the Galaxy server at The Hyve. Why is RNA-Seq failing?
-            Constants.THE_HYVE_GALAXY_URL, Arrays.asList(HistogramExample.class, RnaSeqDgeExample.class),
+            Constants.THE_HYVE_GALAXY_URL, Arrays.asList(HistogramExample.class, RemoveTopAndLeftExample.class /*RnaSeqDgeExample.class*/),
             Constants.LOCAL_HOST_GALAXY_INSTANCE_URL, Arrays.asList(HistogramExample.class, AbstractBaseExample.class)
     );
 
@@ -128,7 +128,8 @@ public class AllExamplesCheck {
      * each server.
      */
     protected String checkAllExamples(final List<String> galaxyServerUrls) {
-        String report = "";
+        final long startTime = System.currentTimeMillis();
+        final StringBuilder report = new StringBuilder();
 
         final Appender consoleAppender = LogManager.getRootLogger().getAppender("console-appender");
         if (consoleAppender != null)
@@ -136,20 +137,23 @@ public class AllExamplesCheck {
 
         final List<String> summary = new ArrayList<>();
         for (final String serverUrl : galaxyServerUrls) {
-            final boolean hopefullyOnline = getGalaxyServerOnline(serverUrl) || serverUrl.contains(".ctmm-trait.nl/");
-            logger.warn("Galaxy server " + serverUrl + " is {}.", hopefullyOnline ? "hopefully online" : "not available");
-            if (hopefullyOnline) {
+            final boolean serverOnline = getGalaxyServerOnline(serverUrl);
+            logger.warn("Galaxy server " + serverUrl + " is {}.", serverOnline ? "online" : "not available");
+            if (serverOnline) {
                 final String serverReport = runExamplesOnServer(serverUrl, ALL_EXAMPLE_CLASSES, SKIP_EXAMPLES);
                 summary.add(serverReport);
-                report += (report.length() == 0 ? "" : "; ") + serverReport;
+                report.append(report.length() == 0 ? "" : "; ");
+                report.append(serverReport);
             }
             logger.warn("");
             logger.warn("");
         }
 
         printSummary(summary);
+        logger.warn("");
+        logger.warn("Checking all examples took {} seconds.", (System.currentTimeMillis() - startTime) / 1000);
 
-        return report;
+        return report.toString();
     }
 
     /**
@@ -213,7 +217,7 @@ public class AllExamplesCheck {
                 else
                     failures.add(exampleClass.getSimpleName());
             } else {
-                logger.warn("- The example {} is skipped for server {}.", exampleClass.getName(), serverUrl);
+                logger.warn("- The example {} is skipped for server {}.", exampleClass.getSimpleName(), serverUrl);
                 skipCount++;
             }
         }
@@ -240,7 +244,7 @@ public class AllExamplesCheck {
 
         try {
             logger.warn("");
-            logger.warn("- The example {} is running...", exampleClass.getName());
+            logger.warn("- The example {} is running...", exampleClass.getSimpleName());
             final AbstractBaseExample example = exampleClass
                     .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
                     .newInstance(workflowEngineFactory, workflowFactory);
@@ -252,7 +256,7 @@ public class AllExamplesCheck {
             } catch (final GalaxyResponseException e) {
                 logger.error("Galaxy response exception while running an example.", e);
             }
-            logger.warn("- The example {} ran " + (result ? "" : "un") + "successfully.", exampleClass.getName());
+            logger.warn("- The example {} ran " + (result ? "" : "un") + "successfully.", exampleClass.getSimpleName());
         } catch (final ReflectiveOperationException e) {
             logger.error("Exception while running an example.", e);
         }
