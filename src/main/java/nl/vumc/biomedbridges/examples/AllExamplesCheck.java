@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
@@ -151,7 +152,8 @@ public class AllExamplesCheck {
 
         printSummary(summary);
         logger.warn("");
-        logger.warn("Checking all examples took {} seconds.", (System.currentTimeMillis() - startTime) / 1000);
+        final long durationSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
+        logger.warn("Checking all examples took {} seconds.", durationSeconds);
 
         return report.toString();
     }

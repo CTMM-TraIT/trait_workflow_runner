@@ -113,9 +113,9 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
         // mv: cannot stat ‘/opt/tmp/
 //        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
         workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "pdf");
-        final String selectedOutputs = "[\"make_output_MDSplot\"," +
-                                       " \"make_output_PValue_distribution_plot\"," +
-                                       " \"make_output_heatmap_plot\"]";
+        final String selectedOutputs = "[\"make_output_MDSplot\", "
+                                       + "\"make_output_PValue_distribution_plot\", "
+                                       + "\"make_output_heatmap_plot\"]";
         workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
 
         boolean result = false;
