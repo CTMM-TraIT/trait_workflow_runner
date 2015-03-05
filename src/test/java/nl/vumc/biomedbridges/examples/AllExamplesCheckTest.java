@@ -8,6 +8,7 @@ package nl.vumc.biomedbridges.examples;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -30,12 +31,15 @@ public class AllExamplesCheckTest {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String report = allExamplesCheck.checkAllExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS);
         boolean allOk = true;
-        for (final String serverReport : report.split(";")) {
+        for (final String serverReport : report.split("|")) {
             final String serverReportTrimmed = serverReport.trim();
             System.out.println("Server report: " + serverReportTrimmed);
             final int beginIndexSuccessRate = serverReportTrimmed.indexOf(' ') + 1;
             final int indexSeparator = serverReportTrimmed.indexOf('/', beginIndexSuccessRate);
             final int endIndexSuccessRate = serverReportTrimmed.indexOf(' ', indexSeparator);
+            assertNotEquals(-1, beginIndexSuccessRate);
+            assertNotEquals(-1, indexSeparator);
+            assertNotEquals(-1, endIndexSuccessRate);
             final String successfulExampleCount = serverReportTrimmed.substring(beginIndexSuccessRate, indexSeparator);
             final String attemptCount = serverReportTrimmed.substring(indexSeparator + 1, endIndexSuccessRate);
             allOk &= successfulExampleCount.equals(attemptCount);

@@ -28,8 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,6 @@ import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
@@ -155,9 +154,9 @@ public class GalaxyWorkflowEngineTest {
         final Object dummyInputFile = new File(GALAXY_DIRECTORY + "TestWorkflow.ga");
         final Collection<Object> inputValues = ImmutableList.of(dummyInputFile, dummyInputFile);
         final Map<String, List<String>> stateIds = new HashMap<>();
-        stateIds.put("running", historyReady ? new ArrayList<String>() : Arrays.asList("some-dataset-id"));
-        stateIds.put("queued", new ArrayList<String>());
-        stateIds.put("ok", new ArrayList<String>());
+        stateIds.put("running", historyReady ? new ArrayList<>() : Collections.singletonList("some-dataset-id"));
+        stateIds.put("queued", new ArrayList<>());
+        stateIds.put("ok", new ArrayList<>());
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow
                 = new com.github.jmchilton.blend4j.galaxy.beans.Workflow();
         blend4jWorkflow.setName(workflowName);
@@ -221,26 +220,23 @@ public class GalaxyWorkflowEngineTest {
         if (automaticDownload) {
             Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId1)))
                     .thenReturn(datasetMock1);
-            Mockito.when(datasetMock1.getDataType()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TABULAR);
+            Mockito.when(datasetMock1.getDataTypeExt()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TABULAR);
             Mockito.when(historiesClientMock.showDataset(Mockito.eq(historyId), Mockito.eq(outputId2)))
                     .thenReturn(datasetMock2);
-            Mockito.when(datasetMock2.getDataType()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TEXT);
+            Mockito.when(datasetMock2.getDataTypeExt()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TEXT);
         }
 
-        final Answer<Boolean> downloadDatasetAnswer = new Answer<Boolean>() {
-            @Override
-            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final int datasetIdArgumentIndex = 3;
-                final File outputFile = new File(GalaxyWorkflowEngine.OUTPUT_FILE_PATH);
-                if (outputId2.equals(invocationOnMock.getArguments()[datasetIdArgumentIndex])) {
-                    if (outputFile.exists())
-                        assertTrue(outputFile.delete());
-                } else {
-                    if (!outputFile.exists())
-                        FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
-                }
-                return true;
+        final Answer<Boolean> downloadDatasetAnswer = invocationOnMock -> {
+            final int datasetIdArgumentIndex = 3;
+            final File outputFile = new File(GalaxyWorkflowEngine.OUTPUT_FILE_PATH);
+            if (outputId2.equals(invocationOnMock.getArguments()[datasetIdArgumentIndex])) {
+                if (outputFile.exists())
+                    assertTrue(outputFile.delete());
+            } else {
+                if (!outputFile.exists())
+                    FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
             }
+            return true;
         };
         Mockito.when(historyUtilsMock.downloadDataset(Mockito.eq(galaxyInstanceMock), Mockito.eq(historiesClientMock),
                                                       Mockito.eq(historyId), Mockito.anyString(),
@@ -322,7 +318,8 @@ public class GalaxyWorkflowEngineTest {
                                                                                    historyUtilsMock);
         final Workflow workflow = galaxyWorkflowEngine.getWorkflow("workflow-name");
 
-        assertFalse(galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
+        assertFalse("Downloading an output file with invalid input should fail.",
+                    galaxyWorkflowEngine.downloadOutputFile(workflow, outputId));
     }
 
     /**

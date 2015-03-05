@@ -36,19 +36,19 @@
         <slf4j.version>1.7.7</slf4j.version>
 
         <!-- Source and output properties. -->
-        <java-version>1.7</java-version>
+        <java-version>1.8</java-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Plugin versions. -->
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
-        <findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
+        <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
         <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.12.1</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-        <maven-jxr-plugin.version>2.4</maven-jxr-plugin.version>
-        <maven-pmd-plugin.version>3.0</maven-pmd-plugin.version>
+        <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
+        <maven-pmd-plugin.version>3.4</maven-pmd-plugin.version>
         <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
 
@@ -152,11 +152,12 @@
 
         <plugins>
 
-            <!-- Specify Java 7 for sources and targets (.class files). -->
+            <!-- Specify Java 8 for sources and targets (.class files). -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <source>${java-version}</source>
                     <target>${java-version}</target>
                 </configuration>

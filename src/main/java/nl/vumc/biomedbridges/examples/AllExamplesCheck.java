@@ -58,9 +58,9 @@ public class AllExamplesCheck {
 //            Constants.CENTRAL_GALAXY_URL,
 //            Constants.VANCIS_PRO_GALAXY_URL
 //            Constants.VANCIS_ACC_GALAXY_URL,
-            Constants.THE_HYVE_GALAXY_URL
-//            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
-    );
+            Constants.THE_HYVE_GALAXY_URL,
+            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
+    ).subList(0, 1);
 
     /**
      * The list of all example classes to check.
@@ -143,7 +143,7 @@ public class AllExamplesCheck {
             if (serverOnline) {
                 final String serverReport = runExamplesOnServer(serverUrl, ALL_EXAMPLE_CLASSES, SKIP_EXAMPLES);
                 summary.add(serverReport);
-                report.append(report.length() == 0 ? "" : "; ");
+                report.append(report.length() == 0 ? "" : " | ");
                 report.append(serverReport);
             }
             logger.warn("");
@@ -209,13 +209,13 @@ public class AllExamplesCheck {
                                        final List<Class<? extends AbstractBaseExample>> exampleClasses,
                                        final ImmutableMap<String, List<Class<? extends AbstractBaseExample>>> skipExamples) {
         logger.warn("Running examples:");
-        int successCount = 0;
         int skipCount = 0;
+        final List<String> successes = new ArrayList<>();
         final List<String> failures = new ArrayList<>();
         for (final Class<? extends AbstractBaseExample> exampleClass : exampleClasses) {
             if (!skipExamples.containsKey(serverUrl) || !skipExamples.get(serverUrl).contains(exampleClass)) {
                 if (runExampleOnServer(serverUrl, exampleClass))
-                    successCount++;
+                    successes.add(exampleClass.getSimpleName());
                 else
                     failures.add(exampleClass.getSimpleName());
             } else {
@@ -224,12 +224,12 @@ public class AllExamplesCheck {
             }
         }
         logger.warn("");
-        final String successRate = String.format("%d/%d", successCount, exampleClasses.size() - skipCount);
+        final String successRate = String.format("%d/%d", successes.size(), exampleClasses.size() - skipCount);
         logger.warn("Success rate: {}.", successRate);
         logger.warn("");
         logger.warn("");
 
-        return serverUrl + ": " + successRate + " [" + Joiner.on(", ").join(failures) + "]";
+        return createServerReport(serverUrl, successes, failures, successRate);
     }
 
     /**
@@ -264,6 +264,28 @@ public class AllExamplesCheck {
         }
 
         return result;
+    }
+
+    /**
+     * Create the report of the examples that have run on a specific server.
+     *
+     * @param serverUrl   the URL of the server.
+     * @param successes   the list of examples that ran successfully (class names).
+     * @param failures    the list of examples that failed (class names).
+     * @param successRate the success rate (success count versus not skipped example count).
+     * @return the server report.
+     */
+    private String createServerReport(final String serverUrl, final List<String> successes, final List<String> failures,
+                                      final String successRate) {
+        final String exampleSeparator = ", ";
+        final boolean successesAndFailures = successes.size() > 0 && failures.size() > 0;
+
+        return serverUrl + ": " + successRate
+               + " ["
+               + (successes.size() > 0 ? ("successes: " + Joiner.on(exampleSeparator).join(successes)) : "")
+               + (successesAndFailures ? "; " : "")
+               + (failures.size() > 0 ? ("failures: " + Joiner.on(exampleSeparator).join(failures)) : "")
+               + "]";
     }
 
     /**

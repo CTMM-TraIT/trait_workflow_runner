@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
@@ -60,7 +60,7 @@ public class GalaxyWorkflowTest {
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflowMock
             = Mockito.mock(com.github.jmchilton.blend4j.galaxy.beans.Workflow.class);
-        Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(Arrays.asList(blend4jWorkflowMock));
+        Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(Collections.singletonList(blend4jWorkflowMock));
         Mockito.when(blend4jWorkflowMock.getName()).thenReturn(Constants.CONCATENATE_WORKFLOW);
         assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
     }
@@ -69,6 +69,7 @@ public class GalaxyWorkflowTest {
      * Test the ensureWorkflowIsOnServer method when the workflow is not on the Galaxy server and is imported.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testEnsureWorkflowIsOnServerWithImport() {
         final GalaxyWorkflow concatenateWorkflow = new GalaxyWorkflow(Constants.CONCATENATE_WORKFLOW, null, new JSONParser());
         final WorkflowsClient workflowsClientMock = Mockito.mock(WorkflowsClient.class);
@@ -79,7 +80,6 @@ public class GalaxyWorkflowTest {
         final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList1 = new ArrayList<>();
         final List<com.github.jmchilton.blend4j.galaxy.beans.Workflow> workflowList2
             = Arrays.asList(blend4jWorkflowMock1, blend4jWorkflowMock2);
-        //noinspection unchecked
         Mockito.when(workflowsClientMock.getWorkflows()).thenReturn(workflowList1, workflowList2);
         assertTrue(concatenateWorkflow.ensureWorkflowIsOnServer(workflowsClientMock));
     }
@@ -129,12 +129,9 @@ public class GalaxyWorkflowTest {
         // Test whether downloading is handled correctly.
         workflow.setAutomaticDownload(false);
         Mockito.when(workflowEngineMock.getOutputIdForOutputName(Mockito.eq(outputName))).thenReturn(outputId);
-        final Answer<Boolean> downloadOutputFileAnswer = new Answer<Boolean>() {
-            @Override
-            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                workflow.addOutput(outputName, outputFile);
-                return true;
-            }
+        final Answer<Boolean> downloadOutputFileAnswer = invocationOnMock -> {
+            workflow.addOutput(outputName, outputFile);
+            return true;
         };
         Mockito.when(workflowEngineMock.downloadOutputFile(Mockito.eq(workflow), Mockito.eq(outputId)))
             .thenAnswer(downloadOutputFileAnswer);
