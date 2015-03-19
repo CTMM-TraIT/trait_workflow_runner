@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
  * This class contains a simple example of the workflow running functionality: the concatenate workflow combines two
  * input files into one output file.
  *
+ * todo: during the TraIT foundation team face2face meeting on March 13th, David made the good suggestion to look at
+ *       automatic cleanup of old histories with the datasets in them.
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class ConcatenateExample extends AbstractBaseExample {
