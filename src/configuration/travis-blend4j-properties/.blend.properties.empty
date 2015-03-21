@@ -1,0 +1,2 @@
+# On the Travis CI server, this directory contains a .blend.properties file with the Galaxy instance URLs and the 
+# corresponding API keys that are used for testing.

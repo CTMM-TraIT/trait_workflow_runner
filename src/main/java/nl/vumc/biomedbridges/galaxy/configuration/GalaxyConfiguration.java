@@ -32,6 +32,16 @@ import org.slf4j.LoggerFactory;
  */
 public class GalaxyConfiguration {
     /**
+     * The system environment variable that can be set to specify the path where the blend4j properties file is.
+     */
+    public static final String BLEND_PROPERTIES_DIRECTORY = "BLEND_PROPERTIES_DIRECTORY";
+
+    /**
+     * The file name of the blend4j properties file.
+     */
+    public static final String BLEND_PROPERTIES_FILE_NAME = ".blend.properties";
+
+    /**
      * The property key for the Galaxy instance in the configuration string or .blend.properties file.
      */
     public static final String GALAXY_INSTANCE_PROPERTY_KEY = "test.galaxy.instance";
@@ -111,8 +121,10 @@ public class GalaxyConfiguration {
             this.galaxyInstanceUrl = getGalaxyInstanceUrl();
             this.apiKey = getGalaxyApiKey();
             this.historyName = getGalaxyHistoryName();
-        } else
-            this.propertiesFilePath = System.getProperty("user.home") + File.separator + ".blend.properties";
+        } else if (System.getenv(BLEND_PROPERTIES_DIRECTORY) != null)
+            this.propertiesFilePath = System.getenv(BLEND_PROPERTIES_DIRECTORY) + File.separator + BLEND_PROPERTIES_FILE_NAME;
+        else
+            this.propertiesFilePath = System.getProperty("user.home") + File.separator + BLEND_PROPERTIES_FILE_NAME;
     }
 
     /**

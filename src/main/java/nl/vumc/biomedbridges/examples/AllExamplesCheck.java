@@ -55,12 +55,12 @@ public class AllExamplesCheck {
      * The list of all Galaxy servers to check.
      */
     private static final List<String> ALL_GALAXY_SERVER_URLS = Arrays.asList(
-//            Constants.CENTRAL_GALAXY_URL,
+            Constants.CENTRAL_GALAXY_URL,
 //            Constants.VANCIS_PRO_GALAXY_URL
 //            Constants.VANCIS_ACC_GALAXY_URL,
-            Constants.THE_HYVE_GALAXY_URL,
-            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
-    ).subList(0, 1);
+            Constants.THE_HYVE_GALAXY_URL
+//            Constants.LOCAL_HOST_GALAXY_INSTANCE_URL
+    );
 
     /**
      * The list of all example classes to check.
