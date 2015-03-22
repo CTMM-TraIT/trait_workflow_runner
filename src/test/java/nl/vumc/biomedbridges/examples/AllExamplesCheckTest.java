@@ -5,8 +5,16 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Collections;
+
+import nl.vumc.biomedbridges.core.Constants;
+
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -25,7 +33,7 @@ public class AllExamplesCheckTest {
     @Test
     public void testCheckAllExamples() {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
-        final String report = allExamplesCheck.checkAllExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS);
+        final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS, AllExamplesCheck.ALL_EXAMPLE_CLASSES, AllExamplesCheck.SKIP_EXAMPLES);
         boolean allOk = true;
         for (final String serverReport : report.split("\\|")) {
             final String serverReportTrimmed = serverReport.trim();
@@ -41,5 +49,44 @@ public class AllExamplesCheckTest {
             allOk &= successfulExampleCount.equals(attemptCount);
         }
         assertTrue(report, allOk);
+    }
+
+    /**
+     * Test whether an invalid (non existing) server is handled correctly.
+     */
+    @Test
+    public void testInvalidServer() {
+        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
+        final String invalidServer = "http://this-server-does-probably-not-exist.nl/";
+        final String report = allExamplesCheck.checkExamples(Collections.singletonList(invalidServer),
+                                                             AllExamplesCheck.ALL_EXAMPLE_CLASSES,
+                                                             AllExamplesCheck.SKIP_EXAMPLES);
+        assertEquals(invalidServer + ": 0/1 []", report);
+    }
+
+    /**
+     * Test whether a failing example is handled correctly.
+     */
+    @Test
+    public void testFailingExample() {
+        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
+        final String report = allExamplesCheck.checkExamples(Collections.singletonList(Constants.CENTRAL_GALAXY_URL),
+                                                             Collections.singletonList(DummyExample.class),
+                                                             null);
+        assertEquals(Constants.CENTRAL_GALAXY_URL + ": 0/1 [failures: " + DummyExample.class.getSimpleName() + "]",
+                     report);
+    }
+
+    /**
+     * Test whether a skipped example is handled correctly.
+     */
+    @Test
+    public void testSkippedExample() {
+        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
+        final String server = Constants.CENTRAL_GALAXY_URL;
+        final String report = allExamplesCheck.checkExamples(Collections.singletonList(server),
+                                                             Collections.singletonList(DummyExample.class),
+                                                             ImmutableMap.of(server, ImmutableList.of(DummyExample.class)));
+        assertEquals(server + ": 0/0 []", report);
     }
 }
