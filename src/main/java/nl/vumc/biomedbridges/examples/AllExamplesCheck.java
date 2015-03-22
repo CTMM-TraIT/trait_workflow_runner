@@ -73,7 +73,7 @@ public class AllExamplesCheck {
 ////            RandomLinesExample.class,
 ////            RemoveTopAndLeftExample.class,
             RnaSeqDgeExample.class
-    ).subList(1, 2);
+    ).subList(0, 1);
 
     /**
      * These example classes will be skipped on all Vancis servers, because the required tools are not available.

@@ -5,7 +5,6 @@
 
 package nl.vumc.biomedbridges.examples;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotEquals;
@@ -22,24 +21,21 @@ public class AllExamplesCheckTest {
      *
      * Since this test takes several minutes to run, you might want to use @Ignore if you want to do a run of all the
      * fast unit tests.
-     *
-     * todo: check why this test fails on Travis CI.
      */
-    @Ignore
     @Test
     public void testCheckAllExamples() {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String report = allExamplesCheck.checkAllExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS);
         boolean allOk = true;
-        for (final String serverReport : report.split("|")) {
+        for (final String serverReport : report.split("\\|")) {
             final String serverReportTrimmed = serverReport.trim();
             System.out.println("Server report: " + serverReportTrimmed);
             final int beginIndexSuccessRate = serverReportTrimmed.indexOf(' ') + 1;
             final int indexSeparator = serverReportTrimmed.indexOf('/', beginIndexSuccessRate);
             final int endIndexSuccessRate = serverReportTrimmed.indexOf(' ', indexSeparator);
-            assertNotEquals(-1, beginIndexSuccessRate);
-            assertNotEquals(-1, indexSeparator);
-            assertNotEquals(-1, endIndexSuccessRate);
+            assertNotEquals("Begin index space in server report: " + serverReportTrimmed, -1, beginIndexSuccessRate);
+            assertNotEquals("Separator index slash in server report: " + serverReportTrimmed, -1, indexSeparator);
+            assertNotEquals("End index space in server report: " + serverReportTrimmed, -1, endIndexSuccessRate);
             final String successfulExampleCount = serverReportTrimmed.substring(beginIndexSuccessRate, indexSeparator);
             final String attemptCount = serverReportTrimmed.substring(indexSeparator + 1, endIndexSuccessRate);
             allOk &= successfulExampleCount.equals(attemptCount);
