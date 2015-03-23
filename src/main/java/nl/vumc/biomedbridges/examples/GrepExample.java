@@ -5,18 +5,20 @@
 
 package nl.vumc.biomedbridges.examples;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import nl.vumc.biomedbridges.core.Constants;
-import nl.vumc.biomedbridges.core.DefaultWorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.DefaultWorkflowFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
-import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +37,10 @@ public class GrepExample extends AbstractBaseExample {
     /**
      * Construct the grep example.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
-     * @param workflowFactory       the workflow factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
-//    @Inject
-    public GrepExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
-        super(workflowEngineFactory, workflowFactory);
+    public GrepExample(final WorkflowFactory workflowFactory) {
+        super(null, workflowFactory, logger);
     }
 
     /**
@@ -50,35 +50,50 @@ public class GrepExample extends AbstractBaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        new GrepExample(new DefaultWorkflowEngineFactory(), new DefaultWorkflowFactory())
-                .runExample(Constants.THE_HYVE_GALAXY_URL);
+        final File inputFile = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
+        final GrepExample grepExample = new GrepExample(new DefaultWorkflowFactory());
+        grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, "5[0-9]");
     }
     // CHECKSTYLE_ON: UncommentedMain
 
-    @Override
-    public boolean runExample(final String galaxyInstanceUrl) {
-        initializeExample(logger, "GrepExample.runExample");
+    /**
+     * Run this example workflow and return the result.
+     *
+     * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
+     * @param workflowName      the name of the workflow to run.
+     * @param inputFile         the file to search.
+     * @param pattern           the regular expression to search for.
+     * @return whether the workflow ran successfully.
+     */
+    public boolean run(final String galaxyInstanceUrl, final String workflowName, final File inputFile,
+                       final String pattern) {
+        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyInstanceUrl, workflowName);
 
-        final String workflowName = "Grep";
-        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
-        galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, workflowName);
-        final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration, workflowName);
-
-        final String matchingLine = "10\t55";
-        workflow.addInput("input", FileUtils.createTemporaryFile("8\t21", "9\t34", matchingLine, "11\t89", "12\t144"));
-        workflow.setParameter(2, "pattern", "5[0-9]");
-
-        boolean result = false;
         try {
-            result = workflow.run();
-            if (!result)
-                logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowSingleOutput(workflow, "Select on data 1", Arrays.asList(matchingLine));
+            workflow.addInput("input", inputFile);
+            // todo: step number seems to be able to vary from server to server.
+            workflow.setParameter(1, "pattern", pattern);
+
+            workflow.run();
+
+            checkWorkflowSingleOutput(workflow, "matching_lines", internalGrep(inputFile, pattern));
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
-        finishExample(logger);
-        return result;
+        return finishExample(workflow);
+    }
+
+    /**
+     * Simple internal implementation of grep to determine the expected output of the workflow.
+     *
+     * @param inputFile the file to search.
+     * @param pattern   the regular expression to search for.
+     * @return the matching lines.
+     * @throws IOException when reading from the file fails.
+     */
+    protected static List<String> internalGrep(final File inputFile, final String pattern) throws IOException {
+        final Predicate<String> grepPredicate = line -> Pattern.compile(pattern).matcher(line).find();
+        return Files.readAllLines(inputFile.toPath()).stream().filter(grepPredicate).collect(Collectors.toList());
     }
 }

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +112,16 @@ public class FileUtils {
      */
     public static File createTemporaryFile(final String... lines) {
         return createTemporaryFileWithPrefix(FILE_NAME_PREFIX, lines);
+    }
+
+    /**
+     * Create a temporary file with some lines (using "workflow-runner" as the file name prefix).
+     *
+     * @param lines the lines to write to the test file.
+     * @return the test file.
+     */
+    public static File createTemporaryFile(final List<String> lines) {
+        return createTemporaryFileWithPrefix(FILE_NAME_PREFIX, lines.toArray(new String[lines.size()]));
     }
 
     /**

@@ -71,6 +71,11 @@ public class Constants {
     public static final String CONCATENATE_WORKFLOW = "TestWorkflowConcatenate";
 
     /**
+     * The name of the grep test workflow.
+     */
+    public static final String GREP_WORKFLOW = "Grep";
+
+    /**
      * The name of the line, word, and character count workflow.
      */
     public static final String LINE_COUNT_WORKFLOW = "LineCount";

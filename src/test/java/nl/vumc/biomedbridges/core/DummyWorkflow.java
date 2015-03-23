@@ -63,6 +63,7 @@ public class DummyWorkflow extends BaseWorkflow {
         if (throwException)
             throw new IOException("DummyWorkflow.run");
 
+        setResult(returnedResult);
         return returnedResult;
     }
 }

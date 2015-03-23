@@ -5,7 +5,9 @@
 
 package nl.vumc.biomedbridges.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
+import com.github.jmchilton.blend4j.galaxy.beans.History;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
@@ -20,6 +22,7 @@ import java.util.TreeMap;
 
 import nl.vumc.biomedbridges.core.BaseWorkflow;
 import nl.vumc.biomedbridges.core.Workflow;
+import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -71,6 +74,24 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
         super(name);
         this.workflowEngine = workflowEngine;
         this.jsonParser = jsonParser;
+        parseJson();
+    }
+
+    /**
+     * Construct a Galaxy workflow.
+     *
+     * @param galaxyInstanceUrl the Galaxy instance URL.
+     * @param name              the name of the workflow.
+     */
+    public GalaxyWorkflow(final String galaxyInstanceUrl, final String name) {
+        super(name);
+        final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(true);
+        galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, name);
+        final GalaxyInstance galaxyInstance = galaxyConfiguration.determineGalaxyInstance(null);
+        final History history = new History(name + " History");
+        final String historyId = galaxyInstance.getHistoriesClient().create(history).getId();
+        this.workflowEngine = new GalaxyWorkflowEngine(galaxyInstance, historyId, new HistoryUtils());
+        this.jsonParser = new JSONParser();
         parseJson();
     }
 
@@ -145,7 +166,7 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
     /**
      * Parses the JSON / GA-file of a Galaxy workflow.
      *
-     * // todo: use the GalaxyWorkflowMetadata class instead.
+     * todo: use the GalaxyWorkflowMetadata class instead.
      */
     public void parseJson() {
         try {
@@ -239,7 +260,8 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
 
     @Override
     public boolean run() throws IOException, InterruptedException {
-        return workflowEngine.runWorkflow(this);
+        result = workflowEngine.runWorkflow(this);
+        return result;
     }
 
     @Override

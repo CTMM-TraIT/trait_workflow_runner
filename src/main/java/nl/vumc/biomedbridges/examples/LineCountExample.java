@@ -94,23 +94,19 @@ public class LineCountExample extends AbstractBaseExample {
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
                                                               Constants.LINE_COUNT_WORKFLOW);
 
-        boolean result = false;
         // Use a book classic to do some counting: The Adventures of Sherlock Holmes, by Arthur Conan Doyle.
         final String bookLink = "https://www.gutenberg.org/ebooks/1661.txt.utf-8";
 
         try {
             workflow.addInput("Input Dataset", FileUtils.createTemporaryFileFromURL(new URL(bookLink)));
 
-            result = workflow.run();
-            if (!result)
-                logger.error("Error while running workflow {}.", workflow.getName());
-            result &= checkWorkflowSingleOutput(workflow, OUTPUT_NAME, getExpectedLines());
+            workflow.run();
+            checkWorkflowSingleOutput(workflow, OUTPUT_NAME, getExpectedLines());
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
-        finishExample(logger);
-        return result;
+        return finishExample(workflow);
     }
 
     /**

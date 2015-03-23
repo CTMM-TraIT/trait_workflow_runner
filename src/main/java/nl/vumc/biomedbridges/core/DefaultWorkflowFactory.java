@@ -9,6 +9,7 @@ import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
 
 import nl.vumc.biomedbridges.demonstration.DemonstrationWorkflowEngine;
+import nl.vumc.biomedbridges.galaxy.GalaxyWorkflow;
 import nl.vumc.biomedbridges.galaxy.GalaxyWorkflowEngine;
 import nl.vumc.biomedbridges.galaxy.HistoryUtils;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
@@ -58,7 +59,9 @@ public class DefaultWorkflowFactory implements WorkflowFactory {
                     final GalaxyWorkflowEngine workflowEngine = new GalaxyWorkflowEngine(galaxyInstance, historyId,
                                                                                          new HistoryUtils());
                     workflow = workflowEngine.getWorkflow(workflowName);
-                } else
+                } else if (configurationData instanceof String)
+                    workflow = new GalaxyWorkflow((String) configurationData, workflowName);
+                else
                     workflow = null;
                 break;
             case MOLGENIS:

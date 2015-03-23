@@ -140,4 +140,18 @@ public interface Workflow {
      *                              engine.
      */
     boolean run() throws IOException, InterruptedException;
+
+    /**
+     * Retrieve whether the workflow ran successfully or not.
+     *
+     * @return whether the workflow ran successfully or not.
+     */
+    boolean getResult();
+
+    /**
+     * Set whether the workflow ran successfully or not.
+     *
+     * @param result whether the workflow ran successfully or not.
+     */
+    void setResult(final boolean result);
 }

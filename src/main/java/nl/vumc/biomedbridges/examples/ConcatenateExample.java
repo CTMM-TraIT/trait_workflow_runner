@@ -106,18 +106,14 @@ public class ConcatenateExample extends AbstractBaseExample {
         workflow.addInput("WorkflowInput1", FileUtils.createTemporaryFile(LINE_TEST_FILE_1));
         workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
-        boolean result = false;
         try {
-            result = workflow.run();
-            if (!result)
-                logger.error("Error while running workflow {}.", workflow.getName());
+            workflow.run();
             final String outputName = workflow.getOutput(OUTPUT_NAME_12) instanceof File ? OUTPUT_NAME_12 : OUTPUT_NAME_21;
-            result &= checkWorkflowSingleOutput(workflow, outputName, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));
+            checkWorkflowSingleOutput(workflow, outputName, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
 
-        finishExample(logger);
-        return result;
+        return finishExample(workflow);
     }
 }

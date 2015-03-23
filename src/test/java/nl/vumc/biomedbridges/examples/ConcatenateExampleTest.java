@@ -78,7 +78,7 @@ public class ConcatenateExampleTest {
         final ConcatenateExample concatenateExample = injector.getInstance(ConcatenateExample.class);
 
         if (generateOutput)
-            addOutputFilesToOutputMap(concatenateExample.workflowFactory, line1, line2);
+            addOutputFileToOutputMap(concatenateExample.workflowFactory, line1, line2);
         return concatenateExample;
     }
 
@@ -89,7 +89,7 @@ public class ConcatenateExampleTest {
      * @param line1 the first output line.
      * @param line2 the second output line.
      */
-    private void addOutputFilesToOutputMap(final WorkflowFactory workflowFactory, final String line1, final String line2) {
+    private void addOutputFileToOutputMap(final WorkflowFactory workflowFactory, final String line1, final String line2) {
         final List<String> dummyLines = new ArrayList<>();
         dummyLines.add(line1);
         dummyLines.add(line2);

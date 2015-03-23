@@ -24,6 +24,11 @@ public class BaseWorkflow implements Workflow {
     protected final Map<String, Object> outputFiles = new HashMap<>();
 
     /**
+     * Whether the workflow ran successfully or not.
+     */
+    protected boolean result;
+
+    /**
      * The name of the workflow.
      */
     private final String name;
@@ -145,5 +150,15 @@ public class BaseWorkflow implements Workflow {
     @Override
     public boolean run() throws IOException, InterruptedException {
         return true;
+    }
+
+    @Override
+    public boolean getResult() {
+        return result;
+    }
+
+    @Override
+    public void setResult(final boolean result) {
+        this.result = result;
     }
 }

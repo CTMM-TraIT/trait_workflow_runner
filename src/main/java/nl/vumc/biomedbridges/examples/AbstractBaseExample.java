@@ -82,6 +82,22 @@ public abstract class AbstractBaseExample {
      * Construct a base example object.
      *
      * @param workflowEngineFactory the workflow engine factory to use.
+     * @param workflowFactory       the workflow factory to use.
+     * @param logger                the logger to use for initialization.
+     */
+    public AbstractBaseExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory,
+                               final Logger logger) {
+        this.workflowEngineFactory = workflowEngineFactory;
+        this.workflowFactory = workflowFactory;
+
+        if (logger != null)
+            initializeExample(logger, null);
+    }
+
+    /**
+     * Construct a base example object.
+     *
+     * @param workflowEngineFactory the workflow engine factory to use.
      */
     // todo: remove this old constructor later.
     //@Deprecated
@@ -107,7 +123,7 @@ public abstract class AbstractBaseExample {
      */
     public void initializeExample(final Logger logger, final String name) {
         logger.info("========================================");
-        logger.info(name + " has started.");
+        logger.info(name != null ? name : getClass().getSimpleName() + " has started.");
 
         startTime = System.currentTimeMillis();
     }
@@ -118,7 +134,9 @@ public abstract class AbstractBaseExample {
      * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
      * @return whether the workflow ran successfully.
      */
-    public abstract boolean runExample(final String galaxyInstanceUrl);
+    public boolean runExample(final String galaxyInstanceUrl) {
+        return false;
+    }
 
     /**
      * Check the single output after running the workflow.
@@ -126,12 +144,29 @@ public abstract class AbstractBaseExample {
      * @param workflow      the workflow that has been executed.
      * @param outputName    the name of the single output to check.
      * @param expectedLines the lines that are expected in the output file.
-     * @return whether the workflow output is correct.
      * @throws IOException if reading the output file fails.
      */
-    public boolean checkWorkflowSingleOutput(final Workflow workflow, final String outputName,
+    public void checkWorkflowSingleOutput(final Workflow workflow, final String outputName,
+                                          final List<String> expectedLines) throws IOException {
+        final boolean finalResult = checkWorkflowSingleOutput(workflow, workflow.getResult(), outputName, expectedLines);
+        workflow.setResult(finalResult);
+    }
+
+    /**
+     * Check the single output after running the workflow.
+     *
+     * @param workflow      the workflow that has been executed.
+     * @param runResult     the result from running the workflow.
+     * @param outputName    the name of the single output to check.
+     * @param expectedLines the lines that are expected in the output file.
+     * @return whether the workflow output is correct (and running the workflow returned true).
+     * @throws IOException if reading the output file fails.
+     */
+    public boolean checkWorkflowSingleOutput(final Workflow workflow, final boolean runResult, final String outputName,
                                              final List<String> expectedLines) throws IOException {
         boolean result = false;
+        if (!runResult)
+            logger.error("Error while running workflow {}.", workflow.getName());
         final Object output = workflow.getOutput(outputName);
         if (output instanceof File) {
             final File outputFile = (File) output;
@@ -153,7 +188,7 @@ public abstract class AbstractBaseExample {
                 logger.error("Deleting output file {} failed (after checking contents).", outputFile.getAbsolutePath());
         } else
             logger.error("There is no output file named {}.", outputName);
-        return result;
+        return runResult && result;
     }
 
     /**
@@ -165,6 +200,17 @@ public abstract class AbstractBaseExample {
         durationSeconds = (System.currentTimeMillis() - startTime) / (float) Constants.MILLISECONDS_PER_SECOND;
         logger.info("");
         logger.info(String.format("Running the workflow took %1.2f seconds.", durationSeconds));
+    }
+
+    /**
+     * Finish running an example by logging the duration. This method returns the workflow result as well.
+     *
+     * @param workflow the workflow that ran.
+     * @return the result from running the workflow.
+     */
+    public boolean finishExample(final Workflow workflow) {
+        finishExample(logger);
+        return workflow.getResult();
     }
 
     /**
