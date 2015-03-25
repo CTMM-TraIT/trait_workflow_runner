@@ -71,7 +71,7 @@ public class GrepExample extends AbstractBaseExample {
 
         try {
             workflow.addInput("input", inputFile);
-            // todo: step number seems to be able to vary from server to server.
+            // todo: step number can vary from server to server; a more robust way to specify parameters would be nice.
             workflow.setParameter(1, "pattern", pattern);
 
             workflow.run();

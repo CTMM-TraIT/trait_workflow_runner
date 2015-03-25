@@ -27,17 +27,22 @@ public class AllExamplesCheckTest {
     /**
      * Test whether all examples run successfully on all Galaxy servers available for continuous integration.
      *
-     * Since this test takes several minutes to run, you might want to use @Ignore if you want to do a run of all the
-     * fast unit tests.
+     * This unit test uses the API keys from a .blend.properties file. On Travis CI, this is done using the encrypted
+     * src/configuration/travis-blend4j-properties/.blend.properties.enc file (see .travis.yml). More information can be
+     * found in the encode-.blend.properties-for-travis.txt file.
+     *
+     * Since this test takes several minutes to run, you might want to use @Ignore if you want to do a quick run of all
+     * the other unit tests.
      */
     @Test
     public void testCheckAllExamples() {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
-        final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS, AllExamplesCheck.ALL_EXAMPLE_CLASSES, AllExamplesCheck.SKIP_EXAMPLES);
+        final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS,
+                                                             AllExamplesCheck.ALL_EXAMPLE_CLASSES,
+                                                             AllExamplesCheck.SKIP_EXAMPLES);
         boolean allOk = true;
         for (final String serverReport : report.split("\\|")) {
             final String serverReportTrimmed = serverReport.trim();
-            System.out.println("Server report: " + serverReportTrimmed);
             final int beginIndexSuccessRate = serverReportTrimmed.indexOf(' ') + 1;
             final int indexSeparator = serverReportTrimmed.indexOf('/', beginIndexSuccessRate);
             final int endIndexSuccessRate = serverReportTrimmed.indexOf(' ', indexSeparator);
@@ -57,7 +62,7 @@ public class AllExamplesCheckTest {
     @Test
     public void testInvalidServer() {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
-        final String invalidServer = "http://this-server-does-probably-not-exist.nl/";
+        final String invalidServer = "http://this-server-probably-does-not-exist.nl/";
         final String report = allExamplesCheck.checkExamples(Collections.singletonList(invalidServer),
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
                                                              AllExamplesCheck.SKIP_EXAMPLES);

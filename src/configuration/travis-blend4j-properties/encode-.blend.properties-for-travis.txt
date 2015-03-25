@@ -1,0 +1,33 @@
+# On the Travis CI server, this directory contains a .blend.properties file with the Galaxy instance URLs and the 
+# corresponding API keys that are used for testing.
+
+# The steps below were used to prepare the .blend.properties.enc file and the environment variables on the Travis CI
+# server. (Side note: these steps were done on a Linux machine, which was easier than with a Windows machine.)
+
+# More information can be found here:
+# - http://docs.travis-ci.com/user/encrypting-files
+# - https://github.com/travis-ci/travis.rb#readme
+
+# March 25th 2015, Freek de Bruijn
+
+
+# Install Ruby and travis (the Travis command-line client).
+
+sudo apt-get install ruby
+sudo gem install travis
+
+
+# Set the BLEND_PROPERTIES_DIRECTORY environment variable (which is used in the GalaxyConfiguration class).
+
+travis env set BLEND_PROPERTIES_DIRECTORY src/configuration/travis-blend4j-properties
+travis env list
+
+
+# Encrypt your private .blend.properties file, add the decryption command to the .travis.yml file, and add the encrypted
+# .blend.properties.enc file to the git repository. While the travis command performs the encrypt-file function, it
+# stores secure environment variables for decryption on the Travis CI server.
+
+travis encrypt-file src/configuration/travis-blend4j-properties/.blend.properties --add
+git add src/configuration/travis-blend4j-properties/.blend.properties.enc
+git commit -m "Added encoded .blend.properties file for Travis CI." src/configuration/travis-blend4j-properties/.blend.properties.enc
+git commit -m "Added encoded .blend.properties file for Travis CI." .travis.yml
