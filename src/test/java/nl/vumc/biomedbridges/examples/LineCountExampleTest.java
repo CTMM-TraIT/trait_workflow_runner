@@ -20,38 +20,38 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for the GrepExample class.
+ * Unit test for the LineCountExample class.
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
-public class GrepExampleTest {
+public class LineCountExampleTest {
     /**
-     * Test the grep example under normal circumstances.
+     * Test the line count example under normal circumstances.
      */
     @Test
-    public void testGrepExampleNormal() throws IOException {
+    public void testLineCountExampleNormal() throws IOException {
         final File inputFile = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
-        final String pattern = "5[0-9]";
+        final List<String> expectedLines = LineCountExample.internalCounts(inputFile);
 
-        final GrepExample grepExample = initializeGrepExample(true, GrepExample.internalGrep(inputFile, pattern));
+        final LineCountExample lineCountExample = initializeLineCountExample(true, expectedLines);
 
-        assertTrue(grepExample.run(Constants.CENTRAL_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, pattern));
+        assertTrue(lineCountExample.run(Constants.CENTRAL_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, inputFile, true));
     }
 
     /**
-     * Create and initialize a grep example instance.
+     * Create and initialize a line count example instance.
      *
      * @param generateOutput whether an output file should be generated.
      * @param expectedLines  the lines that we expect in the output file.
-     * @return the grep example instance.
+     * @return the line count example instance.
      */
-    private GrepExample initializeGrepExample(final boolean generateOutput, final List<String> expectedLines) {
-        final GrepExample grepExample = new GrepExample(new DummyWorkflowFactory());
+    private LineCountExample initializeLineCountExample(final boolean generateOutput, final List<String> expectedLines) {
+        final LineCountExample lineCountExample = new LineCountExample(new DummyWorkflowFactory());
 
         if (generateOutput)
-            addOutputFileToOutputMap(grepExample.workflowFactory, expectedLines);
+            addOutputFileToOutputMap(lineCountExample.workflowFactory, expectedLines);
 
-        return grepExample;
+        return lineCountExample;
     }
 
     /**
@@ -63,6 +63,6 @@ public class GrepExampleTest {
     private void addOutputFileToOutputMap(final WorkflowFactory workflowFactory, final List<String> expectedLines) {
         final File temporaryOutputFile = FileUtils.createTemporaryFile(expectedLines);
         final Workflow workflow = workflowFactory.getWorkflow(null, null, Constants.GREP_WORKFLOW);
-        workflow.addOutput("matching_lines", temporaryOutputFile);
+        workflow.addOutput(LineCountExample.OUTPUT_NAME, temporaryOutputFile);
     }
 }

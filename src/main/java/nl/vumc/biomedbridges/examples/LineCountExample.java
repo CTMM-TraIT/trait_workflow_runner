@@ -5,19 +5,18 @@
 
 package nl.vumc.biomedbridges.examples;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
-import nl.vumc.biomedbridges.core.DefaultGuiceModule;
+import nl.vumc.biomedbridges.core.DefaultWorkflowFactory;
 import nl.vumc.biomedbridges.core.FileUtils;
 import nl.vumc.biomedbridges.core.Workflow;
-import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
@@ -48,19 +47,25 @@ public class LineCountExample extends AbstractBaseExample {
     private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
 
     /**
-     * todo: on some Galaxy servers, the character count is slightly different; for the moment, this flag tries to fix it.
+     * The header line for the expected output.
+     */
+    private static final String HEADER_LINE = "#lines\twords\tcharacters";
+
+    /**
+     * todo: on some Galaxy servers, the output is slightly different; for the moment, we adjust the expected value.
+     *
+     * The character count is sometimes 17 characters lower. This is something to investigate later: different versions
+     * of the tool that does the counting or perhaps something happens to the input file that we upload to the server?
      */
     private boolean fixExpectedOutput;
 
     /**
      * Construct the line count example.
      *
-     * @param workflowEngineFactory the workflow engine factory to use.
-     * @param workflowFactory       the workflow factory to use.
+     * @param workflowFactory the workflow factory to use.
      */
-    @Inject
-    public LineCountExample(final WorkflowEngineFactory workflowEngineFactory, final WorkflowFactory workflowFactory) {
-        super(workflowEngineFactory, workflowFactory);
+    public LineCountExample(final WorkflowFactory workflowFactory) {
+        super(null, workflowFactory, logger);
     }
 
     /**
@@ -70,10 +75,30 @@ public class LineCountExample extends AbstractBaseExample {
      */
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
-        Guice.createInjector(new DefaultGuiceModule()).getInstance(LineCountExample.class)
-                .runExample(Constants.VANCIS_PRO_GALAXY_URL);
+        final LineCountExample example = new LineCountExample(new DefaultWorkflowFactory());
+        // Use a book classic to do some counting: The Adventures of Sherlock Holmes, by Arthur Conan Doyle.
+        final File bookFile = getBookFileFromUrl("https://www.gutenberg.org/ebooks/1661.txt.utf-8");
+        example.run(Constants.CENTRAL_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, bookFile, false);
     }
     // CHECKSTYLE_ON: UncommentedMain
+
+    /**
+     * Create a temporary book file from an URL.
+     *
+     * @param bookLink the link to the book.
+     * @return a temporary file with the book contents in it.
+     */
+    private static File getBookFileFromUrl(final String bookLink) {
+        File bookFile = null;
+
+        try {
+            bookFile = FileUtils.createTemporaryFileFromURL(new URL(bookLink));
+        } catch (final MalformedURLException e) {
+            logger.error("Exception while reading a book {}.", bookLink, e);
+        }
+
+        return bookFile;
+    }
 
     /**
      * Set the fix flag for the expected output.
@@ -84,26 +109,36 @@ public class LineCountExample extends AbstractBaseExample {
         this.fixExpectedOutput = fixExpectedOutput;
     }
 
-    @Override
-    public boolean runExample(final String galaxyInstanceUrl) {
+    /**
+     * Run this example workflow and return the result.
+     *
+     * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
+     * @param workflowName      the name of the workflow.
+     * @param bookFile          the file to count in.
+     * @param useInternalCounts whether to use the internalCounts (true) or getExpectedLines (false) method.
+     * @return whether the workflow ran successfully.
+     */
+    public boolean run(final String galaxyInstanceUrl, final String workflowName, final File bookFile,
+                       final boolean useInternalCounts) {
         initializeExample(logger, "LineCountExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
         galaxyConfiguration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
 
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyConfiguration,
-                                                              Constants.LINE_COUNT_WORKFLOW);
+                                                              workflowName);
 
-        // Use a book classic to do some counting: The Adventures of Sherlock Holmes, by Arthur Conan Doyle.
-        final String bookLink = "https://www.gutenberg.org/ebooks/1661.txt.utf-8";
+        if (bookFile != null) {
+            try {
+                workflow.addInput("Input Dataset", bookFile);
 
-        try {
-            workflow.addInput("Input Dataset", FileUtils.createTemporaryFileFromURL(new URL(bookLink)));
+                workflow.run();
 
-            workflow.run();
-            checkWorkflowSingleOutput(workflow, OUTPUT_NAME, getExpectedLines());
-        } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", workflow.getName(), e);
+                final List<String> expectedLines = useInternalCounts ? internalCounts(bookFile) : getExpectedLines();
+                checkWorkflowSingleOutput(workflow, OUTPUT_NAME, expectedLines);
+            } catch (final InterruptedException | IOException e) {
+                logger.error("Exception while running workflow {}.", workflow.getName(), e);
+            }
         }
 
         return finishExample(workflow);
@@ -115,6 +150,26 @@ public class LineCountExample extends AbstractBaseExample {
      * @return the expected output lines.
      */
     private List<String> getExpectedLines() {
-        return Arrays.asList("#lines\twords\tcharacters", "13052\t107533\t5949" + (fixExpectedOutput ? "16" : "33"));
+        return Arrays.asList(HEADER_LINE, "13052\t107533\t5949" + (fixExpectedOutput ? "16" : "33"));
+    }
+
+    /**
+     * Simple internal implementation of wc to determine the expected output of the workflow.
+     *
+     * @param inputFile the file to count in.
+     * @return the expected output lines.
+     * @throws IOException when reading from the file fails.
+     */
+    protected static List<String> internalCounts(final File inputFile) throws IOException {
+        final List<String> lines = Files.readAllLines(inputFile.toPath());
+        long wordCount = 0;
+        long characterCount = 0;
+
+        for (final String line : lines) {
+            wordCount += line.split("\\s+").length;
+            characterCount += line.length();
+        }
+
+        return Arrays.asList(HEADER_LINE, String.format("%d\t%d\t%d", lines.size(), wordCount, characterCount));
     }
 }

@@ -80,6 +80,9 @@ for an explanation of the build lifecycle and the build phases):
 \# Run all unit tests and generate code coverage report (in target\site\code-coverage-jacoco):<br/>
 **`mvn test`**
 
+\# Run a single unit test:<br/>
+**`mvn -Dtest=GrepExampleTest test`**
+
 \# Run one of the examples:<br/>
 **`mvn exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.ConcatenateExample"`**
 
