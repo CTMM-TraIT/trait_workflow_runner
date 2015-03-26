@@ -51,8 +51,9 @@ public class GrepExample extends AbstractBaseExample {
     // CHECKSTYLE_OFF: UncommentedMain
     public static void main(final String[] arguments) {
         final File inputFile = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
+        final String pattern = "5[0-9]";
         final GrepExample grepExample = new GrepExample(new DefaultWorkflowFactory());
-        grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, "5[0-9]");
+        grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, pattern);
     }
     // CHECKSTYLE_ON: UncommentedMain
 

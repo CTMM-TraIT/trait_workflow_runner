@@ -146,8 +146,8 @@ public abstract class AbstractBaseExample {
      * @param expectedLines the lines that are expected in the output file.
      * @throws IOException if reading the output file fails.
      */
-    public void checkWorkflowSingleOutput(final Workflow workflow, final String outputName,
-                                          final List<String> expectedLines) throws IOException {
+    public static void checkWorkflowSingleOutput(final Workflow workflow, final String outputName,
+                                                 final List<String> expectedLines) throws IOException {
         final boolean finalResult = checkWorkflowSingleOutput(workflow, workflow.getResult(), outputName, expectedLines);
         workflow.setResult(finalResult);
     }
@@ -162,8 +162,9 @@ public abstract class AbstractBaseExample {
      * @return whether the workflow output is correct (and running the workflow returned true).
      * @throws IOException if reading the output file fails.
      */
-    public boolean checkWorkflowSingleOutput(final Workflow workflow, final boolean runResult, final String outputName,
-                                             final List<String> expectedLines) throws IOException {
+    public static boolean checkWorkflowSingleOutput(final Workflow workflow, final boolean runResult,
+                                                    final String outputName, final List<String> expectedLines)
+            throws IOException {
         boolean result = false;
         if (!runResult)
             logger.error("Error while running workflow {}.", workflow.getName());
