@@ -42,14 +42,14 @@ public class LineCountExample extends AbstractBaseExample {
     protected static final String OUTPUT_NAME = "Line/Word/Character count on data 1";
 
     /**
+     * The header line for the expected output.
+     */
+    protected static final String HEADER_LINE = "#lines\twords\tcharacters";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
-
-    /**
-     * The header line for the expected output.
-     */
-    private static final String HEADER_LINE = "#lines\twords\tcharacters";
 
     /**
      * todo: on some Galaxy servers, the output is slightly different; for the moment, we adjust the expected value.
@@ -72,33 +72,17 @@ public class LineCountExample extends AbstractBaseExample {
      * Main method.
      *
      * @param arguments unused command-line arguments.
+     * @throws MalformedURLException when the book URL is invalid.
      */
     // CHECKSTYLE_OFF: UncommentedMain
-    public static void main(final String[] arguments) {
+    public static void main(final String[] arguments) throws MalformedURLException {
         final LineCountExample example = new LineCountExample(new DefaultWorkflowFactory());
         // Use a book classic to do some counting: The Adventures of Sherlock Holmes, by Arthur Conan Doyle.
-        final File bookFile = getBookFileFromUrl("https://www.gutenberg.org/ebooks/1661.txt.utf-8");
+        final URL bookUrl = new URL("https://www.gutenberg.org/ebooks/1661.txt.utf-8");
+        final File bookFile = FileUtils.createTemporaryFileFromURL(bookUrl);
         example.run(Constants.CENTRAL_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, bookFile, false);
     }
     // CHECKSTYLE_ON: UncommentedMain
-
-    /**
-     * Create a temporary book file from an URL.
-     *
-     * @param bookLink the link to the book.
-     * @return a temporary file with the book contents in it.
-     */
-    private static File getBookFileFromUrl(final String bookLink) {
-        File bookFile = null;
-
-        try {
-            bookFile = FileUtils.createTemporaryFileFromURL(new URL(bookLink));
-        } catch (final MalformedURLException e) {
-            logger.error("Exception while reading a book {}.", bookLink, e);
-        }
-
-        return bookFile;
-    }
 
     /**
      * Set the fix flag for the expected output.
@@ -149,7 +133,7 @@ public class LineCountExample extends AbstractBaseExample {
      *
      * @return the expected output lines.
      */
-    private List<String> getExpectedLines() {
+    protected List<String> getExpectedLines() {
         return Arrays.asList(HEADER_LINE, "13052\t107533\t5949" + (fixExpectedOutput ? "16" : "33"));
     }
 

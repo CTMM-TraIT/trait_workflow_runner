@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.examples;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
@@ -17,6 +18,7 @@ import nl.vumc.biomedbridges.core.WorkflowFactory;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -36,6 +38,17 @@ public class LineCountExampleTest {
         final LineCountExample lineCountExample = initializeLineCountExample(true, expectedLines);
 
         assertTrue(lineCountExample.run(Constants.CENTRAL_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, inputFile, true));
+    }
+
+    /**
+     * Test the getExpectedLines method.
+     */
+    @Test
+    public void testGetExpectedLines() {
+        final LineCountExample example = new LineCountExample(null);
+        assertEquals(Arrays.asList(LineCountExample.HEADER_LINE, "13052\t107533\t594933"), example.getExpectedLines());
+        example.setFixExpectedOutput(true);
+        assertEquals(Arrays.asList(LineCountExample.HEADER_LINE, "13052\t107533\t594916"), example.getExpectedLines());
     }
 
     /**
