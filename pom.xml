@@ -27,6 +27,7 @@
         <!-- Dependency versions. -->
         <blend4j.version>0.1.2</blend4j.version>
         <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
+        <gmaven-runtime-1.8.version>1.5</gmaven-runtime-1.8.version>
         <guava.version>15.0</guava.version>
         <guice.version>3.0</guice.version>
         <httpclient.version>4.3.2</httpclient.version>
@@ -43,6 +44,7 @@
         <!-- Plugin versions. -->
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
         <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
+        <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
@@ -140,6 +142,13 @@
             <version>${guice.version}</version>
         </dependency>
 
+        <!-- Dependency for Groovy. -->
+        <dependency>
+            <groupId>org.codehaus.gmaven.runtime</groupId>
+            <artifactId>gmaven-runtime-1.8</artifactId>
+            <version>${gmaven-runtime-1.8.version}</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement/>
@@ -160,6 +169,25 @@
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <source>${java-version}</source>
                     <target>${java-version}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Groovy compilation. -->
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>${gmaven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <providerSelection>2.0</providerSelection>
+                    <source>2.0</source>
                 </configuration>
             </plugin>
 

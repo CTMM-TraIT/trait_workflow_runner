@@ -30,7 +30,7 @@ public class GrepExampleTest {
      */
     @Test
     public void testGrepExampleNormal() throws IOException, InterruptedException {
-        final GrepExample grepExample = initializeGrepExample(true);
+        final GrepExample grepExample = initializeGrepExample();
 
         assertTrue(grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW,
                                    GrepExample.INPUT_FILE, GrepExample.PATTERN));
@@ -39,15 +39,11 @@ public class GrepExampleTest {
     /**
      * Create and initialize a grep example instance.
      *
-     * @param generateOutput whether an output file should be generated.
      * @return the grep example instance.
      */
-    private GrepExample initializeGrepExample(final boolean generateOutput) throws IOException {
+    private GrepExample initializeGrepExample() throws IOException {
         final GrepExample grepExample = new GrepExample(new DummyWorkflowFactory());
-
-        if (generateOutput)
-            addOutputFileToOutputMap(grepExample.workflowFactory,
-                                     GrepExample.internalGrep(GrepExample.INPUT_FILE, GrepExample.PATTERN));
+        addOutputFileToOutputMap(grepExample, GrepExample.internalGrep(GrepExample.INPUT_FILE, GrepExample.PATTERN));
 
         return grepExample;
     }
@@ -55,12 +51,12 @@ public class GrepExampleTest {
     /**
      * Add a temporary output file to the output map of the dummy workflow.
      *
-     * @param workflowFactory the workflow factory.
-     * @param expectedLines   the lines that we expect in the output file.
+     * @param grepExample   the grep example.
+     * @param expectedLines the lines that we expect in the output file.
      */
-    private void addOutputFileToOutputMap(final WorkflowFactory workflowFactory, final List<String> expectedLines) {
+    private void addOutputFileToOutputMap(final GrepExample grepExample, final List<String> expectedLines) {
         final File temporaryOutputFile = FileUtils.createTemporaryFile(expectedLines);
-        final Workflow workflow = workflowFactory.getWorkflow(null, null, Constants.GREP_WORKFLOW);
+        final Workflow workflow = grepExample.workflowFactory.getWorkflow(null, null, Constants.GREP_WORKFLOW);
         workflow.addOutput("matching_lines", temporaryOutputFile);
     }
 }
