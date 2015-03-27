@@ -29,27 +29,25 @@ public class GrepExampleTest {
      * Test the grep example under normal circumstances.
      */
     @Test
-    public void testGrepExampleNormal() throws IOException {
-        final File inputFile = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
-        final String pattern = "5[0-9]";
+    public void testGrepExampleNormal() throws IOException, InterruptedException {
+        final GrepExample grepExample = initializeGrepExample(true);
 
-        final GrepExample grepExample = initializeGrepExample(true, GrepExample.internalGrep(inputFile, pattern));
-
-        assertTrue(grepExample.run(Constants.CENTRAL_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, pattern));
+        assertTrue(grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW,
+                                   GrepExample.INPUT_FILE, GrepExample.PATTERN));
     }
 
     /**
      * Create and initialize a grep example instance.
      *
      * @param generateOutput whether an output file should be generated.
-     * @param expectedLines  the lines that we expect in the output file.
      * @return the grep example instance.
      */
-    private GrepExample initializeGrepExample(final boolean generateOutput, final List<String> expectedLines) {
+    private GrepExample initializeGrepExample(final boolean generateOutput) throws IOException {
         final GrepExample grepExample = new GrepExample(new DummyWorkflowFactory());
 
         if (generateOutput)
-            addOutputFileToOutputMap(grepExample.workflowFactory, expectedLines);
+            addOutputFileToOutputMap(grepExample.workflowFactory,
+                                     GrepExample.internalGrep(GrepExample.INPUT_FILE, GrepExample.PATTERN));
 
         return grepExample;
     }

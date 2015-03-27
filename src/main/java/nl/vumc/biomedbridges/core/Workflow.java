@@ -135,7 +135,7 @@ public interface Workflow {
      * Run the workflow on the corresponding workflow engine.
      *
      * @return whether the workflow ran successfully.
-     * @throws java.io.IOException  if reading the workflow results fails.
+     * @throws IOException          if reading the workflow results fails.
      * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow
      *                              engine.
      */

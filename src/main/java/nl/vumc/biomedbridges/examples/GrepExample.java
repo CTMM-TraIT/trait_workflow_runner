@@ -30,6 +30,16 @@ import org.slf4j.LoggerFactory;
  */
 public class GrepExample extends AbstractBaseExample {
     /**
+     * The input file to search in.
+     */
+    protected static final File INPUT_FILE = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
+
+    /**
+     * The regular expression to search for.
+     */
+    protected static final String PATTERN = "5[0-9]";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(GrepExample.class);
@@ -47,13 +57,13 @@ public class GrepExample extends AbstractBaseExample {
      * Main method.
      *
      * @param arguments unused command-line arguments.
+     * @throws IOException          if reading the workflow results fails.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow engine.
      */
     // CHECKSTYLE_OFF: UncommentedMain
-    public static void main(final String[] arguments) {
-        final File inputFile = FileUtils.createTemporaryFile("8\t21", "9\t34", "10\t55", "11\t89", "12\t144");
-        final String pattern = "5[0-9]";
+    public static void main(final String[] arguments) throws IOException, InterruptedException {
         final GrepExample grepExample = new GrepExample(new DefaultWorkflowFactory());
-        grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW, inputFile, pattern);
+        grepExample.run(Constants.THE_HYVE_GALAXY_URL, Constants.GREP_WORKFLOW, INPUT_FILE, PATTERN);
     }
     // CHECKSTYLE_ON: UncommentedMain
 
@@ -65,22 +75,21 @@ public class GrepExample extends AbstractBaseExample {
      * @param inputFile         the file to search.
      * @param pattern           the regular expression to search for.
      * @return whether the workflow ran successfully.
+     * @throws IOException          if reading the workflow results fails.
+     * @throws InterruptedException if any thread has interrupted the current thread while waiting for the workflow engine.
      */
     public boolean run(final String galaxyInstanceUrl, final String workflowName, final File inputFile,
-                       final String pattern) {
+                       final String pattern)
+            throws IOException, InterruptedException {
         final Workflow workflow = workflowFactory.getWorkflow(WorkflowType.GALAXY, galaxyInstanceUrl, workflowName);
 
-        try {
-            workflow.addInput("input", inputFile);
-            // todo: step number can vary from server to server; a more robust way to specify parameters would be nice.
-            workflow.setParameter(1, "pattern", pattern);
+        workflow.addInput("input", inputFile);
+        // todo: step number can vary from server to server; a more robust way to specify parameters would be nice.
+        workflow.setParameter(1, "pattern", pattern);
 
-            workflow.run();
+        workflow.run();
 
-            checkWorkflowSingleOutput(workflow, "matching_lines", internalGrep(inputFile, pattern));
-        } catch (final InterruptedException | IOException e) {
-            logger.error("Exception while running workflow {}.", workflow.getName(), e);
-        }
+        checkWorkflowSingleOutput(workflow, "matching_lines", internalGrep(inputFile, pattern));
 
         return finishExample(workflow);
     }
