@@ -7,6 +7,8 @@ package nl.vumc.biomedbridges.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.junit.Test;
 
@@ -72,6 +74,19 @@ public class FileUtilsTest {
     }
 
     /**
+     * Test the createTemporaryFileFromURL method.
+     */
+    @Test
+    public void testCreateTemporaryFileFromURL() throws MalformedURLException {
+        final URL url = new URL("https://github.com/CTMM-TraIT/trait_workflow_runner");
+
+        final File temporaryFile = FileUtils.createTemporaryFileFromURL(url);
+
+        assertTrue(temporaryFile.exists());
+        assertTrue(temporaryFile.length() > 0);
+    }
+
+    /**
      * Test the createTemporaryFileWithPrefix method with an invalid path. On Linux, a file is created successfully; on
      * Windows, an exception will be thrown.
      */
@@ -79,6 +94,7 @@ public class FileUtilsTest {
     public void testCreateTemporaryFileWithPrefixInvalidPath() {
         final boolean onWindows = System.getProperty("os.name").startsWith("Windows");
         final String prefix = "/this\\prefix/should\\only/be\\invalid/on\\Windows/<>:\"|?*";
+
         try {
             FileUtils.createTemporaryFileWithPrefix(prefix, "fail");
             assertFalse(onWindows);

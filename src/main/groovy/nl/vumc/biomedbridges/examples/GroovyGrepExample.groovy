@@ -41,7 +41,7 @@ class GroovyGrepExample {
     /**
      * The start time of this example (in milliseconds).
      */
-    def startTime
+    long startTime
 
     /**
      * Main method.

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -  Copyright 2015 VU University Medical Center.
+  -  Licensed under the Apache License version 2.0 (see http://www.apache.org/licenses/LICENSE-2.0.html).
+-->
+
+<!--
+  -  FindBugs exclude filters for the Workflow Runner project.
+  -  Author: Freek de Bruijn (f.debruijn@vumc.nl).
+-->
+
+<FindBugsFilter>
+    <Match>
+        <Class name="~nl.vumc.biomedbridges.examples.GroovyGrepExample.*"/>
+    </Match>
+</FindBugsFilter>

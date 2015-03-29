@@ -48,6 +48,11 @@ public class FileUtils {
     private static final char NEW_LINE = '\n';
 
     /**
+     * The error message used when an exception occurs while creating a file.
+     */
+    private static final String CREATE_FILE_ERROR_MESSAGE = "Exception while creating a file.";
+
+    /**
      * Hidden constructor. Only the static methods of this class are meant to be used.
      */
     private FileUtils() {
@@ -66,7 +71,7 @@ public class FileUtils {
             writeLinesToFile(newFile, lines);
             return newFile;
         } catch (final IOException e) {
-            logger.error("Exception while creating a file.", e);
+            logger.error(CREATE_FILE_ERROR_MESSAGE, e);
             throw new RuntimeException(e);
         }
     }
@@ -131,12 +136,13 @@ public class FileUtils {
      * @return the test file.
      */
     public static File createTemporaryFileFromURL(final URL url) {
-        File tempFile = null;
+        final File tempFile;
         try {
             tempFile = File.createTempFile(FILE_NAME_PREFIX, FILE_NAME_SUFFIX);
             Files.copy(url.openStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (final IOException e) {
-            e.printStackTrace();
+            logger.error(CREATE_FILE_ERROR_MESSAGE, e);
+            throw new RuntimeException(e);
         }
         return tempFile;
     }
@@ -149,14 +155,15 @@ public class FileUtils {
      * @return the test file.
      */
     public static File createTemporaryFileWithPrefix(final String filenamePrefix, final String... lines) {
+        final File tempFile;
         try {
-            final File tempFile = File.createTempFile(filenamePrefix, FILE_NAME_SUFFIX);
+            tempFile = File.createTempFile(filenamePrefix, FILE_NAME_SUFFIX);
             writeLinesToFile(tempFile, lines);
-            return tempFile;
         } catch (final IOException e) {
-            logger.error("Exception while creating the output file.", e);
+            logger.error(CREATE_FILE_ERROR_MESSAGE, e);
             throw new RuntimeException(e);
         }
+        return tempFile;
     }
 
     /**

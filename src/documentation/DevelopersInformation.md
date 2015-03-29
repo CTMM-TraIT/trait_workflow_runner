@@ -96,7 +96,7 @@ for an explanation of the build lifecycle and the build phases):
 **`mvn checkstyle:checkstyle`**
 
 \# Check for FindBugs issues (report in target\findbugsXml.xml):<br/>
-**`mvn compile findbugs:check`**
+**`mvn site`**
 
 \# Check for PMD issues (report in target\pmd.xml):<br/>
 **`mvn compile pmd:check`**

@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.examples;
 
 import com.github.jmchilton.blend4j.galaxy.GalaxyResponseException;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
@@ -42,29 +43,29 @@ public class AllExamplesCheck {
     /**
      * The list of Galaxy servers to check during Continuous Integration (CI).
      */
-    protected static final List<String> CI_GALAXY_SERVER_URLS = Arrays.asList(
+    protected static final List<String> CI_GALAXY_SERVER_URLS = ImmutableList.of(
             Constants.CENTRAL_GALAXY_URL, Constants.THE_HYVE_GALAXY_URL
     );
 
     /**
      * The list of all example classes to check.
      */
-    protected static final List<Class<? extends AbstractBaseExample>> ALL_EXAMPLE_CLASSES = Arrays.asList(
-            ConcatenateExample.class,
+    protected static final List<Class<? extends AbstractBaseExample>> ALL_EXAMPLE_CLASSES = ImmutableList.of(
+            ConcatenateExample.class
 //            GrepExample.class,
 //            HistogramExample.class,
 //            LineCountExample.class,
 ////            RandomLinesExample.class,
 ////            RemoveTopAndLeftExample.class,
-            RnaSeqDgeExample.class
-    ).subList(0, 1);
+//            RnaSeqDgeExample.class
+    );
 
     /**
      * These example classes will be skipped on all Vancis servers, because the required tools are not available.
      *
      * todo: it would be better to make this field private, but it needs to be declared before SKIP_EXAMPLES...
      */
-    protected static final List<Class<? extends AbstractBaseExample>> SKIP_EXAMPLES_VANCIS = Arrays.asList(
+    protected static final List<Class<? extends AbstractBaseExample>> SKIP_EXAMPLES_VANCIS = ImmutableList.of(
             ConcatenateExample.class, GrepExample.class, HistogramExample.class, RandomLinesExample.class,
             RemoveTopAndLeftExample.class
     );

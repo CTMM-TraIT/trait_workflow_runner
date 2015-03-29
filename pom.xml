@@ -43,7 +43,7 @@
 
         <!-- Plugin versions. -->
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
-        <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
+        <findbugs-maven-plugin.version>3.0.1</findbugs-maven-plugin.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
@@ -321,6 +321,9 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>${findbugs-maven-plugin.version}</version>
+                <configuration>
+                    <excludeFilterFile>src/configuration/findBugsFilter.xml</excludeFilterFile>
+                </configuration>
             </plugin>
 
             <!-- PMD ("Programming Mistake Detector") and CPD (Copy/Paste Detector) configuration. -->

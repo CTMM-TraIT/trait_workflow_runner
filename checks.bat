@@ -32,9 +32,9 @@
 
 @echo.
 @echo ================================================================================================================
-@echo Check for FindBugs issues (mvn compile findbugs:check - report in target\findbugsXml.xml)
+@echo Check for FindBugs issues (mvn site - report in target\findbugsXml.xml)
 @pause
-@call mvn compile findbugs:check
+@call mvn site
 @if not "%ERRORLEVEL%" == "0" less target/findbugsXml.xml
 
 @echo.
