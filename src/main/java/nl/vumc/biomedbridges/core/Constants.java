@@ -36,7 +36,7 @@ public class Constants {
      * the GalaxyConfiguration class for more information on how to use this configuration file. Please change the
      * Galaxy server and the API key together to keep them in sync.
      */
-    public static final String VANCIS_ACC_GALAXY_URL = "https://galaxy-act.ctmm-trait.nl/";
+    public static final String VANCIS_ACC_GALAXY_URL = "https://galaxy-acc.ctmm-trait.nl/";
 
     /**
      * The Galaxy server at The Hyve (instance URL).
