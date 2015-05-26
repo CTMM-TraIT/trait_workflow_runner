@@ -297,11 +297,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private void uploadInputFiles(final Workflow workflow) throws InterruptedException {
         logger.info("- Upload the input files.");
         workflow.getAllInputValues().stream().filter(inputObject -> inputObject instanceof File).forEach(inputObject -> {
-            final File inputFile = (File) inputObject;
-            final int uploadStatus = uploadInputFile(workflow, historyId, inputFile).getStatus();
-            if (uploadStatus != HttpStatus.SC_OK)
-                logger.error("Uploading file {} failed with status {}.", inputFile.getAbsolutePath(), uploadStatus);
-        });
+                final File inputFile = (File) inputObject;
+                final int uploadStatus = uploadInputFile(workflow, historyId, inputFile).getStatus();
+                if (uploadStatus != HttpStatus.SC_OK)
+                    logger.error("Uploading file {} failed with status {}.", inputFile.getAbsolutePath(), uploadStatus);
+            });
         logger.info("- Waiting for upload to history to finish.");
         waitForHistoryUpload(historyId);
     }
