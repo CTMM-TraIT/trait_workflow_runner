@@ -82,27 +82,27 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private static final int MILLISECONDS_PER_SECOND = 1000;
 
     /**
-     * The maximum number of times to wait for the upload to finish.
+     * The default maximum number of times to wait for the upload to finish.
      */
-    private static final int UPLOAD_MAX_WAIT_BLOCKS = 28;
+    private static final int UPLOAD_MAX_WAIT_COUNT = 28;
 
     /**
-     * The number of seconds to wait for the upload to finish (for each wait cycle).
+     * The default number of seconds to wait for the upload to finish (for each wait cycle).
      */
     private static final int UPLOAD_WAIT_SECONDS = 6;
 
     /**
-     * The number of milliseconds to wait after the upload has finished.
+     * The default number of milliseconds to wait after the upload has finished.
      */
     private static final int WAIT_AFTER_UPLOAD_SECONDS = 2;
 
     /**
-     * The maximum number of times to wait for the workflow to finish.
+     * The default maximum number of times to wait for the workflow to finish.
      */
-    private static final int WORKFLOW_WAIT_MAX_WAIT_BLOCKS = 20;
+    private static final int RUN_WORKFLOW_MAX_WAIT_COUNT = 20;
 
     /**
-     * The number of seconds to wait for the workflow to finish (for each wait cycle).
+     * The default number of seconds to wait for the workflow to finish (for each wait cycle).
      */
     private static final int WORKFLOW_WAIT_SECONDS = 3;
 
@@ -147,6 +147,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private Map<String, String> outputNameToIdsMap;
 
     /**
+     * The maximum number of times to wait for the upload to finish.
+     */
+    private int uploadMaxWaitCount;
+
+    /**
      * The number of seconds to wait for the upload to finish (for each wait cycle).
      */
     private int uploadWaitSeconds;
@@ -155,6 +160,11 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * The number of milliseconds to wait after the upload has finished.
      */
     private int waitAfterUploadSeconds;
+
+    /**
+     * The maximum number of times to wait for the workflow to finish.
+     */
+    private int runWorkflowMaxWaitCount;
 
     /**
      * The number of seconds to wait for the workflow to finish (for each wait cycle).
@@ -180,14 +190,29 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         this.historiesClient = galaxyInstance != null ? galaxyInstance.getHistoriesClient() : null;
         this.historyId = historyId;
         this.historyUtils = historyUtils;
+        this.uploadMaxWaitCount = UPLOAD_MAX_WAIT_COUNT;
         this.uploadWaitSeconds = UPLOAD_WAIT_SECONDS;
         this.waitAfterUploadSeconds = WAIT_AFTER_UPLOAD_SECONDS;
+        this.runWorkflowMaxWaitCount = RUN_WORKFLOW_MAX_WAIT_COUNT;
         this.workflowWaitSeconds = WORKFLOW_WAIT_SECONDS;
     }
 
     @Override
     public Workflow getWorkflow(final String workflowName) {
         return new GalaxyWorkflow(workflowName, this, new JSONParser());
+    }
+
+    /**
+     * Set the maximum wait counts for uploading data and running the workflow.
+     *
+     * @param uploadMaxWaitCount      the maximum number of times to wait for the upload to finish.
+     * @param runWorkflowMaxWaitCount the maximum number of times to wait for the workflow to finish.
+     */
+    public void setWaitCounts(final int uploadMaxWaitCount, final int runWorkflowMaxWaitCount) {
+        if (uploadMaxWaitCount >= 0)
+            this.uploadMaxWaitCount = uploadMaxWaitCount;
+        if (runWorkflowMaxWaitCount >= 0)
+            this.runWorkflowMaxWaitCount = runWorkflowMaxWaitCount;
     }
 
     /**
@@ -271,13 +296,12 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      */
     private void uploadInputFiles(final Workflow workflow) throws InterruptedException {
         logger.info("- Upload the input files.");
-        for (final Object inputObject : workflow.getAllInputValues())
-            if (inputObject instanceof File) {
-                final File inputFile = (File) inputObject;
-                final int uploadStatus = uploadInputFile(workflow, historyId, inputFile).getStatus();
-                if (uploadStatus != HttpStatus.SC_OK)
-                    logger.error("Uploading file {} failed with status {}.", inputFile.getAbsolutePath(), uploadStatus);
-            }
+        workflow.getAllInputValues().stream().filter(inputObject -> inputObject instanceof File).forEach(inputObject -> {
+            final File inputFile = (File) inputObject;
+            final int uploadStatus = uploadInputFile(workflow, historyId, inputFile).getStatus();
+            if (uploadStatus != HttpStatus.SC_OK)
+                logger.error("Uploading file {} failed with status {}.", inputFile.getAbsolutePath(), uploadStatus);
+        });
         logger.info("- Waiting for upload to history to finish.");
         waitForHistoryUpload(historyId);
     }
@@ -309,7 +333,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
     private void waitForHistoryUpload(final String historyId) throws InterruptedException {
         boolean finished = false;
         int waitCount = 0;
-        while (!finished && waitCount < UPLOAD_MAX_WAIT_BLOCKS) {
+        while (!finished && waitCount < uploadMaxWaitCount) {
             logger.info("  + Now waiting for {} seconds...", uploadWaitSeconds);
             Thread.sleep(uploadWaitSeconds * MILLISECONDS_PER_SECOND);
             finished = isHistoryReady(historyId);
@@ -423,7 +447,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
         logger.info("Running the workflow (history ID: {}).", workflowOutputs.getHistoryId());
         boolean finished = false;
         int waitCount = 0;
-        while (!finished && waitCount < WORKFLOW_WAIT_MAX_WAIT_BLOCKS) {
+        while (!finished && waitCount < runWorkflowMaxWaitCount) {
             logger.info("- Now waiting for {} seconds...", workflowWaitSeconds);
             Thread.sleep(workflowWaitSeconds * MILLISECONDS_PER_SECOND);
             finished = isHistoryReady(historyId);
@@ -433,7 +457,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
             logger.info("Workflow seems to be finished after roughly {} seconds.", waitCount * workflowWaitSeconds);
         else
             logger.warn("Stopped waiting for the workflow to finish after {} seconds.",
-                        WORKFLOW_WAIT_MAX_WAIT_BLOCKS * workflowWaitSeconds);
+                        runWorkflowMaxWaitCount * workflowWaitSeconds);
         final Map<String, List<String>> stateIds = historiesClient.showHistory(historyId).getStateIds();
         logger.debug("History state IDs after execute: {}.", stateIds);
         logger.debug("There are {} output file(s) ready for download.", stateIds.get(STATE_OK).size());
@@ -444,7 +468,7 @@ public class GalaxyWorkflowEngine implements WorkflowEngine {
      * If the workflow has automatically downloading selected: download all output files and add them as results to the
      * workflow object. Else: fill a map with output name to output ID entries to allow later download.
      *
-     * @param workflow  the workflow.
+     * @param workflow the workflow.
      * @return whether all output files were downloaded successfully.
      */
     private boolean downloadOutputFiles(final Workflow workflow) {

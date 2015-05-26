@@ -129,12 +129,25 @@ public abstract class AbstractBaseExample {
     }
 
     /**
-     * Run this example workflow and return the result. Should be implemented by sub classes.
+     * Run this example workflow and return the result. Can be overridden by sub classes.
      *
      * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
      * @return whether the workflow ran successfully.
      */
     public boolean runExample(final String galaxyInstanceUrl) {
+        return runExample(galaxyInstanceUrl, -1, -1);
+    }
+
+    /**
+     * Run this example workflow and return the result. Should be implemented by sub classes.
+     *
+     * @param galaxyInstanceUrl       the URL of the Galaxy instance to use.
+     * @param uploadMaxWaitCount      the maximum number of times to wait for the upload to finish.
+     * @param runWorkflowMaxWaitCount the maximum number of times to wait for the workflow to finish.
+     * @return whether the workflow ran successfully.
+     */
+    public boolean runExample(final String galaxyInstanceUrl, final int uploadMaxWaitCount,
+                              final int runWorkflowMaxWaitCount) {
         return false;
     }
 

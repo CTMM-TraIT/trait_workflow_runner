@@ -39,7 +39,8 @@ public class AllExamplesCheckTest {
         final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS,
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
-                                                             AllExamplesCheck.SKIP_EXAMPLES);
+                                                             AllExamplesCheck.SKIP_EXAMPLES,
+                                                             60, 60);
         boolean allOk = true;
         for (final String serverReport : report.split("\\|")) {
             final String serverReportTrimmed = serverReport.trim();

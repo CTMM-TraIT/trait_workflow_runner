@@ -100,6 +100,16 @@ public class AllExamplesCheck {
     );
 
     /**
+     * The maximum number of times to wait for the upload to finish.
+     */
+    private int uploadMaxWaitCount;
+
+    /**
+     * The maximum number of times to wait for the workflow to finish.
+     */
+    private int runWorkflowMaxWaitCount;
+
+    /**
      * Hidden constructor (protected for testing). Only the main and checkExamples methods of this class are meant to
      * be used.
      */
@@ -129,12 +139,33 @@ public class AllExamplesCheck {
     protected String checkExamples(final List<String> galaxyServerUrls,
                                    final List<Class<? extends AbstractBaseExample>> exampleClasses,
                                    final ImmutableMap<String, List<Class<? extends AbstractBaseExample>>> skipExamples) {
+        return checkExamples(galaxyServerUrls, exampleClasses, skipExamples, -1, -1);
+    }
+
+    /**
+     * Run all examples on all Galaxy servers.
+     *
+     * @param galaxyServerUrls        the list with Galaxy server URLs to check.
+     * @param exampleClasses          the list with examples to run.
+     * @param skipExamples            the map with examples to skip for specific servers.
+     * @param uploadMaxWaitCount      the maximum number of times to wait for the upload to finish.
+     * @param runWorkflowMaxWaitCount the maximum number of times to wait for the workflow to finish.
+     * @return a short report of the results: [server name]": "[success rate]" ["[failures]"]" separated by "; " for
+     * each server.
+     */
+    protected String checkExamples(final List<String> galaxyServerUrls,
+                                   final List<Class<? extends AbstractBaseExample>> exampleClasses,
+                                   final ImmutableMap<String, List<Class<? extends AbstractBaseExample>>> skipExamples,
+                                   final int uploadMaxWaitCount, final int runWorkflowMaxWaitCount) {
         final long startTime = System.currentTimeMillis();
         final StringBuilder report = new StringBuilder();
 
         final Appender consoleAppender = LogManager.getRootLogger().getAppender("console-appender");
         if (consoleAppender != null)
             consoleAppender.addFilter(createAppenderFilter());
+
+        this.uploadMaxWaitCount = uploadMaxWaitCount;
+        this.runWorkflowMaxWaitCount = runWorkflowMaxWaitCount;
 
         final List<String> summary = new ArrayList<>();
         for (final String serverUrl : galaxyServerUrls) {
@@ -250,7 +281,7 @@ public class AllExamplesCheck {
             logger.warn("");
             logger.warn("- The example {} is running...", exampleClass.getSimpleName());
             final AbstractBaseExample example = createExample(exampleClass);
-            result = example.runExample(serverUrl);
+            result = example.runExample(serverUrl, uploadMaxWaitCount, runWorkflowMaxWaitCount);
         } catch (final ReflectiveOperationException | GalaxyResponseException e) {
             logger.error("Galaxy response exception while running an example.", e);
         }

@@ -19,6 +19,7 @@ import nl.vumc.biomedbridges.core.Workflow;
 import nl.vumc.biomedbridges.core.WorkflowEngineFactory;
 import nl.vumc.biomedbridges.core.WorkflowFactory;
 import nl.vumc.biomedbridges.core.WorkflowType;
+import nl.vumc.biomedbridges.galaxy.GalaxyWorkflow;
 import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 
 import org.slf4j.Logger;
@@ -90,11 +91,14 @@ public class ConcatenateExample extends AbstractBaseExample {
     /**
      * Run this example workflow: combine two input files into one output file.
      *
-     * @param galaxyInstanceUrl the URL of the Galaxy instance to use.
+     * @param galaxyInstanceUrl       the URL of the Galaxy instance to use.
+     * @param uploadMaxWaitCount      the maximum number of times to wait for the upload to finish.
+     * @param runWorkflowMaxWaitCount the maximum number of times to wait for the workflow to finish.
      * @return whether the workflow ran successfully.
      */
     @Override
-    public boolean runExample(final String galaxyInstanceUrl) {
+    public boolean runExample(final String galaxyInstanceUrl, final int uploadMaxWaitCount,
+                              final int runWorkflowMaxWaitCount) {
         initializeExample(logger, "ConcatenateExample.runExample");
 
         final GalaxyConfiguration galaxyConfiguration = new GalaxyConfiguration().setDebug(httpLogging);
@@ -107,6 +111,9 @@ public class ConcatenateExample extends AbstractBaseExample {
         workflow.addInput("WorkflowInput2", FileUtils.createTemporaryFile(LINE_TEST_FILE_2));
 
         try {
+            if (workflow instanceof GalaxyWorkflow)
+                ((GalaxyWorkflow) workflow).setWaitCounts(uploadMaxWaitCount, runWorkflowMaxWaitCount);
+
             workflow.run();
             final String outputName = workflow.getOutput(OUTPUT_NAME_12) instanceof File ? OUTPUT_NAME_12 : OUTPUT_NAME_21;
             checkWorkflowSingleOutput(workflow, outputName, Arrays.asList(LINE_TEST_FILE_1, LINE_TEST_FILE_2));

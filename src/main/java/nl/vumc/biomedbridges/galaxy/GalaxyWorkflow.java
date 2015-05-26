@@ -260,6 +260,16 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
         return listOfMaps;
     }
 
+    /**
+     * Set the maximum wait counts for uploading data and running the workflow.
+     *
+     * @param uploadMaxWaitCount      the maximum number of times to wait for the upload to finish.
+     * @param runWorkflowMaxWaitCount the maximum number of times to wait for the workflow to finish.
+     */
+    public void setWaitCounts(final int uploadMaxWaitCount, final int runWorkflowMaxWaitCount) {
+        workflowEngine.setWaitCounts(uploadMaxWaitCount, runWorkflowMaxWaitCount);
+    }
+
     @Override
     public boolean run() throws IOException, InterruptedException {
         // Store the result so it can be retrieved later as well.
