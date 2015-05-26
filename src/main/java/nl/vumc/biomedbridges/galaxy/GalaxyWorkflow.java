@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The workflow implementation for Galaxy.
  *
+ * todo: add API keys for each user to tranSMART database
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  * @author <a href="mailto:y.hoogstrate@erasmusmc.nl">Youri Hoogstrate</a>
  */
@@ -260,6 +262,7 @@ public class GalaxyWorkflow extends BaseWorkflow implements Workflow {
 
     @Override
     public boolean run() throws IOException, InterruptedException {
+        // Store the result so it can be retrieved later as well.
         result = workflowEngine.runWorkflow(this);
         return result;
     }

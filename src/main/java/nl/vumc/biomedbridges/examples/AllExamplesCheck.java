@@ -100,13 +100,6 @@ public class AllExamplesCheck {
     );
 
     /**
-     * The server names for which the line count example needs a small adjustment in the expected output.
-     */
-    private static final List<String> FIX_LINE_COUNT_SERVERS = Arrays.asList(
-            Constants.VANCIS_PRO_GALAXY_URL, Constants.VANCIS_ACC_GALAXY_URL, Constants.THE_HYVE_GALAXY_URL
-    );
-
-    /**
      * Hidden constructor (protected for testing). Only the main and checkExamples methods of this class are meant to
      * be used.
      */
@@ -252,19 +245,11 @@ public class AllExamplesCheck {
      */
     private boolean runExampleOnServer(final String serverUrl, final Class<? extends AbstractBaseExample> exampleClass) {
         boolean result = false;
-        final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
-        final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
 
         try {
             logger.warn("");
             logger.warn("- The example {} is running...", exampleClass.getSimpleName());
-            final AbstractBaseExample example = exampleClass
-                    .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
-                    .newInstance(workflowEngineFactory, workflowFactory);
-            example.setHttpLogging(true);
-            if (exampleClass == LineCountExample.class && FIX_LINE_COUNT_SERVERS.contains(serverUrl))
-                ((LineCountExample) example).setFixExpectedOutput(true);
-
+            final AbstractBaseExample example = createExample(exampleClass);
             result = example.runExample(serverUrl);
         } catch (final ReflectiveOperationException | GalaxyResponseException e) {
             logger.error("Galaxy response exception while running an example.", e);
@@ -273,6 +258,31 @@ public class AllExamplesCheck {
         logger.warn("- The example {} ran " + (result ? "" : "un") + "successfully.", exampleClass.getSimpleName());
 
         return result;
+    }
+
+    /**
+     * Create an example instance from an example class.
+     *
+     * @param exampleClass the example class.
+     * @return             the example instance.
+     * @throws ReflectiveOperationException if creating the example instance throws an reflection exception.
+     */
+    private AbstractBaseExample createExample(final Class<? extends AbstractBaseExample> exampleClass)
+            throws ReflectiveOperationException {
+        AbstractBaseExample example;
+        final DefaultWorkflowEngineFactory workflowEngineFactory = new DefaultWorkflowEngineFactory();
+        final DefaultWorkflowFactory workflowFactory = new DefaultWorkflowFactory();
+        try {
+            example = exampleClass
+                    .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
+                    .newInstance(workflowEngineFactory, workflowFactory);
+        } catch (final NoSuchMethodException e) {
+            example = exampleClass
+                    .getConstructor(WorkflowFactory.class)
+                    .newInstance(workflowFactory);
+        }
+        example.setHttpLogging(true);
+        return example;
     }
 
     /**

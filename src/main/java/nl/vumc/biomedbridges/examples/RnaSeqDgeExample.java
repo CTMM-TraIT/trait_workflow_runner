@@ -10,7 +10,12 @@ import com.google.inject.Inject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultGuiceModule;
@@ -94,6 +99,10 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
 
         final String contrast = "Control-E2";
         final double fdr = 0.05;
+        final String outputFormatImages = "png";
+        final List<String> outputs = Arrays.asList("make_output_MDSplot_logFC",
+                                                   "make_output_PValue_distribution_plot",
+                                                   "make_output_heatmap_plot");
 
         final GalaxyConfiguration configuration = new GalaxyConfiguration().setDebug(httpLogging);
         configuration.buildConfiguration(galaxyInstanceUrl, null, HISTORY_NAME);
@@ -105,18 +114,8 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
         // todo: setParameter should log an error or throw an exception if the step number and parameter name do not match.
         workflow.setParameter(stepNumberEdgeRDGE, "contrast", contrast);
         workflow.setParameter(stepNumberEdgeRDGE, "fdr", fdr);
-        // todo: the Vancis production server seems to have a problem converting pdf files to png. Is GraphicsMagick installed?
-        // Converting PDF figures to PNG
-        // /opt/tmp/331/command.sh: line 35: gm: command not found
-        // mv: cannot stat ‘/opt/tmp/331/outputs/dataset_380.dat.png’: No such file or directory
-        // /opt/tmp/331/command.sh: line 35: gm: command not found
-        // mv: cannot stat ‘/opt/tmp/
-//        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "png");
-        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", "pdf");
-        final String selectedOutputs = "[\"make_output_MDSplot\", "
-                                       + "\"make_output_PValue_distribution_plot\", "
-                                       + "\"make_output_heatmap_plot\"]";
-        workflow.setParameter(stepNumberEdgeRDGE, "outputs", selectedOutputs);
+        workflow.setParameter(stepNumberEdgeRDGE, "output_format_images", outputFormatImages);
+        workflow.setParameter(stepNumberEdgeRDGE, "outputs", outputs);
 
         boolean result = false;
         try {
@@ -127,6 +126,11 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
         } catch (final InterruptedException | IOException e) {
             logger.error("Exception while running workflow {}.", workflow.getName(), e);
         }
+
+        System.out.println();
+        System.out.println("Thread dump:");
+        System.out.println(getThreadDump());
+
         finishExample(logger);
         return result;
     }
@@ -141,5 +145,28 @@ public class RnaSeqDgeExample extends AbstractBaseExample {
     private boolean checkWorkflowOutput(final Workflow workflow) throws IOException {
         final int expectedOutputCount = 7;
         return workflow.getOutputMap().size() == expectedOutputCount;
+    }
+
+    /**
+     * Retrieve information about the Java threads.
+     *
+     * @return a string with information about the Java threads.
+     */
+    private static String getThreadDump() {
+        final StringBuilder threadDump = new StringBuilder();
+        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        final int maxThreadDepth = 100;
+        for (final ThreadInfo threadInfo : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), maxThreadDepth)) {
+            threadDump.append('"');
+            threadDump.append(threadInfo.getThreadName());
+            threadDump.append("\" \n   java.lang.Thread.State: ");
+            threadDump.append(threadInfo.getThreadState());
+            for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace()) {
+                threadDump.append("\n        at ");
+                threadDump.append(stackTraceElement);
+            }
+            threadDump.append("\n\n");
+        }
+        return threadDump.toString();
     }
 }

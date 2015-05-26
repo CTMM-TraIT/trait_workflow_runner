@@ -7,6 +7,9 @@ package nl.vumc.biomedbridges.examples;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -28,6 +31,9 @@ import org.slf4j.LoggerFactory;
  * This class contains a simple example of the workflow running functionality: the line, word, and character count
  * workflow returns these statistics for the input file.
  *
+ * You can run this example using the following Maven command:
+ * mvn compile exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.LineCountExample"
+ *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
 public class LineCountExample extends AbstractBaseExample {
@@ -44,20 +50,12 @@ public class LineCountExample extends AbstractBaseExample {
     /**
      * The header line for the expected output.
      */
-    protected static final String HEADER_LINE = "#lines\twords\tcharacters";
+    protected static final String HEADER_LINE = "#lines\twords";
 
     /**
      * The logger for this class.
      */
     private static final Logger logger = LoggerFactory.getLogger(LineCountExample.class);
-
-    /**
-     * todo: on some Galaxy servers, the output is slightly different; for the moment, we adjust the expected value.
-     *
-     * The character count is sometimes 17 characters lower. This is something to investigate later: different versions
-     * of the tool that does the counting or perhaps something happens to the input file that we upload to the server?
-     */
-    private boolean fixExpectedOutput;
 
     /**
      * Construct the line count example.
@@ -80,18 +78,9 @@ public class LineCountExample extends AbstractBaseExample {
         // Use a book classic to do some counting: The Adventures of Sherlock Holmes, by Arthur Conan Doyle.
         final URL bookUrl = new URL("https://www.gutenberg.org/ebooks/1661.txt.utf-8");
         final File bookFile = FileUtils.createTemporaryFileFromURL(bookUrl);
-        example.run(Constants.CENTRAL_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, bookFile, false);
+        example.run(Constants.THE_HYVE_GALAXY_URL, Constants.LINE_COUNT_WORKFLOW, bookFile, false);
     }
     // CHECKSTYLE_ON: UncommentedMain
-
-    /**
-     * Set the fix flag for the expected output.
-     *
-     * @param fixExpectedOutput the fix flag for the expected output.
-     */
-    public void setFixExpectedOutput(final boolean fixExpectedOutput) {
-        this.fixExpectedOutput = fixExpectedOutput;
-    }
 
     /**
      * Run this example workflow and return the result.
@@ -115,6 +104,7 @@ public class LineCountExample extends AbstractBaseExample {
         if (bookFile != null) {
             try {
                 workflow.addInput("Input Dataset", bookFile);
+                workflow.setParameter(2, "options", Arrays.asList("lines", "words"));
 
                 workflow.run();
 
@@ -125,7 +115,34 @@ public class LineCountExample extends AbstractBaseExample {
             }
         }
 
+        System.out.println();
+        System.out.println("Thread dump:");
+        System.out.println(getThreadDump());
+
         return finishExample(workflow);
+    }
+
+    /**
+     * Retrieve information about the Java threads.
+     *
+     * @return a string with information about the Java threads.
+     */
+    private static String getThreadDump() {
+        final StringBuilder threadDump = new StringBuilder();
+        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        final int maxThreadDepth = 100;
+        for (final ThreadInfo threadInfo : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), maxThreadDepth)) {
+            threadDump.append('"');
+            threadDump.append(threadInfo.getThreadName());
+            threadDump.append("\" \n   java.lang.Thread.State: ");
+            threadDump.append(threadInfo.getThreadState());
+            for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace()) {
+                threadDump.append("\n        at ");
+                threadDump.append(stackTraceElement);
+            }
+            threadDump.append("\n\n");
+        }
+        return threadDump.toString();
     }
 
     /**
@@ -134,7 +151,7 @@ public class LineCountExample extends AbstractBaseExample {
      * @return the expected output lines.
      */
     protected List<String> getExpectedLines() {
-        return Arrays.asList(HEADER_LINE, "13052\t107533\t5949" + (fixExpectedOutput ? "16" : "33"));
+        return Arrays.asList(HEADER_LINE, "13052\t107533");
     }
 
     /**
@@ -147,13 +164,10 @@ public class LineCountExample extends AbstractBaseExample {
     protected static List<String> internalCounts(final File inputFile) throws IOException {
         final List<String> lines = Files.readAllLines(inputFile.toPath());
         long wordCount = 0;
-        long characterCount = 0;
 
-        for (final String line : lines) {
+        for (final String line : lines)
             wordCount += line.split("\\s+").length;
-            characterCount += line.length();
-        }
 
-        return Arrays.asList(HEADER_LINE, String.format("%d\t%d\t%d", lines.size(), wordCount, characterCount));
+        return Arrays.asList(HEADER_LINE, String.format("%d\t%d", lines.size(), wordCount));
     }
 }

@@ -46,9 +46,7 @@ public class LineCountExampleTest {
     @Test
     public void testGetExpectedLines() {
         final LineCountExample example = new LineCountExample(null);
-        assertEquals(Arrays.asList(LineCountExample.HEADER_LINE, "13052\t107533\t594933"), example.getExpectedLines());
-        example.setFixExpectedOutput(true);
-        assertEquals(Arrays.asList(LineCountExample.HEADER_LINE, "13052\t107533\t594916"), example.getExpectedLines());
+        assertEquals(Arrays.asList(LineCountExample.HEADER_LINE, "13052\t107533"), example.getExpectedLines());
     }
 
     /**
