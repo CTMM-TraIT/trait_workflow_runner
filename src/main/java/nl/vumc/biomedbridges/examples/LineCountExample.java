@@ -12,6 +12,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -162,7 +163,7 @@ public class LineCountExample extends AbstractBaseExample {
      * @throws IOException when reading from the file fails.
      */
     protected static List<String> internalCounts(final File inputFile) throws IOException {
-        final List<String> lines = Files.readAllLines(inputFile.toPath());
+        final List<String> lines = Files.readAllLines(inputFile.toPath(), Charset.forName("UTF-8"));
         long wordCount = 0;
 
         for (final String line : lines)

@@ -5,13 +5,16 @@
 
 package nl.vumc.biomedbridges.examples;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
+import java.util.List;
 
 import nl.vumc.biomedbridges.core.Constants;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.varia.LevelRangeFilter;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +28,19 @@ import static org.junit.Assert.assertTrue;
  */
 public class AllExamplesCheckTest {
     /**
+     * The object to test.
+     */
+    private AllExamplesCheck allExamplesCheck;
+
+    /**
+     * Setup for each unit test.
+     */
+    @Before
+    public void setUp() {
+        allExamplesCheck = new AllExamplesCheck();
+    }
+
+    /**
      * Test whether all examples run successfully on all Galaxy servers available for continuous integration.
      *
      * This unit test uses the API keys from a .blend.properties file. On Travis CI, this is done using the encrypted
@@ -36,7 +52,6 @@ public class AllExamplesCheckTest {
      */
     @Test
     public void testCheckAllExamples() {
-        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS,
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
                                                              AllExamplesCheck.SKIP_EXAMPLES,
@@ -62,7 +77,6 @@ public class AllExamplesCheckTest {
      */
     @Test
     public void testInvalidServer() {
-        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String invalidServer = "http://this-server-probably-does-not-exist.nl/";
         final String report = allExamplesCheck.checkExamples(Collections.singletonList(invalidServer),
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
@@ -75,9 +89,8 @@ public class AllExamplesCheckTest {
      */
     @Test
     public void testFailingExample() {
-        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String report = allExamplesCheck.checkExamples(Collections.singletonList(Constants.CENTRAL_GALAXY_URL),
-                                                             Collections.singletonList(DummyExample.class),
+                                                             AbstractBaseExample.getSingletonList(DummyExample.class),
                                                              null);
         assertEquals(Constants.CENTRAL_GALAXY_URL + ": 0/1 [failures: " + DummyExample.class.getSimpleName() + "]",
                      report);
@@ -88,11 +101,23 @@ public class AllExamplesCheckTest {
      */
     @Test
     public void testSkippedExample() {
-        final AllExamplesCheck allExamplesCheck = new AllExamplesCheck();
         final String server = Constants.CENTRAL_GALAXY_URL;
+        final List<Class<? extends AbstractBaseExample>> dummyExampleClassList
+                = AbstractBaseExample.getSingletonList(DummyExample.class);
         final String report = allExamplesCheck.checkExamples(Collections.singletonList(server),
-                                                             Collections.singletonList(DummyExample.class),
-                                                             ImmutableMap.of(server, ImmutableList.of(DummyExample.class)));
+                                                             dummyExampleClassList,
+                                                             ImmutableMap.of(server, dummyExampleClassList));
         assertEquals(server + ": 0/0 []", report);
+    }
+
+    /**
+     * Test the createAppenderFilter method;
+     */
+    @Test
+    public void testCreateAppenderFilter() {
+        final LevelRangeFilter appenderFilter = allExamplesCheck.createAppenderFilter();
+        assertTrue(appenderFilter.getAcceptOnMatch());
+        assertEquals(Level.WARN, appenderFilter.getLevelMin());
+        assertEquals(Level.FATAL, appenderFilter.getLevelMax());
     }
 }

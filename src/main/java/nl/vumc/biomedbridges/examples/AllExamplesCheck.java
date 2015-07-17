@@ -50,15 +50,17 @@ public class AllExamplesCheck {
     /**
      * The list of all example classes to check.
      */
-    protected static final List<Class<? extends AbstractBaseExample>> ALL_EXAMPLE_CLASSES = ImmutableList.of(
-            ConcatenateExample.class
-//            GrepExample.class,
+    protected static final List<Class<? extends AbstractBaseExample>> ALL_EXAMPLE_CLASSES
+            = AbstractBaseExample.getSingletonList(ConcatenateExample.class);
+//            = ImmutableList.of(
+//            ConcatenateExample.class
+//            GrepExample.class
 //            HistogramExample.class,
 //            LineCountExample.class,
 ////            RandomLinesExample.class,
 ////            RemoveTopAndLeftExample.class,
 //            RnaSeqDgeExample.class
-    );
+//    );
 
     /**
      * These example classes will be skipped on all Vancis servers, because the required tools are not available.
@@ -175,7 +177,7 @@ public class AllExamplesCheck {
             if (serverOnline)
                 serverReport = runExamplesOnServer(serverUrl, exampleClasses, skipExamples);
             else
-                serverReport = createServerReport(serverUrl, new ArrayList<>(), new ArrayList<>(),
+                serverReport = createServerReport(serverUrl, new ArrayList<String>(), new ArrayList<String>(),
                                                   "0/" + ALL_EXAMPLE_CLASSES.size());
             summary.add(serverReport);
             report.append(report.length() == 0 ? "" : " | ");
@@ -197,7 +199,7 @@ public class AllExamplesCheck {
      *
      * @return the appender filter.
      */
-    private LevelRangeFilter createAppenderFilter() {
+    protected LevelRangeFilter createAppenderFilter() {
         final LevelRangeFilter logAppenderFilter = new LevelRangeFilter();
         logAppenderFilter.setAcceptOnMatch(true);
         logAppenderFilter.setLevelMin(Level.WARN);
@@ -295,7 +297,7 @@ public class AllExamplesCheck {
      * Create an example instance from an example class.
      *
      * @param exampleClass the example class.
-     * @return             the example instance.
+     * @return the example instance.
      * @throws ReflectiveOperationException if creating the example instance throws an reflection exception.
      */
     private AbstractBaseExample createExample(final Class<? extends AbstractBaseExample> exampleClass)
@@ -308,9 +310,7 @@ public class AllExamplesCheck {
                     .getConstructor(WorkflowEngineFactory.class, WorkflowFactory.class)
                     .newInstance(workflowEngineFactory, workflowFactory);
         } catch (final NoSuchMethodException e) {
-            example = exampleClass
-                    .getConstructor(WorkflowFactory.class)
-                    .newInstance(workflowFactory);
+            example = exampleClass.getConstructor(WorkflowFactory.class).newInstance(workflowFactory);
         }
         example.setHttpLogging(true);
         return example;

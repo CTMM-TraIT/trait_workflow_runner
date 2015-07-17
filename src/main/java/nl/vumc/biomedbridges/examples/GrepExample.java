@@ -7,11 +7,11 @@ package nl.vumc.biomedbridges.examples;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import nl.vumc.biomedbridges.core.Constants;
 import nl.vumc.biomedbridges.core.DefaultWorkflowFactory;
@@ -103,7 +103,13 @@ public class GrepExample extends AbstractBaseExample {
      * @throws IOException when reading from the file fails.
      */
     protected static List<String> internalGrep(final File inputFile, final String pattern) throws IOException {
-        final Predicate<String> grepPredicate = line -> Pattern.compile(pattern).matcher(line).find();
-        return Files.readAllLines(inputFile.toPath()).stream().filter(grepPredicate).collect(Collectors.toList());
+//        final Predicate<String> grepPredicate = line -> Pattern.compile(pattern).matcher(line).find();
+//        return Files.readAllLines(inputFile.toPath()).stream().filter(grepPredicate).collect(Collectors.toList());
+
+        final List<String> matchingLines = new ArrayList<>();
+        for (String line : Files.readAllLines(inputFile.toPath(), Charset.forName("UTF-8")))
+            if (Pattern.compile(pattern).matcher(line).find())
+                matchingLines.add(line);
+        return matchingLines;
     }
 }

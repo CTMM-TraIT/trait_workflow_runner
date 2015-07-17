@@ -43,6 +43,7 @@ import nl.vumc.biomedbridges.galaxy.configuration.GalaxyConfiguration;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
@@ -154,9 +155,9 @@ public class GalaxyWorkflowEngineTest {
         final Object dummyInputFile = new File(GALAXY_DIRECTORY + "TestWorkflow.ga");
         final Collection<Object> inputValues = ImmutableList.of(dummyInputFile, dummyInputFile);
         final Map<String, List<String>> stateIds = new HashMap<>();
-        stateIds.put("running", historyReady ? new ArrayList<>() : Collections.singletonList("some-dataset-id"));
-        stateIds.put("queued", new ArrayList<>());
-        stateIds.put("ok", new ArrayList<>());
+        stateIds.put("running", historyReady ? new ArrayList<String>() : Collections.singletonList("some-dataset-id"));
+        stateIds.put("queued", new ArrayList<String>());
+        stateIds.put("ok", new ArrayList<String>());
         final com.github.jmchilton.blend4j.galaxy.beans.Workflow blend4jWorkflow
                 = new com.github.jmchilton.blend4j.galaxy.beans.Workflow();
         blend4jWorkflow.setName(workflowName);
@@ -226,17 +227,32 @@ public class GalaxyWorkflowEngineTest {
             Mockito.when(datasetMock2.getDataTypeExt()).thenReturn(GalaxyWorkflowEngine.FILE_TYPE_TEXT);
         }
 
-        final Answer<Boolean> downloadDatasetAnswer = invocationOnMock -> {
-            final int datasetIdArgumentIndex = 3;
-            final File outputFile = new File(GalaxyWorkflowEngine.OUTPUT_FILE_PATH);
-            if (outputId2.equals(invocationOnMock.getArguments()[datasetIdArgumentIndex])) {
-                if (outputFile.exists())
-                    assertTrue(outputFile.delete());
-            } else {
-                if (!outputFile.exists())
-                    FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
+//        final Answer<Boolean> downloadDatasetAnswer = invocationOnMock -> {
+//            final int datasetIdArgumentIndex = 3;
+//            final File outputFile = new File(GalaxyWorkflowEngine.OUTPUT_FILE_PATH);
+//            if (outputId2.equals(invocationOnMock.getArguments()[datasetIdArgumentIndex])) {
+//                if (outputFile.exists())
+//                    assertTrue(outputFile.delete());
+//            } else {
+//                if (!outputFile.exists())
+//                    FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
+//            }
+//            return true;
+//        };
+        final Answer<Boolean> downloadDatasetAnswer = new Answer<Boolean>() {
+            @Override
+            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                final int datasetIdArgumentIndex = 3;
+                final File outputFile = new File(GalaxyWorkflowEngine.OUTPUT_FILE_PATH);
+                if (outputId2.equals(invocationOnMock.getArguments()[datasetIdArgumentIndex])) {
+                    if (outputFile.exists())
+                        assertTrue(outputFile.delete());
+                } else {
+                    if (!outputFile.exists())
+                        FileUtils.createFile(outputFile.getAbsolutePath(), "GalaxyWorkflowEngineTest.testRunWorkflow");
+                }
+                return true;
             }
-            return true;
         };
         Mockito.when(historyUtilsMock.downloadDataset(Mockito.eq(galaxyInstanceMock), Mockito.eq(historiesClientMock),
                                                       Mockito.eq(historyId), Mockito.anyString(),

@@ -24,6 +24,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
@@ -129,9 +130,16 @@ public class GalaxyWorkflowTest {
         // Test whether downloading is handled correctly.
         workflow.setAutomaticDownload(false);
         Mockito.when(workflowEngineMock.getOutputIdForOutputName(Mockito.eq(outputName))).thenReturn(outputId);
-        final Answer<Boolean> downloadOutputFileAnswer = invocationOnMock -> {
-            workflow.addOutput(outputName, outputFile);
-            return true;
+//        final Answer<Boolean> downloadOutputFileAnswer = invocationOnMock -> {
+//            workflow.addOutput(outputName, outputFile);
+//            return true;
+//        };
+        final Answer<Boolean> downloadOutputFileAnswer = new Answer<Boolean>() {
+            @Override
+            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                workflow.addOutput(outputName, outputFile);
+                return true;
+            }
         };
         Mockito.when(workflowEngineMock.downloadOutputFile(Mockito.eq(workflow), Mockito.eq(outputId)))
             .thenAnswer(downloadOutputFileAnswer);

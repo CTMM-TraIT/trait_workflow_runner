@@ -7,6 +7,7 @@ package nl.vumc.biomedbridges.examples;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -234,5 +235,17 @@ public abstract class AbstractBaseExample {
      */
     public double getDurationSeconds() {
         return durationSeconds;
+    }
+
+    /**
+     * Return a list with a single example class. (For some reason both Collections.singletonList and ImmutableList.of
+     * with a single item seem to return not exactly the right class.)
+     *
+     * @param exampleClass the example class to put in the list.
+     * @return the list with the example class.
+     */
+    public static List<Class<? extends AbstractBaseExample>> getSingletonList(
+            final Class<? extends AbstractBaseExample> exampleClass) {
+        return ImmutableList.of(exampleClass, ConcatenateExample.class).subList(0, 1);
     }
 }
