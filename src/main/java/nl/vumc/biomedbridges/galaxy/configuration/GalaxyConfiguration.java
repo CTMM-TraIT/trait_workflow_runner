@@ -188,10 +188,31 @@ public class GalaxyConfiguration {
             else
                 message = String.format("Expected properties were not found in configuration data %s.", configurationData);
             if (message != null)
-                logger.error(message + " Please specify: {}[Galaxy server URL]{}{}[API key]", instancePrefix,
-                             PROPERTY_SEPARATOR, apiKeyPrefix);
+                message += String.format(" Please specify: %s[Galaxy server URL]%s%s[API key]", instancePrefix,
+                                         PROPERTY_SEPARATOR, apiKeyPrefix);
         }
-        return message == null ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, debug) : null;
+        final boolean validConfiguration = checkConfiguration(configurationData, message);
+        return validConfiguration ? GalaxyInstanceFactory.get(galaxyInstanceUrl, apiKey, debug) : null;
+    }
+
+    /**
+     * Check the configuration and log any errors.
+     *
+     * @param configurationData the configuration string or null to use the settings from the properties file.
+     * @param initialMessage    the message thus far (from previous checking).
+     * @return whether the configuration is valid.
+     */
+    private boolean checkConfiguration(final String configurationData, final String initialMessage) {
+        String message = initialMessage;
+        final boolean instanceNull = galaxyInstanceUrl == null;
+        final boolean keyNull = apiKey == null;
+        if (configurationData == null && (instanceNull || keyNull)) {
+            message = instanceNull ? "The Galaxy server URL was not found in the settings. " : "";
+            message += keyNull ? "The API key was not found in the settings." : "";
+        }
+        if (message != null)
+            logger.error(message.trim());
+        return message == null;
     }
 
     /**

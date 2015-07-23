@@ -56,6 +56,8 @@ public class AllExamplesCheckTest {
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
                                                              AllExamplesCheck.SKIP_EXAMPLES,
                                                              60, 60);
+
+        // Check the report.
         boolean allOk = true;
         for (final String serverReport : report.split("\\|")) {
             final String serverReportTrimmed = serverReport.trim();

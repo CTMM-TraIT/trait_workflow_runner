@@ -27,7 +27,7 @@
         <!-- Dependency versions. -->
         <blend4j.version>0.1.2</blend4j.version>
         <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
-        <gmaven-runtime-1.8.version>1.5</gmaven-runtime-1.8.version>
+        <groovy-version>2.4.4</groovy-version>
         <guava.version>15.0</guava.version>
         <guice.version>3.0</guice.version>
         <httpclient.version>4.3.2</httpclient.version>
@@ -144,9 +144,9 @@
 
         <!-- Dependency for Groovy. -->
         <dependency>
-            <groupId>org.codehaus.gmaven.runtime</groupId>
-            <artifactId>gmaven-runtime-1.8</artifactId>
-            <version>${gmaven-runtime-1.8.version}</version>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy-version}</version>
         </dependency>
 
     </dependencies>

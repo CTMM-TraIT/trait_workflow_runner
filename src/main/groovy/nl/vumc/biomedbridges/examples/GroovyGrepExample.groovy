@@ -13,7 +13,10 @@ import nl.vumc.biomedbridges.core.WorkflowType
 import org.slf4j.LoggerFactory
 
 /**
- * This class contains a simple example of the workflow that searches for a pattern (grep) in the input file.
+ * This class contains a simple example in Groovy of the workflow that searches for a pattern (grep) in the input file.
+ *
+ * You can run this example using the following Maven command:
+ * mvn compile exec:java -Dexec.mainClass="nl.vumc.biomedbridges.examples.GroovyGrepExample"
  *
  * @author <a href="mailto:f.debruijn@vumc.nl">Freek de Bruijn</a>
  */
