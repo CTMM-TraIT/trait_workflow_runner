@@ -161,7 +161,7 @@
 
         <plugins>
 
-            <!-- Specify Java 8 for sources and targets (.class files). -->
+            <!-- Specify Java version for sources and targets (.class files). -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
