@@ -1,0 +1,133 @@
+{
+    "a_galaxy_workflow": "true", 
+    "annotation": "RNA-Seq Differential Gene Expression (EdgeR)", 
+    "format-version": "0.1", 
+    "name": "rna-seq-dge",
+    "steps": {
+        "0": {
+            "annotation": "", 
+            "id": 0, 
+            "input_connections": {}, 
+            "inputs": [
+                {
+                    "description": "", 
+                    "name": "Expression Matrix"
+                }
+            ], 
+            "name": "Input dataset", 
+            "outputs": [], 
+            "position": {
+                "left": 200, 
+                "top": 200
+            }, 
+            "tool_errors": null, 
+            "tool_id": null, 
+            "tool_state": "{\"name\": \"Expression Matrix\"}", 
+            "tool_version": null, 
+            "type": "data_input", 
+            "user_outputs": []
+        }, 
+        "1": {
+            "annotation": "", 
+            "id": 1, 
+            "input_connections": {}, 
+            "inputs": [
+                {
+                    "description": "", 
+                    "name": "Design Matrix"
+                }
+            ], 
+            "name": "Input dataset", 
+            "outputs": [], 
+            "position": {
+                "left": 200, 
+                "top": 285
+            }, 
+            "tool_errors": null, 
+            "tool_id": null, 
+            "tool_state": "{\"name\": \"Design Matrix\"}", 
+            "tool_version": null, 
+            "type": "data_input", 
+            "user_outputs": []
+        }, 
+        "2": {
+            "annotation": "", 
+            "id": 2, 
+            "input_connections": {
+                "design_matrix": {
+                    "id": 1, 
+                    "output_name": "output"
+                }, 
+                "expression_matrix": {
+                    "id": 0, 
+                    "output_name": "output"
+                }
+            }, 
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool edgeR: Differential Gene(Expression) Analysis", 
+                    "name": "contrast"
+                }
+            ], 
+            "name": "edgeR: Differential Gene(Expression) Analysis", 
+            "outputs": [
+                {
+                    "name": "output_count_edgeR", 
+                    "type": "tabular"
+                }, 
+                {
+                    "name": "output_cpm", 
+                    "type": "tabular"
+                }, 
+                {
+                    "name": "output_raw_counts", 
+                    "type": "tabular"
+                }, 
+                {
+                    "name": "output_MDSplot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_BCVplot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_MAplot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_PValue_distribution_plot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_hierarchical_clustering_plot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_heatmap_plot", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_RData_obj", 
+                    "type": "RData"
+                }, 
+                {
+                    "name": "output_R", 
+                    "type": "txt"
+                }
+            ], 
+            "position": {
+                "left": 432, 
+                "top": 200
+            }, 
+            "post_job_actions": {}, 
+            "tool_errors": null, 
+            "tool_id": "testtoolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/3.0.3-latest.a", 
+            "tool_state": "{\"__page__\": 0, \"output_format_images\": \"\\\"png\\\"\", \"design_matrix\": \"null\", \"outputs\": \"[\\\"make_output_MDSplot\\\", \\\"make_output_PValue_distribution_plot\\\"]\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
+            "tool_version": "3.0.3-latest.a", 
+            "type": "tool", 
+            "user_outputs": []
+        }
+    }, 
+    "uuid": "0a1e2758-8077-4e4a-8203-541c678ccaf0"
+}
