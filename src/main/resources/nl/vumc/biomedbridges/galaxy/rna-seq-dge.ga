@@ -2,7 +2,7 @@
     "a_galaxy_workflow": "true", 
     "annotation": "RNA-Seq Differential Gene Expression (EdgeR)", 
     "format-version": "0.1", 
-    "name": "rna-seq-dge",
+    "name": "rna-seq-dge", 
     "steps": {
         "0": {
             "annotation": "", 
@@ -14,6 +14,7 @@
                     "name": "Expression Matrix"
                 }
             ], 
+            "label": null, 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
@@ -25,7 +26,8 @@
             "tool_state": "{\"name\": \"Expression Matrix\"}", 
             "tool_version": null, 
             "type": "data_input", 
-            "user_outputs": []
+            "user_outputs": [], 
+            "uuid": "d8778ce3-798a-4339-97bc-a06751521abd"
         }, 
         "1": {
             "annotation": "", 
@@ -37,6 +39,7 @@
                     "name": "Design Matrix"
                 }
             ], 
+            "label": null, 
             "name": "Input dataset", 
             "outputs": [], 
             "position": {
@@ -48,17 +51,18 @@
             "tool_state": "{\"name\": \"Design Matrix\"}", 
             "tool_version": null, 
             "type": "data_input", 
-            "user_outputs": []
+            "user_outputs": [], 
+            "uuid": "b2cef86e-8176-488d-be3d-16f767493210"
         }, 
         "2": {
             "annotation": "", 
             "id": 2, 
             "input_connections": {
-                "design_matrix": {
+                "analysis_type|design_matrix": {
                     "id": 1, 
                     "output_name": "output"
                 }, 
-                "expression_matrix": {
+                "analysis_type|expression_matrix": {
                     "id": 0, 
                     "output_name": "output"
                 }
@@ -66,9 +70,10 @@
             "inputs": [
                 {
                     "description": "runtime parameter for tool edgeR: Differential Gene(Expression) Analysis", 
-                    "name": "contrast"
+                    "name": "analysis_type"
                 }
             ], 
+            "label": null, 
             "name": "edgeR: Differential Gene(Expression) Analysis", 
             "outputs": [
                 {
@@ -84,8 +89,20 @@
                     "type": "tabular"
                 }, 
                 {
-                    "name": "output_MDSplot", 
+                    "name": "output_MDSplot_logFC", 
                     "type": "png"
+                }, 
+                {
+                    "name": "output_MDSplot_logFC_coordinates", 
+                    "type": "tabular"
+                }, 
+                {
+                    "name": "output_MDSplot_bcv", 
+                    "type": "png"
+                }, 
+                {
+                    "name": "output_MDSplot_bcv_coordinates", 
+                    "type": "tabular"
                 }, 
                 {
                     "name": "output_BCVplot", 
@@ -117,17 +134,18 @@
                 }
             ], 
             "position": {
-                "left": 432, 
+                "left": 428, 
                 "top": 200
             }, 
             "post_job_actions": {}, 
             "tool_errors": null, 
-            "tool_id": "testtoolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/3.0.3-latest.a", 
-            "tool_state": "{\"__page__\": 0, \"output_format_images\": \"\\\"png\\\"\", \"design_matrix\": \"null\", \"outputs\": \"[\\\"make_output_MDSplot\\\", \\\"make_output_PValue_distribution_plot\\\"]\", \"__rerun_remap_job_id__\": null, \"expression_matrix\": \"null\", \"fdr\": \"\\\"0.05\\\"\", \"contrast\": \"{\\\"__class__\\\": \\\"RuntimeValue\\\"}\"}", 
-            "tool_version": "3.0.3-latest.a", 
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/yhoogstrate/edger_with_design_matrix/edger_dge/3.11.0.b", 
+            "tool_state": "{\"__page__\": 0, \"output_format_images\": \"\\\"png\\\"\", \"analysis_report_genes\": \"\\\"all\\\"\", \"__rerun_remap_job_id__\": null, \"fdr\": \"\\\"0.01\\\"\", \"outputs\": \"[\\\"make_output_MDSplot_logFC\\\", \\\"make_output_PValue_distribution_plot\\\"]\", \"analysis_type\": \"{\\\"analysis_select\\\": \\\"multi_factor\\\", \\\"design_matrix\\\": null, \\\"contrast\\\": {\\\"__class__\\\": \\\"RuntimeValue\\\"}, \\\"__current_case__\\\": 1, \\\"expression_matrix\\\": null}\"}", 
+            "tool_version": "3.11.0.b", 
             "type": "tool", 
-            "user_outputs": []
+            "user_outputs": [], 
+            "uuid": "64e45f48-6a57-4685-918b-c2607b2ef013"
         }
     }, 
-    "uuid": "0a1e2758-8077-4e4a-8203-541c678ccaf0"
+    "uuid": "6e2b89b5-5fd7-4381-a0ce-c4586921bb8a"
 }
