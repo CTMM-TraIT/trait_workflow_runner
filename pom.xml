@@ -25,16 +25,16 @@
     <properties>
 
         <!-- Dependency versions. -->
-        <blend4j.version>0.1.2</blend4j.version>
-        <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
-        <groovy-version>2.4.4</groovy-version>
-        <guava.version>15.0</guava.version>
-        <guice.version>3.0</guice.version>
-        <httpclient.version>4.3.2</httpclient.version>
+        <blend4j.version>0.2.0</blend4j.version>
+        <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
+        <groovy-version>3.0.10</groovy-version>
+        <guava.version>23.0</guava.version>
+        <guice.version>5.1.0</guice.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <junit.version>4.12</junit.version>
-        <mockito.version>1.9.5</mockito.version>
-        <slf4j.version>1.7.7</slf4j.version>
+        <junit.version>4.13.2</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+        <slf4j.version>1.7.36</slf4j.version>
 
         <!-- Source and output properties. -->
         <java-version>1.7</java-version>
@@ -43,14 +43,14 @@
 
         <!-- Plugin versions. -->
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
-        <findbugs-maven-plugin.version>3.0.1</findbugs-maven-plugin.version>
+        <findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-        <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
-        <maven-pmd-plugin.version>3.4</maven-pmd-plugin.version>
+        <maven-jxr-plugin.version>3.2.0</maven-jxr-plugin.version>
+        <maven-pmd-plugin.version>3.16.0</maven-pmd-plugin.version>
         <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
 
