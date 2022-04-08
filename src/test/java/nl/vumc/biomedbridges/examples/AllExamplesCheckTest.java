@@ -15,6 +15,7 @@ import nl.vumc.biomedbridges.core.Constants;
 import org.apache.log4j.Level;
 import org.apache.log4j.varia.LevelRangeFilter;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -51,6 +52,7 @@ public class AllExamplesCheckTest {
      * the other unit tests.
      */
     @Test
+    @Ignore
     public void testCheckAllExamples() {
         final String report = allExamplesCheck.checkExamples(AllExamplesCheck.CI_GALAXY_SERVER_URLS,
                                                              AllExamplesCheck.ALL_EXAMPLE_CLASSES,
